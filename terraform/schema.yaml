@@ -1,0 +1,838 @@
+# Copyright (c) 2022 Oracle and/or its affiliates. All rights reserved.
+# Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
+# 
+
+title: "CARDS Connected System GREEN and CDE BLUE"
+description: "Deploys CARDS Connected System GREEN or CDE BLUE"
+informationalText: "This stack deploys Optum CARDS on an existent OKE Cluster (optionally the stack allows create a new cluster before deploy)."
+schemaVersion: 1.1.0
+version: "20190304"
+
+source:
+  type: quickstart
+
+locale: "en"
+variableGroups:
+  - title: "Basic Hidden"
+    variables:
+    - tenancy_ocid
+    - region
+    visible: false
+
+  - title: "General Configuration"
+    variables:
+    - app_name
+    - show_advanced
+
+  - title: "Optum CARDs options"
+    variables:
+    - app_deployment_environment
+    - app_deployment_type
+
+  - title: "Other Oracle-managed services"
+    variables:
+    - ofs_provision
+    - oss_provision
+
+  - title: "OKE Cluster Configuration"
+    variables:
+    - create_new_oke_cluster
+    - compartment_ocid
+    - existent_oke_cluster_id
+    - k8s_version
+    - cluster_workers_visibility
+    - cluster_endpoint_visibility
+    - existent_oke_cluster_vcn
+    - existent_oke_cluster_private_endpoint
+    - create_new_compartment_for_oke
+
+  - title: "OKE Worker Nodes"
+    variables:
+    - cluster_autoscaler_enabled
+    - num_pool_workers
+    - cluster_autoscaler_min_nodes
+    - cluster_autoscaler_max_nodes
+    - node_pool_instance_shape
+    - generate_public_ssh_key
+    - public_ssh_key
+    - image_operating_system
+    - image_operating_system_version
+    - node_pool_name
+
+  - title: "Dynamic Group and Policies"
+    variables:
+    - create_dynamic_group_for_nodes_in_compartment
+    - existent_dynamic_group_for_nodes_in_compartment
+    - create_compartment_policies
+
+  - title: "Encryption using OCI Vault (KMS)"
+    variables:
+    - use_encryption_from_oci_vault
+    - create_new_encryption_key
+    - existent_encryption_key_vault
+    - existent_encryption_key_id
+    - create_vault_policies_for_group
+    - user_admin_group_for_vault_policy
+
+  - title: "Cluster Tools - Ingress"
+    variables:
+    - ingress_nginx_enabled
+    - ingress_load_balancer_shape
+    - ingress_load_balancer_shape_flex_min
+    - ingress_load_balancer_shape_flex_max
+    # visible:
+    #   and:
+    #     - show_advanced
+
+  - title: "Hidden: Cluster Tools - Ingress"
+    variables:
+    - ingress_hosts
+    - ingress_tls
+    - ingress_cluster_issuer
+    - ingress_email_issuer
+    visible: false
+
+  - title: "Cluster Tools"
+    variables:
+    - metrics_server_enabled
+    - prometheus_enabled
+    - grafana_enabled
+    - cert_manager_enabled
+    # visible:
+    #   and:
+    #     - show_advanced
+
+  # - title: "Network Configuration"
+  #   variables:
+  #     - network_strategy
+  #     - vcn_id
+  #     - vcn_display_name
+  #     - vcn_cidr_block
+  #     - vcn_dns_label
+  #     - subnet_type
+  #     - subnet_span
+  #     - subnet_id
+  #     - subnet_display_name
+  #     - subnet_cidr_block
+  #     - subnet_dns_label
+  #   visible:
+  #     and:
+  #       - show_advanced
+
+  - title: "Extras Hidden"
+    variables:
+      - user_ocid
+      - fingerprint
+      - private_key_path
+      # - network_cidrs
+      - node_pool_boot_volume_size_in_gbs
+      - oke_compartment_description
+      - existent_oke_nodepool_id_for_autoscaler
+    visible: false
+
+variables:
+  # compartment_ocid:
+  #   type: oci:identity:compartment:id
+  #   title: "Compartment"
+  #   description: "The compartment in which to create compute instance(s)"
+  #   required: true
+
+  app_name:
+    type: string
+    title: "Cluster Name Prefix"
+    required: true
+    visible:
+      and:
+        - create_new_oke_cluster
+
+  app_deployment_environment:
+    type: enum
+    enum:
+    - "SANDBOX"
+    - "DEV"
+    - "QA"
+    - "STG"
+    - "PRD"
+    title: "Choose which Environment for Optum CARDs deployment"
+    required: true
+    visible: true
+
+  app_deployment_type:
+    type: enum
+    enum:
+    - "Green"
+    - "Blue"
+    title: "Choose which Optum CARDs deployment"
+    required: true
+    visible: true
+    
+  ofs_provision:
+    type: boolean
+    title: "Provision Oracle File Storage"
+    required: true
+
+  oss_provision:
+    type: boolean
+    title: "Provision OCI Streaming Service - Kafka Compatible"
+    required: true
+
+  show_advanced:
+    type: boolean
+    title: "Show advanced options?"
+    description: "Shows advanced options, allowing enable customer-managed encryption keys, select your ssh key, select/unselect cluster utilities, do not create policies, and other advanced options"
+    visible: true
+
+  # OKE Cluster
+  create_new_oke_cluster:
+    type: boolean
+    title: "Create new OKE Cluster"
+
+  compartment_ocid:
+    type: oci:identity:compartment:id
+    title: "Existent OKE Cluster Compartment"
+    description: "The compartment where you find the existent OKE Cluster"
+    required: true
+    visible:
+      not:
+        - create_new_oke_cluster
+
+  existent_oke_cluster_id:
+    type: oci:container:cluster:id
+    title: "Existent OKE Cluster"
+    required: true
+    dependsOn:
+      compartmentId: compartment_ocid
+    visible:
+      not:
+        - create_new_oke_cluster
+
+  existent_oke_cluster_vcn:
+    type: oci:core:vcn:id
+    title: "Existent OKE Cluster VCN for Private Endpoint"
+    required: true
+    dependsOn:
+      compartmentId: compartment_ocid
+    visible:
+      and:
+        - not:
+          - create_new_oke_cluster
+        - eq:
+          - cluster_endpoint_visibility 
+          - "Private"
+
+  existent_oke_cluster_private_endpoint:
+    type: oci:resourcemanager:privateendpoint:id
+    title: "Existent OKE Cluster ORM Private Endpoint"
+    required: true
+    dependsOn:
+      compartmentId: compartment_ocid
+      vcnId: existent_oke_cluster_vcn
+    visible:
+      and:
+        - not:
+          - create_new_oke_cluster
+        - eq:
+          - cluster_endpoint_visibility 
+          - "Private"
+
+  k8s_version:
+    type: oci:kubernetes:versions:id
+    title: "Kubernetes Version"
+    required: false
+    dependsOn:
+      compartmentId: compartment_ocid
+      clusterOptionId: "all"
+    visible:
+      and:
+        - create_new_oke_cluster
+        - show_advanced
+
+  cluster_workers_visibility:
+    type: enum
+    enum:
+    - "Private"
+    - "Public"
+    title: "Choose Worker Nodes visibility type"
+    required: true
+    visible:
+      and:
+        - create_new_oke_cluster
+
+  cluster_endpoint_visibility:
+    type: enum
+    enum:
+    - "Private"
+    - "Public"
+    title: "Choose Kubernetes API Endpoint visibility type"
+    required: true
+    # visible:
+    #   and:
+    #     - create_new_oke_cluster
+
+  create_new_compartment_for_oke:
+    type: boolean
+    title: "Create new Compartment"
+    visible:
+      and:
+        - create_new_oke_cluster
+        - show_advanced
+
+  cluster_autoscaler_enabled:
+    type: boolean
+    title: "Enable Cluster Autoscaler" 
+    visible:
+      and:
+        - create_new_oke_cluster 
+
+  num_pool_workers:
+    type: integer
+    title: "Number of Worker Nodes"
+    minimum: 1
+    maximum: 1000
+    required: true
+    visible:
+      and:
+        - and:
+          - create_new_oke_cluster
+        - not:
+          - cluster_autoscaler_enabled
+
+  cluster_autoscaler_min_nodes:
+    type: integer
+    title: "Autoscaler: Minimum number of nodes"
+    minimum: 1
+    maximum: 1000
+    required: true
+    visible:
+      and:
+        - create_new_oke_cluster
+        - cluster_autoscaler_enabled
+
+  cluster_autoscaler_max_nodes:
+    type: integer
+    title: "Autoscaler: Maximum number of nodes"
+    minimum: 1
+    maximum: 1000
+    required: true
+    visible:
+      and:
+        - create_new_oke_cluster
+        - cluster_autoscaler_enabled
+
+  existent_oke_nodepool_id_for_autoscaler:
+    type: string
+    title: "OKE Nodepool id"
+    required: true
+    visible:
+      and:
+        - and:
+          - cluster_autoscaler_enabled
+        - not:
+          - create_new_oke_cluster
+
+  # node_pool_shape:
+  #   type: oci:core:instanceshape:name
+  #   title: "Select a shape for the Worker Nodes instances"
+  #   required: true
+  #   dependsOn:
+  #     compartmentId: compartment_ocid
+  #   visible:
+  #     and:
+  #       - create_new_oke_cluster
+
+  node_pool_instance_shape:
+    type: oci:core:instanceshapewithflex:name
+    title: "Select a flex shape for the Worker Nodes instances"
+    required: true
+    dependsOn:
+      compartmentId: compartment_ocid
+    visible:
+      and:
+        - create_new_oke_cluster
+
+  # node_pool_node_shape_config_ocpus:
+  #   type: integer
+  #   minimum: 1
+  #   maximum: 64
+  #   title: "Number of OCPUs"
+  #   visible:
+  #     and:
+  #       - and:
+  #         - create_new_oke_cluster
+  #       - or:
+  #         - eq:
+  #           - node_pool_shape 
+  #           - "VM.Standard.E3.Flex"
+  #         - eq:
+  #           - node_pool_shape 
+  #           - "VM.Standard.E4.Flex"
+  #         - eq:
+  #           - node_pool_shape 
+  #           - "VM.Standard.A1.Flex"
+
+  # node_pool_node_shape_config_memory_in_gbs:
+  #   type: integer
+  #   minimum: 1
+  #   maximum: 1024
+  #   title: "Amount of memory (GB)"
+  #   visible:
+  #     and:
+  #       - and:
+  #         - create_new_oke_cluster
+  #       - or:
+  #         - eq:
+  #           - node_pool_shape 
+  #           - "VM.Standard.E3.Flex"
+  #         - eq:
+  #           - node_pool_shape 
+  #           - "VM.Standard.E4.Flex"
+  #         - eq:
+  #           - node_pool_shape 
+  #           - "VM.Standard.A1.Flex"
+
+  node_pool_name:
+    type: string
+    title: "Node Pool Name"
+    required: true
+    visible:
+      and:
+        - create_new_oke_cluster
+        - show_advanced
+
+  cluster_options_add_ons_is_kubernetes_dashboard_enabled:
+    type: boolean
+    title: "Kubernetes Dashboard Enabled"
+    visible: false
+
+  generate_public_ssh_key:
+    type: boolean
+    title: "Auto generate public ssh key?"
+    required: true
+    visible:
+      and:
+        - create_new_oke_cluster
+        - show_advanced
+
+  public_ssh_key:
+    type: oci:core:ssh:publickey
+    title: "Import your own SSH public key"
+    additionalProps:
+      allowMultiple: true
+    required: false
+    pattern: "((^(ssh-rsa AAAAB3NzaC1yc2|ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNT|ecdsa-sha2-nistp384 AAAAE2VjZHNhLXNoYTItbmlzdHAzODQAAAAIbmlzdHAzOD|ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1Mj|ssh-ed25519 AAAAC3NzaC1lZDI1NTE5|ssh-dss AAAAB3NzaC1kc3)[0-9A-Za-z+\/]+[=]{0,3})( [^,]*)?)(,((ssh-rsa AAAAB3NzaC1yc2|ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNT|ecdsa-sha2-nistp384 AAAAE2VjZHNhLXNoYTItbmlzdHAzODQAAAAIbmlzdHAzOD|ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1Mj|ssh-ed25519 AAAAC3NzaC1lZDI1NTE5|ssh-dss AAAAB3NzaC1kc3)[0-9A-Za-z+\/]+[=]{0,3})( [^,]*)?)*$"
+    visible:
+      and:
+        - and:
+          - create_new_oke_cluster
+          - show_advanced
+        - not:
+          - generate_public_ssh_key
+
+  image_operating_system:
+    type: enum
+    title: "Image OS"
+    enum:
+      - "Oracle Linux"
+    required: true
+    visible:
+      and:
+        - create_new_oke_cluster
+        - show_advanced
+
+  image_operating_system_version:
+    type: string
+    title: "Image OS Version"
+    required: true
+    visible:
+      and:
+        - create_new_oke_cluster
+        - show_advanced
+
+  # Dynamic Groups and Policies for Instance Principals and Autoscaler
+  create_dynamic_group_for_nodes_in_compartment:
+    type: boolean
+    title: "Create Dynamic Group for Worker Nodes in the Compartment"
+    required: true
+    visible:
+      and:
+        - show_advanced
+
+  existent_dynamic_group_for_nodes_in_compartment:
+    type: string
+    title: "Existent Dynamic Group"
+    required: true
+    visible:
+      and:
+        - and:
+          - show_advanced
+        - or:
+          - create_compartment_policies
+        - not:
+          - create_dynamic_group_for_nodes_in_compartment
+        
+  create_compartment_policies:
+    type: boolean
+    title: "Create Compartment Policies"
+    required: true
+    visible:
+      and:
+        - show_advanced
+
+  # Encryption options
+  use_encryption_from_oci_vault:
+    type: boolean
+    title: "Encrypt using Customer-Managed Encryption Keys instead of OracleManaged Encryption Keys"
+    visible:
+      and:
+        - create_new_oke_cluster
+        - show_advanced
+
+  create_new_encryption_key:
+    type: boolean
+    title: "Create new Vault and Key"
+    visible:
+      and:
+        - create_new_oke_cluster
+        - show_advanced
+        - use_encryption_from_oci_vault
+
+  # existent_encryption_key_id:
+  #   type: string
+  #   title: "Existent Encryption Key OCID"
+  #   required: true
+  #   visible:
+  #     and:
+  #       - and:
+  #         - create_new_oke_cluster
+  #         - show_advanced
+  #         - use_encryption_from_oci_vault
+  #       - not:
+  #         - create_new_encryption_key
+
+  existent_encryption_key_vault:
+    type: oci:kms:vault:id
+    title: "Existent Encryption Key Vault"
+    required: true
+    dependsOn:
+      compartmentId: compartment_ocid
+    visible:
+      and:
+        - and:
+          - create_new_oke_cluster
+          - show_advanced
+          - use_encryption_from_oci_vault
+        - not:
+          - create_new_encryption_key
+
+  existent_encryption_key_id:
+    type: oci:kms:key:id
+    title: "Existent Encryption Key"
+    required: true
+    dependsOn:
+      compartmentId: compartment_ocid
+      vaultId: existent_encryption_key_vault
+    visible:
+      and:
+        - and:
+          - create_new_oke_cluster
+          - show_advanced
+          - use_encryption_from_oci_vault
+        - not:
+          - create_new_encryption_key
+
+  create_vault_policies_for_group:
+    type: boolean
+    title: "Create policies for the user group to manage vault and keys"
+    visible:
+      and:
+        - create_new_oke_cluster
+        - show_advanced
+        - use_encryption_from_oci_vault
+        - create_new_encryption_key
+
+  user_admin_group_for_vault_policy:
+    type: string
+    title: "Specify your group to include the policy"
+    visible:
+      and:
+        - create_new_oke_cluster
+        - show_advanced
+        - use_encryption_from_oci_vault
+        - create_new_encryption_key
+        - create_vault_policies_for_group
+
+  # Cluster Tools - Ingress
+  ingress_nginx_enabled:
+    type: boolean
+    title: "Ingress NGINX"
+
+  ingress_load_balancer_shape:
+    type: enum
+    enum:
+    - "flexible"
+    - "10Mbps"
+    - "100Mbps"
+    - "400Mbps"
+    - "8000Mbps"
+    title: "Select a shape for the load balancer created by the Ingress"
+    visible:
+      and:
+        - show_advanced
+        - ingress_nginx_enabled
+
+  ingress_load_balancer_shape_flex_min:
+    type: integer
+    minimum: 10
+    maximum: 8000
+    title: "Choose the minimum bandwidth"
+    required: true
+    visible:
+      and:
+        - and:
+          - show_advanced
+          - ingress_nginx_enabled
+        - eq:
+          - ingress_load_balancer_shape 
+          - "flexible"
+
+  ingress_load_balancer_shape_flex_max:
+    type: integer
+    minimum: 10
+    maximum: 8000
+    title: "Choose the maximum bandwidth"
+    required: true
+    visible:
+      and:
+        - and:
+          - show_advanced
+          - ingress_nginx_enabled
+        - eq:
+          - ingress_load_balancer_shape 
+          - "flexible"
+
+  ingress_hosts:
+    type: string
+    title: "Optional valid domain name"
+    visible:
+      and:
+        - show_advanced
+        - ingress_nginx_enabled
+
+  ingress_tls:
+    type: boolean
+    title: "Use TLS to enable HTTPS on the valid domain name"
+    visible:
+      and:
+        - show_advanced
+        - ingress_nginx_enabled
+        - cert_manager_enabled
+
+  ingress_cluster_issuer:
+    type: enum
+    enum:
+    - "letsencrypt-prod"
+    - "letsencrypt-staging"
+    - "selfsigned"
+    title: "Certificate Issuer"
+    required: true
+    visible:
+      and:
+        - show_advanced
+        - ingress_nginx_enabled
+        - ingress_tls
+        - cert_manager_enabled
+
+  ingress_email_issuer:
+    type: string
+    title: "Certificate Issuer Email"
+    required: true
+    visible:
+      and:
+        - show_advanced
+        - ingress_nginx_enabled
+        - ingress_tls
+        - cert_manager_enabled
+
+  # Cluster Tools
+  metrics_server_enabled:
+    type: boolean
+    title: "Metrics Server"
+
+  prometheus_enabled:
+    type: boolean
+    title: "Prometheus"
+
+  grafana_enabled:
+    type: boolean
+    title: "Grafana"
+
+  cert_manager_enabled:
+    type: boolean
+    title: "Certificate Management"
+
+  # Network Type Options
+  # network_strategy:
+  #   type: enum
+  #   title: Network Strategy
+  #   description: Create or use existing Network Stack (VCN and Subnet)
+  #   enum:
+  #     - "Create New VCN and Subnet"
+  #     # - "Use Existing VCN and Subnet"
+  #   required: true
+  #   default: "Create New VCN and Subnet"
+  #   visible:
+  #     and:
+  #       - create_new_oke_cluster
+  #       - show_advanced
+
+  # subnet_type:
+  #   visible: #($network_strategy  == ""Create New VCN and Subnet"")
+  #     eq:
+  #       - network_strategy 
+  #       - "Create New VCN and Subnet"
+  #   type: enum
+  #   title: Subnet Type
+  #   description: Choose between private and public subnets
+  #   enum:
+  #     - "Private Subnet"
+  #     - "Public Subnet"
+  #   required: true
+  #   default: "Private Subnet"
+
+  # vcn_id:
+  #   visible: #($network_strategy  == "Use Existing VCN and Subnet")
+  #     eq:
+  #       - network_strategy 
+  #       - "Use Existing VCN and Subnet"
+  #   type: oci:core:vcn:id
+  #   dependsOn:
+  #     compartmentId: compartment_ocid 
+  #   required: true
+  #   title: Existing Network
+  #   description: An existing Virtual Cloud Network (VCN) in which to create the compute instances, network resources, and load balancers. If not specified, a new VCN is created.
+
+  # vcn_cidr_block:
+  #   visible: #($network_strategy  == ""Create New VCN and Subnet"")
+  #     eq:
+  #       - network_strategy 
+  #       - "Create New VCN and Subnet"
+  #   type: string
+  #   required: true
+  #   default: 10.20.0.0/16
+  #   pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
+  #   title: VCN CIDR BLOCK
+  #   description: The CIDR of the new Virtual Cloud Network (VCN). If you plan to peer this VCN with another VCN, the VCNs must not have overlapping CIDRs.
+
+  # subnet_cidr_block:
+  #   visible: #($network_strategy  == ""Create New VCN and Subnet"")
+  #     eq:
+  #       - network_strategy 
+  #       - "Create New VCN and Subnet"
+  #   type: string
+  #   default: 10.20.10.0/24
+  #   pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
+  #   required: true
+  #   title: Subnet CIDR
+  #   description: The CIDR of the new Subnet. The new subnet's CIDR should not overlap with any other subnet CIDRs.
+
+outputGroups:
+  - title: Deployment Info
+    outputs:
+      - deploy_id
+      - deployed_to_region
+      - stack_version
+
+  - title: Kubernetes
+    outputs:
+      - deployed_oke_kubernetes_version
+      - kubeconfig
+
+  - title: Passwords and Keys
+    outputs:
+      - grafana_admin_password
+      - generated_private_key_pem
+
+  - title: Comments
+    outputs:
+      - comments
+
+  - title: Dev Notes
+    outputs:
+      - dev
+
+outputs:
+  external_ip:
+    type: string
+    title: Ingress LoadBalancer External IP
+    displayText: Ingress Nginx LoadBalancer External IP Address
+    visible: true
+
+  grafana_url:
+    type: link
+    title: Grafana
+    displayText: Dashboards
+    visible: true
+
+  grafana_admin_password:
+    type: string
+    title: Grafana Admin Password
+    displayText: Grafana Admin Password
+    visible: true
+
+  deploy_id:
+    type: string
+    title: "Deployment Id"
+    visible: true
+
+  deployed_to_region:
+    type: string
+    title: "Deployed using Region"
+    visible: true
+
+  deployed_oke_kubernetes_version:
+    type: string
+    title: "OKE Kubernetes version deployed"
+    visible: true
+
+  stack_version:
+    type: string
+    title: Stack Version
+    displayText: Stack Version deployed
+    visible: true
+
+  generated_private_key_pem:
+    type: string
+    title: Generated Private Key
+    displayText: Generated Private Key
+
+  comments:
+    type: string
+    title: Comments
+    displayText: Comments
+    visible: true
+
+  dev:
+    type: string
+    title: dev
+    displayText: dev note from Oracle Developers
+    visible: true
+
+  kubeconfig:
+    type: string
+    title: kubeconfig
+    displayText: kubeconfig for local kubectl run. Not used by ORM
+    visible: true
+
+  kubeconfig_for_kubectl:
+    type: string
+    title: kubeconfig
+    displayText: kubeconfig for local kubectl run. Not used by ORM
+    visible: false
+
+  sensitive_comments_local_tf:
+    type: string
+    title: kubeconfig
+    displayText: Instructions to get sensitive outputs on local Terraform. Not used by ORM
+    visible: false
+  
+primaryOutputButton: mushop_url_button
