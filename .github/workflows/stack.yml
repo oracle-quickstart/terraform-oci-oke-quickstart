@@ -24,12 +24,11 @@ jobs:
       run: |
         #
         STACKNAME=${{ github.event.repository.name }}
-        TF_FOLDER=*.tf
-        EXTRAS=README.md LICENSE VERSION .terraform.lock.hcl modules/
+        STACK_FILES='*.tf' 'README.md' 'LICENSE' 'VERSION' '.terraform.lock.hcl' 'modules/'
         RELEASE=$(cat ${TF_FOLDER}/VERSION)
         ASSETS+="${STACKNAME}-stack.zip ${STACKNAME}-${RELEASE}.zip "
         echo "::group::Processing $STACKNAME"
-        zip -r ${STACKNAME}-stack.zip $TF_FOLDER $EXTRAS -x "*.tfstat*" ".terraform/" || { printf '\n⛔ Unable to create %s stack.\n'; exit 1;  }
+        zip -r ${STACKNAME}-stack.zip $STACK_FILES -x "*.tfstat*" ".terraform/" || { printf '\n⛔ Unable to create %s stack.\n'; exit 1;  }
         cp ${STACKNAME}-stack.zip ${STACKNAME}-${RELEASE}.zip || { printf '\n⛔ Unable to create %s stack.\n'; exit 1;  }
         echo "::endgroup::"
         echo "::set-output name=assets::$ASSETS"
