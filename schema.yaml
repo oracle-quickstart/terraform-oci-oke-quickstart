@@ -2,9 +2,9 @@
 # Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 # 
 
-title: "CARDS Connected System GREEN and CDE BLUE"
-description: "Deploys CARDS Connected System GREEN or CDE BLUE"
-informationalText: "This stack deploys Optum CARDS on an existent OKE Cluster (optionally the stack allows create a new cluster before deploy)."
+title: "OKE BASE Stack"
+description: "OKE BASE Stack"
+informationalText: "This stack deploys a new OKE Cluster with cluster tools or just the cluster tools on an existent OKE Cluster."
 schemaVersion: 1.1.0
 version: "20190304"
 
@@ -24,7 +24,7 @@ variableGroups:
     - app_name
     - show_advanced
 
-  - title: "Optum CARDs options"
+  - title: "Tag options"
     variables:
     - app_deployment_environment
     - app_deployment_type
@@ -153,8 +153,8 @@ variables:
     - "QA"
     - "STG"
     - "PRD"
-    title: "Choose which Environment for Optum CARDs deployment"
-    required: true
+    title: "Choose which Environment for deployment"
+    required: false
     visible: true
 
   app_deployment_type:
@@ -162,7 +162,8 @@ variables:
     enum:
     - "Green"
     - "Blue"
-    title: "Choose which Optum CARDs deployment"
+    - "Purple"
+    title: "Choose which deployment type"
     required: true
     visible: true
     
