@@ -25,7 +25,7 @@ jobs:
         #
         STACKNAME=${{ github.event.repository.name }}
         STACK_FILES="./*.tf ./README.md ./LICENSE ./VERSION ./.terraform.lock.hcl modules/"
-        RELEASE=$(cat ${TF_FOLDER}/VERSION)
+        RELEASE=$(cat VERSION)
         ASSETS+="${STACKNAME}-stack.zip ${STACKNAME}-${RELEASE}.zip "
         echo "::group::Processing $STACKNAME"
         zip -r ${STACKNAME}-stack.zip $STACK_FILES -x "*.tfstat*" ".terraform/" || { printf '\n⛔ Unable to create %s stack.\n'; exit 1;  }
