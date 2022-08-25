@@ -24,8 +24,8 @@ jobs:
       run: |
         #
         STACKNAME=${{ github.event.repository.name }}
-        TF_FOLDER=./*.tf
-        EXTRAS=./README.md ./LICENSE ./VERSION ./.terraform.lock.hcl modules/
+        TF_FOLDER=*.tf
+        EXTRAS=README.md LICENSE VERSION .terraform.lock.hcl modules/
         RELEASE=$(cat ${TF_FOLDER}/VERSION)
         ASSETS+="${STACKNAME}-stack.zip ${STACKNAME}-${RELEASE}.zip "
         echo "::group::Processing $STACKNAME"
