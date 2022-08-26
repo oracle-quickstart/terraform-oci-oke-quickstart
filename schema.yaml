@@ -343,7 +343,7 @@ variables:
 
   node_pool_instance_shape:
     type: oci:core:instanceshapewithflex:name
-    title: "Select a flex shape for the Worker Nodes instances"
+    title: "Select a flex or fixed shape for the Worker Nodes instances"
     required: true
     dependsOn:
       compartmentId: compartment_ocid
