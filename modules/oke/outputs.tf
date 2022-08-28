@@ -33,6 +33,16 @@ output "orm_private_endpoint_oke_api_ip_address" {
   ]
 }
 
+# OKE info
+output "oke_cluster_ocid" {
+  value       = var.create_new_oke_cluster ? oci_containerengine_cluster.oke_cluster[0].id : ""
+  description = "OKE Cluster OCID"
+}
+output "oke_cluster_compartment_ocid" {
+  value       = local.oke_compartment_ocid
+  description = "Compartment OCID used by the OKE Cluster"
+}
+
 # OKE VCN info
 output "oke_vcn_ocid" {
   value       = var.create_new_oke_cluster ? oci_core_virtual_network.oke_vcn[0].id : "" # TODO: Include selected VCN for private endpoint or Existent VCN

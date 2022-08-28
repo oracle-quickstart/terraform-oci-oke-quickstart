@@ -92,18 +92,18 @@ variable "cluster_autoscaler_enabled" {
   default     = true
   description = "Enables OKE cluster autoscaler. Node pools will auto scale based on the resources usage"
 }
-variable "cluster_autoscaler_min_nodes" {
-  default     = 3
-  description = "Minimum number of nodes on the node pool to be scheduled by the Kubernetes"
-}
-variable "cluster_autoscaler_max_nodes" {
-  default     = 10
-  description = "Maximum number of nodes on the node pool to be scheduled by the Kubernetes"
-}
-variable "existent_oke_nodepool_id_for_autoscaler" {
-  default     = ""
-  description = "Nodepool Id of the existent OKE to use with Cluster Autoscaler"
-}
+# variable "cluster_autoscaler_min_nodes" {
+#   default     = 3
+#   description = "Minimum number of nodes on the node pool to be scheduled by the Kubernetes"
+# }
+# variable "cluster_autoscaler_max_nodes" {
+#   default     = 10
+#   description = "Maximum number of nodes on the node pool to be scheduled by the Kubernetes"
+# }
+# variable "existent_oke_nodepool_id_for_autoscaler" {
+#   default     = ""
+#   description = "Nodepool Id of the existent OKE to use with Cluster Autoscaler"
+# }
 
 ## OKE Node Pool Details
 variable "node_pool_name" {
@@ -112,7 +112,7 @@ variable "node_pool_name" {
 }
 variable "k8s_version" {
   default     = "Latest"
-  description = "Kubernetes version installed on your master and worker nodes"
+  description = "Kubernetes version installed on your Control Plane"
 }
 variable "num_pool_workers" {
   default     = 3
