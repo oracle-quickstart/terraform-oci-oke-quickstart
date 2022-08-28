@@ -32,6 +32,9 @@ module "oke" {
   ## Cluster API Endpoint visibility
   cluster_endpoint_visibility = var.cluster_endpoint_visibility
 
+  ## Control Plane Kubernetes Version
+  k8s_version = var.k8s_version
+
   ## Create Dynamic group and Policies for Autoscaler and OCI Metrics and Logging
   create_dynamic_group_for_nodes_in_compartment = var.create_dynamic_group_for_nodes_in_compartment
   create_compartment_policies                   = var.create_compartment_policies
@@ -42,27 +45,41 @@ module "oke" {
   existent_encryption_key_id    = var.existent_encryption_key_id
 
   ## Enable Cluster Autoscaler
-  cluster_autoscaler_enabled              = var.cluster_autoscaler_enabled
-  cluster_autoscaler_min_nodes            = var.cluster_autoscaler_min_nodes
-  cluster_autoscaler_max_nodes            = var.cluster_autoscaler_max_nodes
-  existent_oke_nodepool_id_for_autoscaler = var.existent_oke_nodepool_id_for_autoscaler
+  cluster_autoscaler_enabled = var.cluster_autoscaler_enabled
+  # cluster_autoscaler_min_nodes            = var.cluster_autoscaler_min_nodes
+  # cluster_autoscaler_max_nodes            = var.cluster_autoscaler_max_nodes
+  # existent_oke_nodepool_id_for_autoscaler = var.existent_oke_nodepool_id_for_autoscaler
 
   ## OKE Worker Nodes (Compute)
-  num_pool_workers                          = var.num_pool_workers
+  num_pool_workers                          = var.cluster_autoscaler_enabled ? var.cluster_autoscaler_min_nodes : var.num_pool_workers
   node_pool_shape                           = var.node_pool_instance_shape.instanceShape
   node_pool_node_shape_config_ocpus         = var.node_pool_instance_shape.ocpus
   node_pool_node_shape_config_memory_in_gbs = var.node_pool_instance_shape.memory
   generate_public_ssh_key                   = var.generate_public_ssh_key
   public_ssh_key                            = var.public_ssh_key
-
-  # count = var.oke_provision ? 1 : 0
 }
 
-# OKE Variables
-# variable "oke_provision" {
-#   default     = false
-#   description = "Provision OCI Container Engine - OKE"
-# }
+module "oke-cluster-autoscaler" {
+  source = "./modules/oke-cluster-autoscaler"
+
+  # Oracle Cloud Infrastructure Tenancy and Compartment OCID
+  # tenancy_ocid     = var.tenancy_ocid
+  # compartment_ocid = var.compartment_ocid
+  region = var.region
+
+  ## Enable Cluster Autoscaler
+  cluster_autoscaler_enabled = var.cluster_autoscaler_enabled
+  # cluster_autoscaler_min_nodes            = var.cluster_autoscaler_min_nodes
+  # cluster_autoscaler_max_nodes            = var.cluster_autoscaler_max_nodes
+  # existent_oke_nodepool_id_for_autoscaler = var.existent_oke_nodepool_id_for_autoscaler
+  oke_node_pools = var.oke_node_pools
+
+  ## Nodes Kubernetes Version
+  k8s_version = var.k8s_version
+
+  depends_on = [module.oke]
+}
+
 ## OKE Cluster Details
 variable "app_name" {
   default     = "K8s App"
@@ -142,18 +159,30 @@ variable "cluster_autoscaler_enabled" {
   default     = true
   description = "Enables OKE cluster autoscaler. Node pools will auto scale based on the resources usage"
 }
-variable "cluster_autoscaler_min_nodes" {
-  default     = 3
-  description = "Minimum number of nodes on the node pool to be scheduled by the Kubernetes"
+variable "oke_node_pools" {
+  type = list(any)
+
+  default = [
+    {
+      node_pool_id         = "" # TODO: node pool Id from module
+      node_pool_min_nodes  = 3
+      node_pool__max_nodes = 10
+    }
+  ]
+  description = "Node pools (id, min_nodes, max_nodes) to use with Cluster Autoscaler"
 }
-variable "cluster_autoscaler_max_nodes" {
-  default     = 10
-  description = "Maximum number of nodes on the node pool to be scheduled by the Kubernetes"
-}
-variable "existent_oke_nodepool_id_for_autoscaler" {
-  default     = ""
-  description = "Nodepool Id of the existent OKE to use with Cluster Autoscaler"
-}
+# variable "cluster_autoscaler_min_nodes" {
+#   default     = 3
+#   description = "Minimum number of nodes on the node pool to be scheduled by the Kubernetes"
+# }
+# variable "cluster_autoscaler_max_nodes" {
+#   default     = 10
+#   description = "Maximum number of nodes on the node pool to be scheduled by the Kubernetes"
+# }
+# variable "existent_oke_nodepool_id_for_autoscaler" {
+#   default     = ""
+#   description = "Nodepool Id of the existent OKE to use with Cluster Autoscaler"
+# }
 
 ## OKE Node Pool Details
 variable "node_pool_name" {
@@ -179,14 +208,6 @@ variable "node_pool_instance_shape" {
   }
   description = "A shape is a template that determines the number of OCPUs, amount of memory, and other resources allocated to a newly created instance for the Worker Node. Select at least 2 OCPUs and 16GB of memory if using Flex shapes"
 }
-# variable "node_pool_node_shape_config_ocpus" {
-#   default     = "1" # Only used if flex shape is selected
-#   description = "You can customize the number of OCPUs to a flexible shape"
-# }
-# variable "node_pool_node_shape_config_memory_in_gbs" {
-#   default     = "16" # Only used if flex shape is selected
-#   description = "You can customize the amount of memory allocated to a flexible shape"
-# }
 variable "node_pool_boot_volume_size_in_gbs" {
   default     = "60"
   description = "Specify a custom boot volume size (in GB)"
@@ -209,7 +230,7 @@ variable "public_ssh_key" {
 
 # Create Dynamic Group and Policies
 variable "create_dynamic_group_for_nodes_in_compartment" {
-  default     = false # TODO: true 
+  default     = true
   description = "Creates dynamic group of Nodes in the compartment. Note: You need to have proper rights on the Tenancy. If you only have rights in a compartment, uncheck and ask you administrator to create the Dynamic Group for you"
 }
 variable "existent_dynamic_group_for_nodes_in_compartment" {
@@ -217,7 +238,7 @@ variable "existent_dynamic_group_for_nodes_in_compartment" {
   description = "Enter previous created Dynamic Group for the policies"
 }
 variable "create_compartment_policies" {
-  default     = false # TODO: true 
+  default     = true
   description = "Creates policies that will reside on the compartment. e.g.: Policies to support Cluster Autoscaler, OCI Logging datasource on Grafana"
 }
 
