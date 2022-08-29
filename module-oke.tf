@@ -2,6 +2,34 @@
 # Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 # 
 
+module "vault" {
+  source = "./modules/oci-vault-kms"
+
+  providers = {
+    oci             = oci
+    oci.home_region = oci.home_region
+  }
+
+  # Oracle Cloud Infrastructure Tenancy and Compartment OCID
+  tenancy_ocid     = var.tenancy_ocid
+
+  # App Details
+  app_details = local.app_details
+
+  # Encryption (OCI Vault/Key Management/KMS)
+  use_encryption_from_oci_vault = var.use_encryption_from_oci_vault
+  create_new_encryption_key     = var.create_new_encryption_key
+  existent_encryption_key_id    = var.existent_encryption_key_id
+
+  # OKE Cluster Details
+  oke_cluster_compartment_ocid = local.oke_compartment_ocid
+
+  ## Create Dynamic group and Policies for OCI Vault (Key Management/KMS)
+  create_dynamic_group_for_nodes_in_compartment = var.create_dynamic_group_for_nodes_in_compartment
+  create_compartment_policies                   = var.create_compartment_policies
+  create_vault_policies_for_group               = var.create_vault_policies_for_group
+}
+
 module "oke" {
   source = "./modules/oke"
 
@@ -12,19 +40,18 @@ module "oke" {
 
   # Oracle Cloud Infrastructure Tenancy and Compartment OCID
   tenancy_ocid     = var.tenancy_ocid
-  compartment_ocid = var.compartment_ocid
+  compartment_ocid = local.oke_compartment_ocid
   region           = var.region
 
-  # OKE Cluster
-  app_name                   = var.app_name
-  app_deployment_environment = var.app_deployment_environment
-  app_deployment_type        = var.app_deployment_type
+  # App Details
+  app_details = local.app_details
 
+  # OKE Cluster
   ## create_new_oke_cluster
   create_new_oke_cluster         = var.create_new_oke_cluster
   existent_oke_cluster_id        = var.existent_oke_cluster_id
-  create_new_compartment_for_oke = var.create_new_compartment_for_oke
-  oke_compartment_description    = var.oke_compartment_description
+  # create_new_compartment_for_oke = var.create_new_compartment_for_oke
+  # oke_compartment_description    = var.oke_compartment_description
 
   ## Cluster Workers visibility
   cluster_workers_visibility = var.cluster_workers_visibility
@@ -40,9 +67,11 @@ module "oke" {
   create_compartment_policies                   = var.create_compartment_policies
 
   ## Encryption (OCI Vault/Key Management/KMS)
-  use_encryption_from_oci_vault = var.use_encryption_from_oci_vault
-  create_new_encryption_key     = var.create_new_encryption_key
-  existent_encryption_key_id    = var.existent_encryption_key_id
+  oci_vault_key_id_oke_secrets = module.vault.oci_vault_key_id
+  oci_vault_key_id_oke_image_policy = module.vault.oci_vault_key_id
+  # use_encryption_from_oci_vault = var.use_encryption_from_oci_vault
+  # create_new_encryption_key     = var.create_new_encryption_key
+  # existent_encryption_key_id    = var.existent_encryption_key_id
 
   ## Enable Cluster Autoscaler
   cluster_autoscaler_enabled = var.cluster_autoscaler_enabled
@@ -50,16 +79,44 @@ module "oke" {
   # cluster_autoscaler_max_nodes            = var.cluster_autoscaler_max_nodes
   # existent_oke_nodepool_id_for_autoscaler = var.existent_oke_nodepool_id_for_autoscaler
 
-  ## OKE Worker Nodes (Compute)
-  num_pool_workers                          = var.cluster_autoscaler_enabled ? var.cluster_autoscaler_min_nodes : var.num_pool_workers
+  # ## OKE Worker Nodes (Compute)
+  # num_pool_workers                          = var.cluster_autoscaler_enabled ? var.cluster_autoscaler_min_nodes : var.num_pool_workers
+  # node_pool_shape                           = var.node_pool_instance_shape.instanceShape
+  # node_pool_node_shape_config_ocpus         = var.node_pool_instance_shape.ocpus
+  # node_pool_node_shape_config_memory_in_gbs = var.node_pool_instance_shape.memory
+  # generate_public_ssh_key                   = var.generate_public_ssh_key
+  # public_ssh_key                            = var.public_ssh_key
+}
+
+module "oke_node_pool" {
+  source = "./modules/oke-node-pool"
+
+  # App Details
+  app_details = local.app_details
+
+  # Oracle Cloud Infrastructure Tenancy and Compartment OCID
+  tenancy_ocid     = var.tenancy_ocid
+
+  # OKE Cluster Details
+  oke_cluster_ocid = module.oke.oke_cluster_ocid
+  oke_cluster_compartment_ocid = local.oke_compartment_ocid
+
+  # OKE Worker Nodes (Compute)
+  num_pool_workers                          = var.num_pool_workers
   node_pool_shape                           = var.node_pool_instance_shape.instanceShape
   node_pool_node_shape_config_ocpus         = var.node_pool_instance_shape.ocpus
   node_pool_node_shape_config_memory_in_gbs = var.node_pool_instance_shape.memory
   generate_public_ssh_key                   = var.generate_public_ssh_key
   public_ssh_key                            = var.public_ssh_key
+
+  # OKE Network Details
+  oke_vcn_nodes_subnet_ocid = module.oke.oke_vcn_nodes_subnet_ocid
+
+  # Encryption (OCI Vault/Key Management/KMS)
+  oci_vault_key_id_oke_node_boot_volume = module.vault.oci_vault_key_id
 }
 
-module "oke-cluster-autoscaler" {
+module "oke_cluster_autoscaler" {
   source = "./modules/oke-cluster-autoscaler"
 
   # Oracle Cloud Infrastructure Tenancy and Compartment OCID
@@ -77,7 +134,7 @@ module "oke-cluster-autoscaler" {
   ## Nodes Kubernetes Version
   k8s_version = var.k8s_version
 
-  depends_on = [module.oke]
+  depends_on = [module.oke, module.oke_node_pool]
 }
 
 ## OKE Cluster Details
@@ -242,13 +299,40 @@ variable "create_compartment_policies" {
   description = "Creates policies that will reside on the compartment. e.g.: Policies to support Cluster Autoscaler, OCI Logging datasource on Grafana"
 }
 
+resource "random_string" "deploy_id" {
+  length  = 4
+  special = false
+}
+
+resource "oci_identity_compartment" "oke_compartment" {
+  compartment_id = var.compartment_ocid
+  name           = "${local.app_details.app_name_normalized}-${local.deploy_id}"
+  description    = "${var.app_name} ${var.oke_compartment_description} (Deployment ${local.deploy_id})"
+  enable_delete  = true
+
+  count = var.create_new_compartment_for_oke ? 1 : 0
+}
+
+# Locals
+locals {
+  deploy_id = random_string.deploy_id.result
+  oke_compartment_ocid = var.create_new_compartment_for_oke ? oci_identity_compartment.oke_compartment.0.id : var.compartment_ocid
+  app_details = {
+    "app_name" = var.app_name
+    "app_name_normalized" = substr(replace(lower(var.app_name), " ", "-"), 0, 6)
+    "app_deployment_environment" = var.app_deployment_environment
+    "app_deployment_type" = var.app_deployment_type
+    "app_deployment_id" = local.deploy_id
+  }
+}
+
 # OKE Outputs
 
 output "comments" {
   value = module.oke.comments
 }
 output "deploy_id" {
-  value = module.oke.deploy_id
+  value = local.deploy_id
 }
 output "deployed_oke_kubernetes_version" {
   value = module.oke.deployed_oke_kubernetes_version
@@ -271,7 +355,7 @@ output "dev" {
 # Use of this resource for production deployments is not recommended. 
 # Instead, generate a private key file outside of Terraform and distribute it securely to the system where Terraform will be run.
 output "generated_private_key_pem" {
-  value     = module.oke.generated_private_key_pem
+  value     = module.oke_node_pool.generated_private_key_pem
   sensitive = true
 }
 
