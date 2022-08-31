@@ -3,23 +3,20 @@
 # 
 
 locals {
-  cluster_autoscaler_supported_k8s_versions = { "1.21" = "1.21.1-3", "1.22" = "1.22.2-4", "1.23" = "1.23.0-4" } # There's no API to get that list. Need to be updated manually
-  cluster_autoscaler_image_version          = lookup(local.cluster_autoscaler_supported_k8s_versions, local.k8s_major_minor_version, reverse(values(local.cluster_autoscaler_supported_k8s_versions))[0])
-  cluster_autoscaler_default_region         = "us-ashburn-1"
-  cluster_autoscaler_image_regions          = ["us-ashburn-1", "us-phoenix-1", "uk-london-1", "eu-frankfurt-1"]
-  cluster_autoscaler_image_region           = contains(local.cluster_autoscaler_image_regions, var.region) ? var.region : local.cluster_autoscaler_default_region
-  cluster_autoscaler_image                  = "${local.cluster_autoscaler_image_region}.ocir.io/oracle/oci-cluster-autoscaler:${local.cluster_autoscaler_image_version}"
-  cluster_autoscaler_log_level_verbosity    = 4
-  cluster_autoscaler_node_pools             = [for map in var.oke_node_pools[*] : "--nodes=${map.node_pool_min_nodes}:${map.node_pool__max_nodes}:${map.node_pool_id}"]
-  # cluster_autoscaler_node_pool                        = var.create_new_oke_cluster ? oci_containerengine_node_pool.oke_node_pool[0].id : var.existent_oke_nodepool_id_for_autoscaler
-  # cluster_autoscaler_min_nodes                        = var.cluster_autoscaler_min_nodes
-  # cluster_autoscaler_max_nodes                        = var.cluster_autoscaler_max_nodes
+  cluster_autoscaler_supported_k8s_versions           = { "1.21" = "1.21.1-3", "1.22" = "1.22.2-4", "1.23" = "1.23.0-4" } # There's no API to get that list. Need to be updated manually
+  cluster_autoscaler_image_version                    = lookup(local.cluster_autoscaler_supported_k8s_versions, local.k8s_major_minor_version, reverse(values(local.cluster_autoscaler_supported_k8s_versions))[0])
+  cluster_autoscaler_default_region                   = "us-ashburn-1"
+  cluster_autoscaler_image_regions                    = ["us-ashburn-1", "us-phoenix-1", "uk-london-1", "eu-frankfurt-1"]
+  cluster_autoscaler_image_region                     = contains(local.cluster_autoscaler_image_regions, var.region) ? var.region : local.cluster_autoscaler_default_region
+  cluster_autoscaler_image                            = "${local.cluster_autoscaler_image_region}.ocir.io/oracle/oci-cluster-autoscaler:${local.cluster_autoscaler_image_version}"
+  cluster_autoscaler_log_level_verbosity              = 4
+  cluster_autoscaler_node_pools                       = [for map in var.oke_node_pools[*] : "--nodes=${map.node_pool_min_nodes}:${map.node_pool_max_nodes}:${map.node_pool_id}"]
   cluster_autoscaler_max_node_provision_time          = "25m"
   cluster_autoscaler_scale_down_delay_after_add       = "10m"
   cluster_autoscaler_scale_down_unneeded_time         = "10m"
   cluster_autoscaler_unremovable_node_recheck_timeout = "5m"
   cluster_autoscaler_enabled                          = alltrue([contains(keys(local.cluster_autoscaler_supported_k8s_versions), local.k8s_major_minor_version)]) ? var.cluster_autoscaler_enabled : false
-  k8s_major_minor_version                             = regex("\\d+(?:\\.(?:\\d+|x)(?:))", (var.k8s_version == "Latest") ? local.node_pool_k8s_latest_version : var.k8s_version)
+  k8s_major_minor_version                             = regex("\\d+(?:\\.(?:\\d+|x)(?:))", var.oke_node_pools.0.node_k8s_version)
 }
 
 # NOTE: Service Account creation is not supported with Kubernetes 1.24 and Terraform Kubernetes provider 2.12.1.
