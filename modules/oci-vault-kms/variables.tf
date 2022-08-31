@@ -16,9 +16,9 @@ variable "existent_encryption_key_id" {
   description = "Use an existent master encryption key to encrypt boot volume and object storage bucket. NOTE: If the key resides in a different compartment or in a different tenancy, make sure you have the proper policies to access, or the provision of the worker nodes will fail"
 }
 
-# Deployment Details
-variable "app_details" {
-  description = "App Details"
+# Deployment Details + Freeform Tags
+variable "freeform_deployment_tags" {
+  description = "Tags to be added to the resources"
 }
 
 # OKE Variables
@@ -38,7 +38,7 @@ variable "user_admin_group_for_vault_policy" {
 }
 ## Create Dynamic Group and Policies
 variable "create_dynamic_group_for_nodes_in_compartment" {
-  default     = false 
+  default     = false
   description = "Creates dynamic group of Nodes in the compartment. Note: You need to have proper rights on the Tenancy. If you only have rights in a compartment, uncheck and ask you administrator to create the Dynamic Group for you"
 }
 variable "create_compartment_policies" {
@@ -48,12 +48,3 @@ variable "create_compartment_policies" {
 
 # OCI Provider
 variable "tenancy_ocid" {}
-
-# Deployment Tags
-locals {
-  freeform_deployment_tags = {
-    "DeploymentID" = "${var.app_details.app_deployment_id}",
-    "AppName"      = "${var.app_details.app_name}",
-    "Environment"  = "${var.app_details.app_deployment_environment}",
-  "DeploymentType" = "${var.app_details.app_deployment_type}" }
-}

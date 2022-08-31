@@ -3,18 +3,18 @@
 # 
 
 resource "oci_identity_dynamic_group" "app_dynamic_group" {
-  name           = "${local.app_name_normalized}-kms-dg-${var.app_details.app_deployment_id}"
-  description    = "${var.app_details.app_name} KMS for OKE Dynamic Group (${var.app_details.app_deployment_id})"
+  name           = "${local.app_name_normalized}-kms-dg-${local.deploy_id}"
+  description    = "${local.app_name} KMS for OKE Dynamic Group (${local.deploy_id})"
   compartment_id = var.tenancy_ocid
   matching_rule  = "ANY {${join(",", local.dynamic_group_matching_rules)}}"
 
   provider = oci.home_region
 
-  count = var.create_dynamic_group_for_nodes_in_compartment ? 1 : 0
+  count = (var.use_encryption_from_oci_vault && var.create_dynamic_group_for_nodes_in_compartment) ? 1 : 0
 }
 resource "oci_identity_policy" "app_compartment_policies" {
-  name           = "${local.app_name_normalized}-kms-compartment-policies-${var.app_details.app_deployment_id}"
-  description    = "${var.app_details.app_name} KMS for OKE Compartment Policies (${var.app_details.app_deployment_id})"
+  name           = "${local.app_name_normalized}-kms-compartment-policies-${local.deploy_id}"
+  description    = "${local.app_name} KMS for OKE Compartment Policies (${local.deploy_id})"
   compartment_id = var.oke_cluster_compartment_ocid
   statements     = local.app_compartment_statements
 
@@ -22,11 +22,11 @@ resource "oci_identity_policy" "app_compartment_policies" {
 
   provider = oci.home_region
 
-  count = var.create_compartment_policies ? 1 : 0
+  count = (var.use_encryption_from_oci_vault && var.create_compartment_policies) ? 1 : 0
 }
 resource "oci_identity_policy" "kms_user_group_compartment_policies" {
-  name           = "${local.app_name_normalized}-kms-compartment-policies-${var.app_details.app_deployment_id}"
-  description    = "${var.app_details.app_name} KMS User Group Compartment Policies (${var.app_details.app_deployment_id})"
+  name           = "${local.app_name_normalized}-kms-compartment-policies-${local.deploy_id}"
+  description    = "${local.app_name} KMS User Group Compartment Policies (${local.deploy_id})"
   compartment_id = var.oke_cluster_compartment_ocid
   statements     = local.kms_user_group_compartment_statements
 
@@ -34,7 +34,7 @@ resource "oci_identity_policy" "kms_user_group_compartment_policies" {
 
   provider = oci.home_region
 
-  count = (var.create_compartment_policies && var.create_vault_policies_for_group) ? 1 : 0
+  count = (var.use_encryption_from_oci_vault && var.create_compartment_policies && var.create_vault_policies_for_group) ? 1 : 0
 }
 
 # Concat Matching Rules and Policy Statements
@@ -44,7 +44,7 @@ locals {
     local.clusters_in_compartment_rule
   )
   app_compartment_statements = concat(
-    var.use_encryption_from_oci_vault ? local.allow_oke_use_oci_vault_keys_statements : []
+    local.allow_oke_use_oci_vault_keys_statements
   )
   kms_user_group_compartment_statements = concat(
     local.allow_group_manage_vault_keys_statements
@@ -76,6 +76,8 @@ locals {
 
 # Conditional locals
 locals {
-  app_dynamic_group = var.create_dynamic_group_for_nodes_in_compartment ? oci_identity_dynamic_group.app_dynamic_group.0.name : "void"
-  app_name_normalized = var.app_details.app_name_normalized
+  app_dynamic_group   = var.create_dynamic_group_for_nodes_in_compartment ? oci_identity_dynamic_group.app_dynamic_group.0.name : "void"
+  app_name_normalized = substr(replace(lower(var.freeform_deployment_tags.AppName), " ", "-"), 0, 6)
+  app_name            = var.freeform_deployment_tags.AppName
+  deploy_id           = var.freeform_deployment_tags.DeploymentID
 }

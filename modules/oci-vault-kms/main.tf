@@ -9,9 +9,9 @@
 ### OCI Vault vault
 resource "oci_kms_vault" "oke_vault" {
   compartment_id = var.oke_cluster_compartment_ocid
-  display_name   = "${local.vault_display_name} - ${var.app_details.app_deployment_id}"
+  display_name   = "${local.vault_display_name} - ${var.freeform_deployment_tags.DeploymentID}"
   vault_type     = local.vault_type[0]
-  freeform_tags  = local.freeform_deployment_tags
+  freeform_tags  = var.freeform_deployment_tags
 
   # depends_on = [oci_identity_policy.kms_user_group_compartment_policies]
 
@@ -20,10 +20,10 @@ resource "oci_kms_vault" "oke_vault" {
 ### OCI Vault key
 resource "oci_kms_key" "oke_key" {
   compartment_id      = var.oke_cluster_compartment_ocid
-  display_name        = "${local.vault_key_display_name} - ${var.app_details.app_deployment_id}"
+  display_name        = "${local.vault_key_display_name} - ${var.freeform_deployment_tags.DeploymentID}"
   management_endpoint = oci_kms_vault.oke_vault[0].management_endpoint
   protection_mode     = local.vault_key_protection_mode
-  freeform_tags       = local.freeform_deployment_tags
+  freeform_tags       = var.freeform_deployment_tags
 
   key_shape {
     algorithm = local.vault_key_key_shape_algorithm

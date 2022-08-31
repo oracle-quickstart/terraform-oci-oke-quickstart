@@ -3,5 +3,5 @@
 # 
 
 output "oci_vault_key_id" {
-  value     = var.use_encryption_from_oci_vault ? (var.create_new_encryption_key ? oci_kms_key.oke_key[0].id : var.existent_encryption_key_id) : null
+  value = var.use_encryption_from_oci_vault ? (var.create_new_encryption_key ? oci_kms_key.oke_key[0].id : var.existent_encryption_key_id) : null
 }
