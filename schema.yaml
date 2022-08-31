@@ -24,16 +24,6 @@ variableGroups:
     - app_name
     - show_advanced
 
-  - title: "Tag options"
-    variables:
-    - app_deployment_environment
-    - app_deployment_type
-
-  - title: "Other Oracle-managed services"
-    variables:
-    - ofs_provision
-    - oss_provision
-
   - title: "OKE Cluster Configuration"
     variables:
     - create_new_oke_cluster
@@ -50,8 +40,8 @@ variableGroups:
     variables:
     - cluster_autoscaler_enabled
     - num_pool_workers
-    - cluster_autoscaler_min_nodes
-    - cluster_autoscaler_max_nodes
+    - cluster_autoscaler_min_nodes_1
+    - cluster_autoscaler_max_nodes_1
     - node_pool_instance_shape
     - generate_public_ssh_key
     - public_ssh_key
@@ -119,6 +109,10 @@ variableGroups:
   #     and:
   #       - show_advanced
 
+  - title: "Tagging"
+    variables:
+    - tag_values
+
   - title: "Extras Hidden"
     variables:
       - user_ocid
@@ -144,38 +138,6 @@ variables:
     visible:
       and:
         - create_new_oke_cluster
-
-  app_deployment_environment:
-    type: enum
-    enum:
-    - "SANDBOX"
-    - "DEV"
-    - "QA"
-    - "STG"
-    - "PRD"
-    title: "Choose which Environment for deployment"
-    required: false
-    visible: true
-
-  app_deployment_type:
-    type: enum
-    enum:
-    - "Green"
-    - "Blue"
-    - "Purple"
-    title: "Choose which deployment type"
-    required: true
-    visible: true
-    
-  ofs_provision:
-    type: boolean
-    title: "Provision Oracle File Storage"
-    required: true
-
-  oss_provision:
-    type: boolean
-    title: "Provision OCI Streaming Service - Kafka Compatible"
-    required: true
 
   show_advanced:
     type: boolean
@@ -298,7 +260,7 @@ variables:
         - not:
           - cluster_autoscaler_enabled
 
-  cluster_autoscaler_min_nodes:
+  cluster_autoscaler_min_nodes_1:
     type: integer
     title: "Autoscaler: Minimum number of nodes"
     minimum: 1
@@ -309,7 +271,7 @@ variables:
         - create_new_oke_cluster
         - cluster_autoscaler_enabled
 
-  cluster_autoscaler_max_nodes:
+  cluster_autoscaler_max_nodes_1:
     type: integer
     title: "Autoscaler: Maximum number of nodes"
     minimum: 1
@@ -670,6 +632,14 @@ variables:
   cert_manager_enabled:
     type: boolean
     title: "Certificate Management"
+
+  tag_values:
+    type: oci:identity:tag:value
+    title: Tag Resources
+    required: false
+    visible: show_advanced
+    dependsOn:
+      compartmentId: compartment_ocid
 
   # Network Type Options
   # network_strategy:
