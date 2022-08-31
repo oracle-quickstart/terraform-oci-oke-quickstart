@@ -5,11 +5,11 @@
 resource "oci_containerengine_node_pool" "oke_node_pool" {
   cluster_id         = var.oke_cluster_ocid
   compartment_id     = var.oke_cluster_compartment_ocid
-  kubernetes_version = (var.k8s_version == "Latest") ? local.node_pool_k8s_latest_version : var.k8s_version
+  kubernetes_version = local.node_k8s_version
   name               = var.node_pool_name
   node_shape         = var.node_pool_shape
-  ssh_public_key     = var.generate_public_ssh_key ? tls_private_key.oke_worker_node_ssh_key.public_key_openssh : var.public_ssh_key
-  freeform_tags      = local.freeform_deployment_tags
+  ssh_public_key     = var.public_ssh_key
+  freeform_tags      = var.freeform_deployment_tags
 
   node_config_details {
     dynamic "placement_configs" {
@@ -24,9 +24,9 @@ resource "oci_containerengine_node_pool" "oke_node_pool" {
       cni_type = "FLANNEL_OVERLAY"
     }
     # nsg_ids       = []
-    size          = var.num_pool_workers
-    kms_key_id    = var.oci_vault_key_id_oke_node_boot_volume ? var.oci_vault_key_id_oke_node_boot_volume : null
-    freeform_tags = local.freeform_deployment_tags
+    size          = var.node_pool_min_nodes
+    kms_key_id    = var.oci_vault_key_id_oke_node_boot_volume != "" ? var.oci_vault_key_id_oke_node_boot_volume : null
+    freeform_tags = var.freeform_deployment_tags
   }
 
   dynamic "node_shape_config" {
@@ -53,7 +53,7 @@ resource "oci_containerengine_node_pool" "oke_node_pool" {
     value = var.node_pool_name
   }
 
-  # count = var.create_new_oke_cluster ? 1 : 0
+  count = var.create_new_node_pool ? 1 : 0
 }
 
 locals {
@@ -62,10 +62,5 @@ locals {
 
   # Gets the latest Kubernetes version supported by the node pool
   node_pool_k8s_latest_version = reverse(sort(data.oci_containerengine_node_pool_option.node_pool.kubernetes_versions))[0]
-}
-
-# Generate ssh keys to access Worker Nodes, if generate_public_ssh_key=true, applies to the pool
-resource "tls_private_key" "oke_worker_node_ssh_key" {
-  algorithm = "RSA"
-  rsa_bits  = 2048
+  node_k8s_version             = (var.node_k8s_version == "Latest") ? local.node_pool_k8s_latest_version : var.node_k8s_version
 }

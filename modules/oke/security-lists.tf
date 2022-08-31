@@ -4,9 +4,9 @@
 
 resource "oci_core_security_list" "oke_nodes_security_list" {
   compartment_id = local.oke_compartment_ocid
-  display_name   = "oke-nodes-wkr-seclist-${local.app_name_normalized}-${random_string.deploy_id.result}"
+  display_name   = "oke-nodes-wkr-seclist-${local.app_name_normalized}-${local.deploy_id}"
   vcn_id         = oci_core_virtual_network.oke_vcn[0].id
-  freeform_tags  = local.freeform_deployment_tags
+  freeform_tags  = var.freeform_deployment_tags
 
   # Ingresses
   ingress_security_rules {
@@ -129,18 +129,18 @@ resource "oci_core_security_list" "oke_nodes_security_list" {
 
 resource "oci_core_security_list" "oke_lb_security_list" {
   compartment_id = local.oke_compartment_ocid
-  display_name   = "oke-lb-seclist-${local.app_name_normalized}-${random_string.deploy_id.result}"
+  display_name   = "oke-lb-seclist-${local.app_name_normalized}-${local.deploy_id}"
   vcn_id         = oci_core_virtual_network.oke_vcn[0].id
-  freeform_tags  = local.freeform_deployment_tags
+  freeform_tags  = var.freeform_deployment_tags
 
   count = var.create_new_oke_cluster ? 1 : 0
 }
 
 resource "oci_core_security_list" "oke_endpoint_security_list" {
   compartment_id = local.oke_compartment_ocid
-  display_name   = "oke-k8s-api-endpoint-seclist-${local.app_name_normalized}-${random_string.deploy_id.result}"
+  display_name   = "oke-k8s-api-endpoint-seclist-${local.app_name_normalized}-${local.deploy_id}"
   vcn_id         = oci_core_virtual_network.oke_vcn[0].id
-  freeform_tags  = local.freeform_deployment_tags
+  freeform_tags  = var.freeform_deployment_tags
 
   # Ingresses
 

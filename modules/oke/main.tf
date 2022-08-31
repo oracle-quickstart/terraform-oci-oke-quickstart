@@ -5,10 +5,10 @@
 resource "oci_containerengine_cluster" "oke_cluster" {
   compartment_id     = local.oke_compartment_ocid
   kubernetes_version = (var.k8s_version == "Latest") ? local.cluster_k8s_latest_version : var.k8s_version
-  name               = "${var.app_name} (${random_string.deploy_id.result})"
+  name               = "${local.app_name} (${local.deploy_id})"
   vcn_id             = oci_core_virtual_network.oke_vcn[0].id
-  kms_key_id         = var.oci_vault_key_id_oke_secrets ? var.oci_vault_key_id_oke_secrets : null
-  freeform_tags      = local.freeform_deployment_tags
+  kms_key_id         = var.oci_vault_key_id_oke_secrets != "" ? var.oci_vault_key_id_oke_secrets : null
+  freeform_tags      = var.freeform_deployment_tags
 
   endpoint_config {
     is_public_ip_enabled = (var.cluster_endpoint_visibility == "Private") ? false : true
@@ -29,16 +29,16 @@ resource "oci_containerengine_cluster" "oke_cluster" {
       pods_cidr     = lookup(var.network_cidrs, "PODS-CIDR")
     }
     persistent_volume_config {
-      freeform_tags = local.freeform_deployment_tags
+      freeform_tags = var.freeform_deployment_tags
     }
     service_lb_config {
-      freeform_tags = local.freeform_deployment_tags
+      freeform_tags = var.freeform_deployment_tags
     }
   }
   image_policy_config {
     is_policy_enabled = false
     # key_details {
-    #   # kms_key_id = var.oci_vault_key_id_oke_image_policy ? var.oci_vault_key_id_oke_image_policy : null
+    #   # kms_key_id = var.oci_vault_key_id_oke_image_policy != "" ? var.oci_vault_key_id_oke_image_policy : null
     # }
   }
   cluster_pod_network_options {
@@ -117,33 +117,12 @@ resource "oci_containerengine_cluster" "oke_cluster" {
 # Local kubeconfig for when using Terraform locally. Not used by Oracle Resource Manager
 resource "local_file" "oke_kubeconfig" {
   content  = data.oci_containerengine_cluster_kube_config.oke.content
-  filename = "${path.module}/generated/kubeconfig"
+  filename = "${path.root}/generated/kubeconfig"
 }
-
-# # Generate ssh keys to access Worker Nodes, if generate_public_ssh_key=true, applies to the pool
-# resource "tls_private_key" "oke_worker_node_ssh_key" {
-#   algorithm = "RSA"
-#   rsa_bits  = 2048
-# }
 
 # Get OKE options
 locals {
-  cluster_k8s_latest_version   = reverse(sort(data.oci_containerengine_cluster_option.oke.kubernetes_versions))[0]
-  # node_pool_k8s_latest_version = reverse(sort(data.oci_containerengine_node_pool_option.oke.kubernetes_versions))[0]
+  cluster_k8s_latest_version = reverse(sort(data.oci_containerengine_cluster_option.oke.kubernetes_versions))[0]
   deployed_k8s_version = var.create_new_oke_cluster ? ((var.k8s_version == "Latest") ? local.cluster_k8s_latest_version : var.k8s_version) : [
   for x in data.oci_containerengine_clusters.oke.clusters : x.kubernetes_version if x.id == var.existent_oke_cluster_id][0]
-}
-
-# # Checks if is using Flexible Compute Shapes
-# locals {
-#   # is_flexible_node_shape = contains(local.compute_flexible_shapes, var.node_pool_shape)
-#   is_flexible_node_shape = contains(split(".", var.node_pool_shape), "Flex")
-# }
-
-output "debug_k8s_version_calculated" {
-  value = ((var.k8s_version == "Latest") ? local.cluster_k8s_latest_version : var.k8s_version)
-}
-
-output "debug_k8s_version_var" {
-  value = var.k8s_version
 }

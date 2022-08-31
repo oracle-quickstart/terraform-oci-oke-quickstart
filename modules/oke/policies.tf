@@ -3,8 +3,8 @@
 # 
 
 resource "oci_identity_dynamic_group" "app_dynamic_group" {
-  name           = "${local.app_name_normalized}-dg-${random_string.deploy_id.result}"
-  description    = "${var.app_name} OKE Cluster Dynamic Group (${random_string.deploy_id.result})"
+  name           = "${local.app_name_normalized}-dg-${local.deploy_id}"
+  description    = "${local.app_name} OKE Cluster Dynamic Group (${local.deploy_id})"
   compartment_id = var.tenancy_ocid
   matching_rule  = "ANY {${join(",", local.dynamic_group_matching_rules)}}"
 
@@ -13,8 +13,8 @@ resource "oci_identity_dynamic_group" "app_dynamic_group" {
   count = var.create_dynamic_group_for_nodes_in_compartment ? 1 : 0
 }
 resource "oci_identity_policy" "app_compartment_policies" {
-  name           = "${local.app_name_normalized}-compartment-policies-${random_string.deploy_id.result}"
-  description    = "${var.app_name} OKE Cluster Compartment Policies (${random_string.deploy_id.result})"
+  name           = "${local.app_name_normalized}-compartment-policies-${local.deploy_id}"
+  description    = "${local.app_name} OKE Cluster Compartment Policies (${local.deploy_id})"
   compartment_id = local.oke_compartment_ocid
   statements     = local.app_compartment_statements
 
@@ -32,7 +32,7 @@ locals {
     local.clusters_in_compartment_rule
   )
   app_compartment_statements = concat(
-    var.cluster_autoscaler_enabled ? local.oke_cluster_statements : []
+    local.oke_cluster_statements
   )
 }
 

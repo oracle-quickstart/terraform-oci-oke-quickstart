@@ -5,9 +5,9 @@
 output "comments" {
   value = "The application URL will be unavailable for a few minutes after provisioning while the application is configured and deployed to Kubernetes"
 }
-output "deploy_id" {
-  value = random_string.deploy_id.result
-}
+# output "deploy_id" {
+#   value = random_string.deploy_id.result
+# }
 output "deployed_oke_kubernetes_version" {
   value = local.deployed_k8s_version
 }

@@ -12,26 +12,12 @@ variable "oke_cluster_compartment_ocid" {
   type        = string
 }
 
-## App Variables
-variable "app_name" {
-  default     = "OKE App"
-  description = "Application name. Will be used as prefix to identify resources, such as OKE, VCN, ATP, and others"
-}
-variable "app_deployment_environment" {
-  default     = "generic" # e.g.: Development, QA, Stage, ...
-  description = "Deployment environment for the freeform tags"
-}
-variable "app_deployment_type" {
-  default     = "generic" # e.g.: App Type 1, App Type 2, Red, Purple, ...
-  description = "Deployment type for the freeform tags"
-}
-variable "deploy_id" {
-  default     = ""
-  description = "Deployment ID"
-}
-
 ## Node Pool Variables
-variable "k8s_version" {
+variable "create_new_node_pool" {
+  default     = true
+  description = "Create a new node pool if true or use an existing one if false"
+}
+variable "node_k8s_version" {
   description = "Kubernetes version installed on your worker nodes"
   type        = string
   default     = "Latest"
@@ -40,9 +26,13 @@ variable "node_pool_name" {
   default     = "pool1"
   description = "Name of the node pool"
 }
-variable "num_pool_workers" {
+variable "node_pool_min_nodes" {
   default     = 3
   description = "The number of worker nodes in the node pool. If select Cluster Autoscaler, will assume the minimum number of nodes configured"
+}
+variable "node_pool_max_nodes" {
+  default     = 3
+  description = "The max number of worker nodes in the node pool if using Cluster Autoscaler."
 }
 variable "node_pool_shape" {
   default     = "VM.Standard.E4.Flex"
@@ -68,9 +58,6 @@ variable "node_pool_boot_volume_size_in_gbs" {
   default     = "50"
   description = "Specify a custom boot volume size (in GB)"
 }
-variable "generate_public_ssh_key" {
-  default = true
-}
 variable "public_ssh_key" {
   default     = ""
   description = "In order to access your private nodes with a public SSH key you will need to set up a bastion host (a.k.a. jump box). If using public nodes, bastion is not needed. Left blank to not import keys."
@@ -94,19 +81,10 @@ variable "tenancy_ocid" {}
 
 # App Name Locals
 locals {
-  app_name_normalized = substr(replace(lower(var.app_name), " ", "-"), 0, 6)
+  app_name_normalized = substr(replace(lower(var.freeform_deployment_tags.AppName), " ", "-"), 0, 6)
 }
 
-# Deployment Details
-variable "app_details" {
-  description = "App Details"
-}
-
-# Deployment Tags
-locals {
-  freeform_deployment_tags = {
-    "DeploymentID" = "${var.app_details.app_deployment_id}",
-    "AppName"      = "${var.app_details.app_name}",
-    "Environment"  = "${var.app_details.app_deployment_environment}",
-  "DeploymentType" = "${var.app_details.app_deployment_type}" }
+# Deployment Details + Freeform Tags
+variable "freeform_deployment_tags" {
+  description = "Tags to be added to the resources"
 }
