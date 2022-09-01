@@ -5,21 +5,21 @@
 resource "oci_core_subnet" "extra_subnet" {
   cidr_block                 = lookup(var.network_cidrs, "EXTRA-SUBNET-REGIONAL-CIDR")
   compartment_id             = var.oke_vcn_compartment_ocid
-  display_name               = "${local.subnet_name_normalized}-subnet-${random_string.deploy_id.result}"
-  dns_label                  = "${local.subnet_name_normalized}${random_string.deploy_id.result}"
+  display_name               = "${local.subnet_name_normalized}-subnet-${local.deploy_id}"
+  dns_label                  = "${local.subnet_name_normalized}${local.deploy_id}"
   vcn_id                     = var.oke_vcn_ocid
   prohibit_public_ip_on_vnic = true
   route_table_id             = oci_core_route_table.extra_subnet_route_table[0].id
   dhcp_options_id            = var.oke_vcn_default_dhcp_id
   security_list_ids          = [oci_core_security_list.extra_subnet_security_list[0].id]
-  freeform_tags              = local.freeform_deployment_tags
+  freeform_tags              = var.freeform_deployment_tags
 }
 
 resource "oci_core_route_table" "extra_subnet_route_table" {
   compartment_id = var.oke_vcn_compartment_ocid
   vcn_id         = var.oke_vcn_ocid
-  display_name   = "${local.subnet_name_normalized}-route-table-${random_string.deploy_id.result}"
-  freeform_tags  = local.freeform_deployment_tags
+  display_name   = "${local.subnet_name_normalized}-route-table-${local.deploy_id}"
+  freeform_tags  = var.freeform_deployment_tags
 
   route_rules {
     description       = "Traffic to/from internet"

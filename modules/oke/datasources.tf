@@ -47,8 +47,3 @@ data "oci_objectstorage_namespace" "ns" {
   compartment_id = local.oke_compartment_ocid
 }
 
-# Randoms
-resource "random_string" "deploy_id" {
-  length  = 4
-  special = false
-}
