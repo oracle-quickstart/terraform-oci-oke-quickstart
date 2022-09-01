@@ -39,6 +39,7 @@ variableGroups:
   - title: "OKE Worker Nodes"
     variables:
     - cluster_autoscaler_enabled
+    - existent_oke_nodepool_id_for_autoscaler_1
     - num_pool_workers
     - cluster_autoscaler_min_nodes_1
     - cluster_autoscaler_max_nodes_1
@@ -121,7 +122,6 @@ variableGroups:
       # - network_cidrs
       - node_pool_boot_volume_size_in_gbs
       - oke_compartment_description
-      - existent_oke_nodepool_id_for_autoscaler
     visible: false
 
 variables:
@@ -282,7 +282,7 @@ variables:
         - create_new_oke_cluster
         - cluster_autoscaler_enabled
 
-  existent_oke_nodepool_id_for_autoscaler:
+  existent_oke_nodepool_id_for_autoscaler_1:
     type: string
     title: "OKE Nodepool id"
     required: true
