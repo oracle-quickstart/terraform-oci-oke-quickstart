@@ -3,7 +3,7 @@
 # 
 
 locals {
-  cluster_autoscaler_supported_k8s_versions           = { "1.21" = "1.21.1-3", "1.22" = "1.22.2-4", "1.23" = "1.23.0-4" } # There's no API to get that list. Need to be updated manually
+  cluster_autoscaler_supported_k8s_versions           = { "1.21" = "1.21.1-3", "1.22" = "1.22.2-4", "1.23" = "1.23.0-4", "1.24" = "1.23.0-4" } # There's no API to get that list. Need to be updated manually
   cluster_autoscaler_image_version                    = lookup(local.cluster_autoscaler_supported_k8s_versions, local.k8s_major_minor_version, reverse(values(local.cluster_autoscaler_supported_k8s_versions))[0])
   cluster_autoscaler_default_region                   = "us-ashburn-1"
   cluster_autoscaler_image_regions                    = ["us-ashburn-1", "us-phoenix-1", "uk-london-1", "eu-frankfurt-1"]
@@ -19,7 +19,7 @@ locals {
   k8s_major_minor_version                             = regex("\\d+(?:\\.(?:\\d+|x)(?:))", var.oke_node_pools.0.node_k8s_version)
 }
 
-# NOTE: Service Account creation is not supported with Kubernetes 1.24 and Terraform Kubernetes provider 2.12.1.
+# NOTE: Service Account Terraform resource is not supported with Kubernetes 1.24.
 resource "kubernetes_service_account" "cluster_autoscaler_sa" {
   metadata {
     name      = "cluster-autoscaler"
@@ -33,6 +33,19 @@ resource "kubernetes_service_account" "cluster_autoscaler_sa" {
 
   count = local.cluster_autoscaler_enabled ? 1 : 0
 }
+# resource "kubernetes_secret" "cluster_autoscaler_sa_secret" {
+#   metadata {
+#     name      = "cluster-autoscaler-token-secret"
+#     namespace = "kube-system"
+#     annotations = {
+#       "kubernetes.io/service-account.name"      = "cluster-autoscaler"
+#       "kubernetes.io/service-account.namespace" = "kube-system"
+#     }
+#   }
+#   type = "kubernetes.io/service-account-token"
+
+#   count = local.cluster_autoscaler_enabled ? 1 : 0
+# }
 resource "kubernetes_cluster_role" "cluster_autoscaler_cr" {
   metadata {
     name = "cluster-autoscaler"
