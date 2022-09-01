@@ -1,6 +1,17 @@
+# NOTE
+
+**This is a pre-release version of the module, some features have not been migrated from MuShop's OKE Cluster deployment.**
+
+---
+
 # Oracle Container Engine for Kubernetes ([OKE][oke]) Base stack
 
 ![Stack Release](https://img.shields.io/github/v/release/oracle-quickstart/oke-base.svg)
+![Stack Build](https://img.shields.io/github/workflow/status/oracle-quickstart/oke-base/Generate%20stacks%20and%20publish%20release?label=stack&logo=oracle&logoColor=red)
+![AquaSec TFSec](https://img.shields.io/github/workflow/status/oracle-quickstart/oke-base/tfsec?label=tfsec&logo=aqua)
+![Terraform](https://img.shields.io/badge/terraform->%3D%201.1-%235835CC.svg?logo=terraform)
+![Stack License](https://img.shields.io/github/license/oracle-quickstart/oke-base)
+![Stack Downloads](https://img.shields.io/github/downloads/oracle-quickstart/oke-base/total?logo=terraform)
 
 This repo contains a Terraform Module for how to deploy Oracle Container Engine for [Kubernetes][kubernetes_101] ([OKE][oke]) cluster on Oracle Cloud Infrastructure ([OCI][oci]). This module is designed to be used with the [OCI Resource Manager][oci_rm] to deploy a cluster in a single step. The module can also be used with the [OCI Terraform Provider][oci_tf_provider] to deploy a cluster using local or CloudShell Terraform cli.
 
@@ -97,10 +108,11 @@ is a Terraform Module and contains many "submodules" which can be composed toget
 
 |   |   |   |
 |---|---|---|
-||[oci-cloudnative (MuShop)](https://github.com/oracle-quickstart/oci-cloudnative)| This project is a reference implementation of a cloud native microservices application on Oracle Cloud Infrastructure (OCI). It is a multi-tiered application that demonstrates how to build and deploy a cloud native application on OCI using Kubernetes, Docker, Istio and other open source technologies. |
-||[oke-unreal-pixel-streaming](https://github.com/oracle-quickstart/oke-unreal-pixel-streaming)| This project deploys a Kubernetes cluster on Oracle Cloud Infrastructure (OCI) and deploys the Unreal Pixel Streaming demo application on the cluster. |
-||[oke-sysdig](https://github.com/oracle-quickstart/oke-sysdig)|This project deploy a Sysdig Secure agent on an OKE cluster.|
-||[oke-snyk](https://github.com/oracle-quickstart/oke-snyk)|This project deploy a Snyk agent on an OKE cluster.|
+|![MuShop Logo](./docs/images/mushop-logo.png#gh-light-mode-only)![MuShop Logo - Dark Mode](./docs/images/mushop-logo-inverse.png#gh-dark-mode-only)|[oci-cloudnative (MuShop)](https://github.com/oracle-quickstart/oci-cloudnative)| This project is a reference implementation of a cloud native microservices application on Oracle Cloud Infrastructure (OCI). It is a polyglot multi-tiered application that demonstrates how to build and deploy a cloud native application on OCI using Kubernetes, Docker, Istio and other open source technologies. |
+||[oci-micronaut (MuShop)](https://github.com/oracle-quickstart/oci-micronaut)| This project is a fork of the original MuShop implementation which used different technologies for each individual Microservice applicationµ and is designed as a demonstration of how to use Micronaut to build applications for Oracle Cloud. |
+|![Unreal Logo](./docs/images/UE_Logo_horizontal_unreal-engine_black.svg#gh-light-mode-only)![Unreal Logo - Dark Mode](./docs/images/UE_Logo_horizontal_unreal-engine_white.svg#gh-dark-mode-only)|[oke-unreal-pixel-streaming](https://github.com/oracle-quickstart/oke-unreal-pixel-streaming)| This project deploys a Kubernetes cluster on Oracle Cloud Infrastructure (OCI) and deploys the Unreal Pixel Streaming demo application on the cluster. |
+|![Sysdig Logo](./docs/images/sysdig-logo.svg#gh-light-mode-only)![Sysdig Logo - Dark Mode](./docs/images/sysdig-logo-white-text.svg#gh-dark-mode-only)|[oke-sysdig](https://github.com/oracle-quickstart/oke-sysdig)|This project deploy a Sysdig Secure agent on an OKE cluster.|
+|![Snyk Logo](./docs/images/snyk-logo-black.svg#gh-light-mode-only)![Snyk Logo - Dark Mode](./docs/images/snyk-logo-white.svg#gh-dark-mode-only) |[oke-snyk](https://github.com/oracle-quickstart/oke-snyk)|This project deploy a Snyk agent on an OKE cluster.|
 > Several other projects, samples, demos, and customers quickstarts also uses this module or used as base.
 
 ## How is this Terraform Module versioned?

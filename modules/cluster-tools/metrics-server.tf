@@ -16,7 +16,7 @@ resource "helm_release" "metrics_server" {
   repository = local.helm_repository.metrics_server
   chart      = "metrics-server"
   version    = local.helm_repository.metrics_server_version
-  namespace  = kubernetes_namespace.cluster_tools.id
+  namespace  = "kube-system" # kubernetes_namespace.cluster_tools.id # Workaround to run on 1.24
   wait       = false
 
   set {

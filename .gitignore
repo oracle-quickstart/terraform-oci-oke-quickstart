@@ -36,3 +36,6 @@ crash.log
 
 ## vscode
 .vscode/
+
+## Generated files
+generated/

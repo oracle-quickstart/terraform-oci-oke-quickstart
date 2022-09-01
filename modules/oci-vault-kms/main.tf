@@ -1,4 +1,4 @@
-# Copyright (c) 2021 Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2021, 2022 Oracle and/or its affiliates. All rights reserved.
 # Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 # 
 
@@ -8,22 +8,22 @@
 
 ### OCI Vault vault
 resource "oci_kms_vault" "oke_vault" {
-  compartment_id = local.oke_compartment_ocid
-  display_name   = "${local.vault_display_name} - ${random_string.deploy_id.result}"
+  compartment_id = var.oke_cluster_compartment_ocid
+  display_name   = "${local.vault_display_name} - ${var.freeform_deployment_tags.DeploymentID}"
   vault_type     = local.vault_type[0]
-  freeform_tags  = local.freeform_deployment_tags
+  freeform_tags  = var.freeform_deployment_tags
 
-  depends_on = [oci_identity_policy.kms_user_group_compartment_policies]
+  # depends_on = [oci_identity_policy.kms_user_group_compartment_policies]
 
   count = var.use_encryption_from_oci_vault ? (var.create_new_encryption_key ? 1 : 0) : 0
 }
 ### OCI Vault key
 resource "oci_kms_key" "oke_key" {
-  compartment_id      = local.oke_compartment_ocid
-  display_name        = "${local.vault_key_display_name} - ${random_string.deploy_id.result}"
+  compartment_id      = var.oke_cluster_compartment_ocid
+  display_name        = "${local.vault_key_display_name} - ${var.freeform_deployment_tags.DeploymentID}"
   management_endpoint = oci_kms_vault.oke_vault[0].management_endpoint
   protection_mode     = local.vault_key_protection_mode
-  freeform_tags       = local.freeform_deployment_tags
+  freeform_tags       = var.freeform_deployment_tags
 
   key_shape {
     algorithm = local.vault_key_key_shape_algorithm

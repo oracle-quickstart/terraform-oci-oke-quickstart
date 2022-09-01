@@ -66,18 +66,15 @@ variable "cluster_endpoint_visibility" {
 }
 
 ## OKE Encryption details
-variable "use_encryption_from_oci_vault" {
-  default     = false
-  description = "By default, Oracle manages the keys that encrypts Kubernetes Secrets at Rest in Etcd, but you can choose a key from a vault that you have access to, if you want greater control over the key's lifecycle and how it's used"
+variable "oci_vault_key_id_oke_secrets" {
+  default     = null
+  description = "OCI Vault OCID to encrypt OKE secrets. If not provided, the secrets will be encrypted with the default key"
 }
-variable "create_new_encryption_key" {
-  default     = false
-  description = "Creates new vault and key on OCI Vault/Key Management/KMS and assign to boot volume of the worker nodes"
+variable "oci_vault_key_id_oke_image_policy" {
+  default     = null
+  description = "OCI Vault OCID for the Image Policy"
 }
-variable "existent_encryption_key_id" {
-  default     = ""
-  description = "Use an existent master encryption key to encrypt boot volume and object storage bucket. NOTE: If the key resides in a different compartment or in a different tenancy, make sure you have the proper policies to access, or the provision of the worker nodes will fail"
-}
+
 variable "create_vault_policies_for_group" {
   default     = false
   description = "Creates policies to allow the user applying the stack to manage vault and keys. If you are on the Administrators group or already have the policies for a compartment, this policy is not needed. If you do not have access to allow the policy, ask your administrator to include it for you"
@@ -87,68 +84,9 @@ variable "user_admin_group_for_vault_policy" {
   description = "User Identity Group to allow manage vault and keys. The user running the Terraform scripts or Applying the ORM Stack need to be on this group"
 }
 
-## OKE Autoscaler
-variable "cluster_autoscaler_enabled" {
-  default     = true
-  description = "Enables OKE cluster autoscaler. Node pools will auto scale based on the resources usage"
-}
-variable "cluster_autoscaler_min_nodes" {
-  default     = 3
-  description = "Minimum number of nodes on the node pool to be scheduled by the Kubernetes"
-}
-variable "cluster_autoscaler_max_nodes" {
-  default     = 10
-  description = "Maximum number of nodes on the node pool to be scheduled by the Kubernetes"
-}
-variable "existent_oke_nodepool_id_for_autoscaler" {
-  default     = ""
-  description = "Nodepool Id of the existent OKE to use with Cluster Autoscaler"
-}
-
-## OKE Node Pool Details
-variable "node_pool_name" {
-  default     = "pool1"
-  description = "Name of the node pool"
-}
 variable "k8s_version" {
   default     = "Latest"
-  description = "Kubernetes version installed on your master and worker nodes"
-}
-variable "num_pool_workers" {
-  default     = 3
-  description = "The number of worker nodes in the node pool. If select Cluster Autoscaler, will assume the minimum number of nodes configured"
-}
-variable "node_pool_shape" {
-  default     = "VM.Standard.E4.Flex"
-  description = "A shape is a template that determines the number of OCPUs, amount of memory, and other resources allocated to a newly created instance for the Worker Node"
-}
-
-variable "node_pool_node_shape_config_ocpus" {
-  default     = "1" # Only used if flex shape is selected
-  description = "You can customize the number of OCPUs to a flexible shape"
-}
-variable "node_pool_node_shape_config_memory_in_gbs" {
-  default     = "16" # Only used if flex shape is selected
-  description = "You can customize the amount of memory allocated to a flexible shape"
-}
-variable "node_pool_boot_volume_size_in_gbs" {
-  default     = "50"
-  description = "Specify a custom boot volume size (in GB)"
-}
-variable "image_operating_system" {
-  default     = "Oracle Linux"
-  description = "The OS/image installed on all nodes in the node pool."
-}
-variable "image_operating_system_version" {
-  default     = "8"
-  description = "The OS/image version installed on all nodes in the node pool."
-}
-variable "generate_public_ssh_key" {
-  default = true
-}
-variable "public_ssh_key" {
-  default     = ""
-  description = "In order to access your private nodes with a public SSH key you will need to set up a bastion host (a.k.a. jump box). If using public nodes, bastion is not needed. Left blank to not import keys."
+  description = "Kubernetes version installed on your Control Plane"
 }
 
 # OCI Provider
@@ -203,15 +141,18 @@ variable "show_advanced" {
 
 # App Name Locals
 locals {
-  app_name_normalized = substr(replace(lower(var.app_name), " ", "-"), 0, 6)
-  app_name_for_db     = regex("[[:alnum:]]{1,10}", var.app_name)
+  app_name_normalized = substr(replace(lower(var.freeform_deployment_tags.AppName), " ", "-"), 0, 6)
+  app_name            = var.freeform_deployment_tags.AppName
+  deploy_id           = var.freeform_deployment_tags.DeploymentID
+  app_name_for_db     = regex("[[:alnum:]]{1,10}", local.app_name)
 }
 
-# Deployment Tags
+# OKE Compartment
 locals {
-  freeform_deployment_tags = {
-    "DeploymentID" = "${random_string.deploy_id.result}",
-    "AppName"      = "${var.app_name}",
-    "Environment"  = "${var.app_deployment_environment}",
-  "DeploymentType" = "${var.app_deployment_type}" }
+  oke_compartment_ocid = var.compartment_ocid
+}
+
+# Deployment Details + Freeform Tags
+variable "freeform_deployment_tags" {
+  description = "Tags to be added to the resources"
 }

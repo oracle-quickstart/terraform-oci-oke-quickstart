@@ -3,8 +3,8 @@
 # 
 
 resource "oci_identity_dynamic_group" "app_dynamic_group" {
-  name           = "${local.app_name_normalized}-dg-${random_string.deploy_id.result}"
-  description    = "${var.app_name} OKE Cluster Dynamic Group (${random_string.deploy_id.result})"
+  name           = "${local.app_name_normalized}-dg-${local.deploy_id}"
+  description    = "${local.app_name} OKE Cluster Dynamic Group (${local.deploy_id})"
   compartment_id = var.tenancy_ocid
   matching_rule  = "ANY {${join(",", local.dynamic_group_matching_rules)}}"
 
@@ -13,8 +13,8 @@ resource "oci_identity_dynamic_group" "app_dynamic_group" {
   count = var.create_dynamic_group_for_nodes_in_compartment ? 1 : 0
 }
 resource "oci_identity_policy" "app_compartment_policies" {
-  name           = "${local.app_name_normalized}-compartment-policies-${random_string.deploy_id.result}"
-  description    = "${var.app_name} OKE Cluster Compartment Policies (${random_string.deploy_id.result})"
+  name           = "${local.app_name_normalized}-compartment-policies-${local.deploy_id}"
+  description    = "${local.app_name} OKE Cluster Compartment Policies (${local.deploy_id})"
   compartment_id = local.oke_compartment_ocid
   statements     = local.app_compartment_statements
 
@@ -24,18 +24,6 @@ resource "oci_identity_policy" "app_compartment_policies" {
 
   count = var.create_compartment_policies ? 1 : 0
 }
-resource "oci_identity_policy" "kms_user_group_compartment_policies" {
-  name           = "${local.app_name_normalized}-kms-compartment-policies-${random_string.deploy_id.result}"
-  description    = "${var.app_name} KMS User Group Compartment Policies (${random_string.deploy_id.result})"
-  compartment_id = local.oke_compartment_ocid
-  statements     = local.kms_user_group_compartment_statements
-
-  depends_on = [oci_identity_dynamic_group.app_dynamic_group]
-
-  provider = oci.home_region
-
-  count = (var.create_compartment_policies && var.create_vault_policies_for_group) ? 1 : 0
-}
 
 # Concat Matching Rules and Policy Statements
 locals {
@@ -44,11 +32,7 @@ locals {
     local.clusters_in_compartment_rule
   )
   app_compartment_statements = concat(
-    var.use_encryption_from_oci_vault ? local.allow_oke_use_oci_vault_keys_statements : [],
-    var.cluster_autoscaler_enabled ? local.oke_cluster_statements : []
-  )
-  kms_user_group_compartment_statements = concat(
-    local.allow_group_manage_vault_keys_statements
+    local.oke_cluster_statements
   )
 }
 
@@ -70,19 +54,6 @@ locals {
     "Allow dynamic-group ${local.app_dynamic_group} to use network-security-groups in compartment id ${local.oke_compartment_ocid}",
     "Allow dynamic-group ${local.app_dynamic_group} to use private-ips in compartment id ${local.oke_compartment_ocid}",
     "Allow dynamic-group ${local.app_dynamic_group} to manage public-ips in compartment id ${local.oke_compartment_ocid}"
-  ]
-  allow_oke_use_oci_vault_keys_statements = [
-    "Allow service oke to use vaults in compartment id ${local.oke_compartment_ocid}",
-    "Allow service oke to use keys in compartment id ${local.oke_compartment_ocid} where target.key.id = '${local.oci_vault_key_id}'",
-    "Allow service oke to use key-delegates in compartment id ${local.oke_compartment_ocid} where target.key.id = '${local.oci_vault_key_id}'",
-    "Allow service blockstorage to use keys in compartment id ${local.oke_compartment_ocid} where target.key.id = '${local.oci_vault_key_id}'",
-    "Allow dynamic-group ${local.app_dynamic_group} to use keys in compartment id ${local.oke_compartment_ocid} where target.key.id = '${local.oci_vault_key_id}'",
-    "Allow dynamic-group ${local.app_dynamic_group} to use key-delegates in compartment id ${local.oke_compartment_ocid} where target.key.id = '${local.oci_vault_key_id}'"
-  ]
-  allow_group_manage_vault_keys_statements = [
-    "Allow group ${var.user_admin_group_for_vault_policy} to manage vaults in compartment id ${local.oke_compartment_ocid}",
-    "Allow group ${var.user_admin_group_for_vault_policy} to manage keys in compartment id ${local.oke_compartment_ocid}",
-    "Allow group ${var.user_admin_group_for_vault_policy} to use key-delegate in compartment id ${local.oke_compartment_ocid}"
   ]
 }
 

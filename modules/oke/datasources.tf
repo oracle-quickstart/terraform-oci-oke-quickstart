@@ -2,22 +2,22 @@
 # Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 # 
 
-# Gets a list of supported images based on the shape, operating_system and operating_system_version provided
-data "oci_core_images" "node_pool_images" {
-  compartment_id           = local.oke_compartment_ocid
-  operating_system         = var.image_operating_system
-  operating_system_version = var.image_operating_system_version
-  shape                    = var.node_pool_shape
-  sort_by                  = "TIMECREATED"
-  sort_order               = "DESC"
-}
+# # Gets a list of supported images based on the shape, operating_system and operating_system_version provided
+# data "oci_core_images" "node_pool_images" {
+#   compartment_id           = local.oke_compartment_ocid
+#   operating_system         = var.image_operating_system
+#   operating_system_version = var.image_operating_system_version
+#   shape                    = var.node_pool_shape
+#   sort_by                  = "TIMECREATED"
+#   sort_order               = "DESC"
+# }
 
 data "oci_containerengine_cluster_option" "oke" {
   cluster_option_id = "all"
 }
-data "oci_containerengine_node_pool_option" "oke" {
-  node_pool_option_id = "all"
-}
+# data "oci_containerengine_node_pool_option" "oke" {
+#   node_pool_option_id = "all"
+# }
 data "oci_containerengine_clusters" "oke" {
   compartment_id = local.oke_compartment_ocid
 }
@@ -47,8 +47,3 @@ data "oci_objectstorage_namespace" "ns" {
   compartment_id = local.oke_compartment_ocid
 }
 
-# Randoms
-resource "random_string" "deploy_id" {
-  length  = 4
-  special = false
-}
