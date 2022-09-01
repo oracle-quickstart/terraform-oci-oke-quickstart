@@ -3,7 +3,7 @@
 # 
 
 output "node_pool_name" {
-  value = oci_containerengine_node_pool.oke_node_pool.0.name
+  value = var.create_new_node_pool ? oci_containerengine_node_pool.oke_node_pool.0.name : var.existent_oke_nodepool_id_for_autoscaler
 }
 output "node_pool_min_nodes" {
   value = var.node_pool_min_nodes
@@ -12,7 +12,7 @@ output "node_pool_max_nodes" {
   value = var.node_pool_max_nodes
 }
 output "node_pool_id" {
-  value = oci_containerengine_node_pool.oke_node_pool.0.id
+  value = var.create_new_node_pool ? oci_containerengine_node_pool.oke_node_pool.0.id : var.existent_oke_nodepool_id_for_autoscaler
 }
 output "node_k8s_version" {
   value = local.node_k8s_version

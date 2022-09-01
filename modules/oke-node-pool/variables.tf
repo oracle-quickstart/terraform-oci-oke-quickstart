@@ -46,6 +46,10 @@ variable "node_pool_node_shape_config_memory_in_gbs" {
   default     = "16" # Only used if flex shape is selected
   description = "You can customize the amount of memory allocated to a flexible shape"
 }
+variable "existent_oke_nodepool_id_for_autoscaler" {
+  default     = ""
+  description = "Nodepool Id of the existent OKE to use with Cluster Autoscaler"
+}
 variable "image_operating_system" {
   default     = "Oracle Linux"
   description = "The OS/image installed on all nodes in the node pool."
