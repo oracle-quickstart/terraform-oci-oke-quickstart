@@ -92,6 +92,7 @@ module "oke_node_pool" {
   node_pool_shape                           = each.value.node_pool_shape
   node_pool_node_shape_config_ocpus         = each.value.node_pool_node_shape_config_ocpus
   node_pool_node_shape_config_memory_in_gbs = each.value.node_pool_node_shape_config_memory_in_gbs
+  existent_oke_nodepool_id_for_autoscaler   = each.value.existent_oke_nodepool_id_for_autoscaler
   public_ssh_key                            = local.workers_public_ssh_key
 
   # OKE Network Details
@@ -111,6 +112,7 @@ locals {
       node_pool_node_shape_config_ocpus         = var.node_pool_instance_shape.ocpus
       node_pool_node_shape_config_memory_in_gbs = var.node_pool_instance_shape.memory
       node_pool_boot_volume_size_in_gbs         = var.node_pool_boot_volume_size_in_gbs
+      existent_oke_nodepool_id_for_autoscaler   = var.existent_oke_nodepool_id_for_autoscaler_1
     },
   ]
 }
@@ -201,11 +203,15 @@ variable "cluster_autoscaler_enabled" {
 }
 variable "cluster_autoscaler_min_nodes_1" {
   default     = 3
-  description = "Minimum number of nodes on the node pool to be scheduled by the Kubernetes"
+  description = "Minimum number of nodes on the node pool to be scheduled by the Kubernetes (pool1)"
 }
 variable "cluster_autoscaler_max_nodes_1" {
   default     = 10
-  description = "Maximum number of nodes on the node pool to be scheduled by the Kubernetes"
+  description = "Maximum number of nodes on the node pool to be scheduled by the Kubernetes (pool1)"
+}
+variable "existent_oke_nodepool_id_for_autoscaler_1" {
+  default     = ""
+  description = "Nodepool Id of the existent OKE to use with Cluster Autoscaler (pool1)"
 }
 
 ## OKE Node Pool Details
@@ -269,7 +275,7 @@ variable "create_compartment_policies" {
 variable "tag_values" {
   type = map(any)
   default = { "freeformTags" = {
-    "Environment" = "Development",     # e.g.: Demo, Sandbox, Development, QA, Stage, ...
+    "Environment" = "Development", # e.g.: Demo, Sandbox, Development, QA, Stage, ...
   "DeploymentType" = "generic" } } # e.g.: App Type 1, App Type 2, Red, Purple, ...
   description = "Use Tagging to add metadata to resources. All resources created by this stack will be tagged with the selected tag values."
 }
