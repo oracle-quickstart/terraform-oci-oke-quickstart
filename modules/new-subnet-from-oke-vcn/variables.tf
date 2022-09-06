@@ -47,7 +47,7 @@ variable "freeform_deployment_tags" {
 
 # Subnet Name Locals
 locals {
-  app_name_for_dns = substr(lower(replace(local.app_name,"/\\W|_|\\s/","")), 0, 6)
+  subnet_name_for_dns    = substr(lower(replace(var.subnet_name, "/\\W|_|\\s/", "")), 0, 6)
   subnet_name_normalized = substr(replace(lower(var.subnet_name), " ", "-"), 0, 6)
   deploy_id              = var.freeform_deployment_tags.DeploymentID
 }

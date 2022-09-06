@@ -6,7 +6,7 @@ resource "oci_core_subnet" "extra_subnet" {
   cidr_block                 = lookup(var.network_cidrs, "EXTRA-SUBNET-REGIONAL-CIDR")
   compartment_id             = var.oke_vcn_compartment_ocid
   display_name               = "${local.subnet_name_normalized}-subnet-${local.deploy_id}"
-  dns_label                  = "${local.app_name_for_dns}${local.deploy_id}"
+  dns_label                  = "${local.subnet_name_for_dns}${local.deploy_id}"
   vcn_id                     = var.oke_vcn_ocid
   prohibit_public_ip_on_vnic = true
   route_table_id             = oci_core_route_table.extra_subnet_route_table[0].id
