@@ -33,7 +33,7 @@ resource "oci_core_security_list" "extra_subnet_security_list" {
     stateless        = false
   }
 
-  count = var.create_new_oke_cluster ? 1 : 0
+  count = var.create_new_subnet ? 1 : 0
 }
 
 locals {
