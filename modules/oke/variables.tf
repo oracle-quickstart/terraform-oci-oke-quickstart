@@ -144,7 +144,7 @@ locals {
   app_name            = var.freeform_deployment_tags.AppName
   deploy_id           = var.freeform_deployment_tags.DeploymentID
   app_name_normalized = substr(replace(lower(var.freeform_deployment_tags.AppName), " ", "-"), 0, 6)
-  app_name_for_dns = substr(lower(replace(var.freeform_deployment_tags.AppName,"/\\W|_|\\s/","")), 0, 6)
+  app_name_for_dns    = substr(lower(replace(var.freeform_deployment_tags.AppName, "/\\W|_|\\s/", "")), 0, 6)
 }
 
 # OKE Compartment
