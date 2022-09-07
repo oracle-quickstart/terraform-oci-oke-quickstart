@@ -5,7 +5,7 @@
 # Create namespace cluster-tools for supporting services
 resource "kubernetes_namespace" "cluster_tools" {
   metadata {
-    name = "cluster-tools"
+    name = var.cluster_tools_namespace
   }
 }
 
@@ -29,3 +29,8 @@ locals {
 variable "tenancy_ocid" {}
 variable "compartment_ocid" {}
 variable "region" {}
+
+# Namespace
+variable "cluster_tools_namespace" {
+  default = "cluster-tools"
+}
