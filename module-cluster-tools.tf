@@ -11,6 +11,9 @@ module "cluster-tools" {
   region           = var.region
 
   # Cluster Tools
+  ## Namespace
+  cluster_tools_namespace = "cluster-tools"
+
   ## Ingress
   ingress_nginx_enabled                = var.ingress_nginx_enabled
   ingress_load_balancer_shape          = var.ingress_load_balancer_shape
