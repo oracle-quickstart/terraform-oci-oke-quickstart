@@ -77,3 +77,9 @@ variable "grafana_enabled" {
   default     = false
   description = "Enable Grafana Dashboards. Includes example dashboards and Prometheus, OCI Logging and OCI Metrics datasources"
 }
+
+# Cluster Tools Outputs
+output "grafana_admin_password" {
+  value = module.cluster-tools.grafana_admin_password
+  sensitive = true
+}

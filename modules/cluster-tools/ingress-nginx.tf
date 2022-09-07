@@ -72,3 +72,14 @@ resource "helm_release" "ingress_nginx" {
 
   count = var.ingress_nginx_enabled ? 1 : 0
 }
+
+## Kubernetes Service: ingress-nginx-controller
+data "kubernetes_service" "ingress" {
+  metadata {
+    name      = "ingress-nginx-controller"
+    namespace = kubernetes_namespace.cluster_tools.id
+  }
+  depends_on = [helm_release.ingress_nginx]
+
+  count = var.ingress_nginx_enabled ? 1 : 0
+}

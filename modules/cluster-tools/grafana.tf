@@ -148,3 +148,23 @@ EOF
 
   count = var.grafana_enabled ? 1 : 0
 }
+
+## Kubernetes Secret: Grafana Admin Password
+data "kubernetes_secret" "grafana" {
+  metadata {
+    name      = "grafana"
+    namespace = kubernetes_namespace.cluster_tools.id
+  }
+  depends_on = [helm_release.grafana, helm_release.mushop]
+
+  count = var.grafana_enabled ? 1 : 0
+}
+
+locals {
+  grafana_admin_password  = var.grafana_enabled ? data.kubernetes_secret.mushop_utils_grafana.0.data.admin-password : "Grafana_Not_Deployed"
+}
+
+output "grafana_admin_password" {
+  value     = var.grafana_enabled ? local.grafana_admin_password : null
+  sensitive = true
+}
