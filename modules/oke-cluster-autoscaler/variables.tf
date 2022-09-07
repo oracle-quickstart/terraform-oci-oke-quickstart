@@ -22,12 +22,8 @@ variable "oke_node_pools" {
   type = list(any)
 
   default     = []
-  description = "Node pools (id, min_nodes, max_nodes) to use with Cluster Autoscaler"
+  description = "Node pools (id, min_nodes, max_nodes, k8s_version) to use with Cluster Autoscaler"
 }
-# variable "k8s_version" {
-#   default     = "Latest"
-#   description = "Kubernetes version installed on your worker nodes"
-# }
 
 # OCI Provider
 variable "region" {}

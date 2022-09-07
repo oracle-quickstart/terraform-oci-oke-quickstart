@@ -94,6 +94,8 @@ module "oke_node_pool" {
   node_pool_node_shape_config_memory_in_gbs = each.value.node_pool_node_shape_config_memory_in_gbs
   existent_oke_nodepool_id_for_autoscaler   = each.value.existent_oke_nodepool_id_for_autoscaler
   public_ssh_key                            = local.workers_public_ssh_key
+  image_operating_system                    = each.value.image_operating_system
+  image_operating_system_version            = each.value.image_operating_system_version
 
   # OKE Network Details
   oke_vcn_nodes_subnet_ocid = module.oke.oke_vcn_nodes_subnet_ocid
@@ -104,15 +106,17 @@ module "oke_node_pool" {
 locals {
   node_pools = [
     {
-      node_pool_name                            = var.node_pool_name != "" ? var.node_pool_name : "pool1" # Must be unique
-      node_pool_min_nodes                       = var.cluster_autoscaler_enabled ? var.cluster_autoscaler_min_nodes_1 : var.num_pool_workers
+      node_pool_name                            = var.node_pool_name_1 != "" ? var.node_pool_name_1 : "pool1" # Must be unique
+      node_pool_min_nodes                       = var.cluster_autoscaler_enabled ? var.cluster_autoscaler_min_nodes_1 : var.num_pool_workers_1
       node_pool_max_nodes                       = var.cluster_autoscaler_max_nodes_1
       node_k8s_version                          = var.k8s_version # TODO: Allow to set different version for each node pool
-      node_pool_shape                           = var.node_pool_instance_shape.instanceShape
-      node_pool_node_shape_config_ocpus         = var.node_pool_instance_shape.ocpus
-      node_pool_node_shape_config_memory_in_gbs = var.node_pool_instance_shape.memory
-      node_pool_boot_volume_size_in_gbs         = var.node_pool_boot_volume_size_in_gbs
+      node_pool_shape                           = var.node_pool_instance_shape_1.instanceShape
+      node_pool_node_shape_config_ocpus         = var.node_pool_instance_shape_1.ocpus
+      node_pool_node_shape_config_memory_in_gbs = var.node_pool_instance_shape_1.memory
+      node_pool_boot_volume_size_in_gbs         = var.node_pool_boot_volume_size_in_gbs_1
       existent_oke_nodepool_id_for_autoscaler   = var.existent_oke_nodepool_id_for_autoscaler_1
+      image_operating_system                    = var.image_operating_system_1
+      image_operating_system_version            = var.image_operating_system_version_1
     },
   ]
 }
@@ -215,21 +219,22 @@ variable "existent_oke_nodepool_id_for_autoscaler_1" {
 }
 
 ## OKE Node Pool Details
-variable "node_pool_name" {
-  default     = "pool1"
-  description = "Name of the node pool"
-}
 variable "k8s_version" {
   default     = "Latest"
   description = "Kubernetes version installed on your Control Plane and worker nodes. If not version select, will use the latest available."
 }
-variable "num_pool_workers" {
+### Node Pool 1
+variable "node_pool_name_1" {
+  default     = "pool1"
+  description = "Name of the node pool"
+}
+variable "num_pool_workers_1" {
   default     = 3
   description = "The number of worker nodes in the node pool. If select Cluster Autoscaler, will assume the minimum number of nodes configured"
 }
 
-# ocpus and memory are only used if flex shape is selected
-variable "node_pool_instance_shape" {
+#### ocpus and memory are only used if flex shape is selected
+variable "node_pool_instance_shape_1" {
   type = map(any)
   default = {
     "instanceShape" = "VM.Standard.E4.Flex"
@@ -238,15 +243,15 @@ variable "node_pool_instance_shape" {
   }
   description = "A shape is a template that determines the number of OCPUs, amount of memory, and other resources allocated to a newly created instance for the Worker Node. Select at least 2 OCPUs and 16GB of memory if using Flex shapes"
 }
-variable "node_pool_boot_volume_size_in_gbs" {
+variable "node_pool_boot_volume_size_in_gbs_1" {
   default     = "60"
   description = "Specify a custom boot volume size (in GB)"
 }
-variable "image_operating_system" {
+variable "image_operating_system_1" {
   default     = "Oracle Linux"
   description = "The OS/image installed on all nodes in the node pool."
 }
-variable "image_operating_system_version" {
+variable "image_operating_system_version_1" {
   default     = "8"
   description = "The OS/image version installed on all nodes in the node pool."
 }

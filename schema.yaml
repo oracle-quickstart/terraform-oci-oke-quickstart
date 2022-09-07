@@ -40,15 +40,15 @@ variableGroups:
     variables:
     - cluster_autoscaler_enabled
     - existent_oke_nodepool_id_for_autoscaler_1
-    - num_pool_workers
+    - num_pool_workers_1
     - cluster_autoscaler_min_nodes_1
     - cluster_autoscaler_max_nodes_1
-    - node_pool_instance_shape
+    - node_pool_instance_shape_1
     - generate_public_ssh_key
     - public_ssh_key
-    - image_operating_system
-    - image_operating_system_version
-    - node_pool_name
+    - image_operating_system_1
+    - image_operating_system_version_1
+    - node_pool_name_1
 
   - title: "Dynamic Group and Policies"
     variables:
@@ -120,7 +120,7 @@ variableGroups:
       - fingerprint
       - private_key_path
       # - network_cidrs
-      - node_pool_boot_volume_size_in_gbs
+      - node_pool_boot_volume_size_in_gbs_1
       - oke_compartment_description
     visible: false
 
@@ -247,7 +247,7 @@ variables:
       and:
         - create_new_oke_cluster 
 
-  num_pool_workers:
+  num_pool_workers_1:
     type: integer
     title: "Number of Worker Nodes"
     minimum: 1
@@ -303,7 +303,7 @@ variables:
   #     and:
   #       - create_new_oke_cluster
 
-  node_pool_instance_shape:
+  node_pool_instance_shape_1:
     type: oci:core:instanceshapewithflex:name
     title: "Select a flex or fixed shape for the Worker Nodes instances"
     required: true
@@ -353,7 +353,7 @@ variables:
   #           - node_pool_shape 
   #           - "VM.Standard.A1.Flex"
 
-  node_pool_name:
+  node_pool_name_1:
     type: string
     title: "Node Pool Name"
     required: true
@@ -391,7 +391,7 @@ variables:
         - not:
           - generate_public_ssh_key
 
-  image_operating_system:
+  image_operating_system_1:
     type: enum
     title: "Image OS"
     enum:
@@ -402,7 +402,7 @@ variables:
         - create_new_oke_cluster
         - show_advanced
 
-  image_operating_system_version:
+  image_operating_system_version_1:
     type: string
     title: "Image OS Version"
     required: true
@@ -527,7 +527,7 @@ variables:
   # Cluster Tools - Ingress
   ingress_nginx_enabled:
     type: boolean
-    title: "Ingress NGINX"
+    title: "Ingress NGINX Controller"
 
   ingress_load_balancer_shape:
     type: enum

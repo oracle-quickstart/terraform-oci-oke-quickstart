@@ -33,19 +33,21 @@ resource "kubernetes_service_account" "cluster_autoscaler_sa" {
 
   count = local.cluster_autoscaler_enabled ? 1 : 0
 }
-# resource "kubernetes_secret" "cluster_autoscaler_sa_secret" {
-#   metadata {
-#     name      = "cluster-autoscaler-token-secret"
-#     namespace = "kube-system"
-#     annotations = {
-#       "kubernetes.io/service-account.name"      = "cluster-autoscaler"
-#       "kubernetes.io/service-account.namespace" = "kube-system"
-#     }
-#   }
-#   type = "kubernetes.io/service-account-token"
+resource "kubernetes_secret" "cluster_autoscaler_sa_secret" {
+  metadata {
+    name      = "cluster-autoscaler-token-secret"
+    namespace = "kube-system"
+    annotations = {
+      "kubernetes.io/service-account.name"      = "cluster-autoscaler"
+      "kubernetes.io/service-account.namespace" = "kube-system"
+    }
+  }
+  type = "kubernetes.io/service-account-token"
 
-#   count = local.cluster_autoscaler_enabled ? 1 : 0
-# }
+  depends_on = [kubernetes_service_account.cluster_autoscaler_sa]
+
+  count = local.cluster_autoscaler_enabled ? 1 : 0
+}
 resource "kubernetes_cluster_role" "cluster_autoscaler_cr" {
   metadata {
     name = "cluster-autoscaler"
@@ -103,7 +105,7 @@ resource "kubernetes_cluster_role" "cluster_autoscaler_cr" {
   }
   rule {
     api_groups = ["storage.k8s.io"]
-    resources  = ["storageclasses", "csinodes", "csidrivers"]
+    resources  = ["storageclasses", "csinodes", "csidrivers", "csistoragecapacities"]
     verbs      = ["watch", "list", "get"]
   }
   rule {

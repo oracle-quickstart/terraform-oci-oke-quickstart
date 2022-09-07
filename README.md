@@ -6,12 +6,13 @@
 
 # Oracle Container Engine for Kubernetes ([OKE][oke]) Base stack
 
-![Stack Release](https://img.shields.io/github/v/release/oracle-quickstart/oke-base.svg)
-![Stack Build](https://img.shields.io/github/workflow/status/oracle-quickstart/oke-base/Generate%20stacks%20and%20publish%20release?label=stack&logo=oracle&logoColor=red)
+[![Stack Release](https://img.shields.io/github/v/release/oracle-quickstart/oke-base.svg)](https://github.com/oracle-quickstart/oke-base/releases)
+[![Stack Build](https://img.shields.io/github/workflow/status/oracle-quickstart/oke-base/Generate%20stacks%20and%20publish%20release?label=stack&logo=oracle&logoColor=red)][magic_oke_stack]
 ![AquaSec TFSec](https://img.shields.io/github/workflow/status/oracle-quickstart/oke-base/tfsec?label=tfsec&logo=aqua)
 ![Terraform](https://img.shields.io/badge/terraform->%3D%201.1-%235835CC.svg?logo=terraform)
 ![Stack License](https://img.shields.io/github/license/oracle-quickstart/oke-base)
 ![Stack Downloads](https://img.shields.io/github/downloads/oracle-quickstart/oke-base/total?logo=terraform)
+[![GitHub issues](https://img.shields.io/github/issues/oracle-quickstart/oke-base.svg)](https://github.com/oracle-quickstart/oke-base/issues)
 
 This repo contains a Terraform Module for how to deploy Oracle Container Engine for [Kubernetes][kubernetes_101] ([OKE][oke]) cluster on Oracle Cloud Infrastructure ([OCI][oci]). This module is designed to be used with the [OCI Resource Manager][oci_rm] to deploy a cluster in a single step. The module can also be used with the [OCI Terraform Provider][oci_tf_provider] to deploy a cluster using local or CloudShell Terraform cli.
 
