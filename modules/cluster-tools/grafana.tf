@@ -155,13 +155,13 @@ data "kubernetes_secret" "grafana" {
     name      = "grafana"
     namespace = kubernetes_namespace.cluster_tools.id
   }
-  depends_on = [helm_release.grafana, helm_release.mushop]
+  depends_on = [helm_release.grafana]
 
   count = var.grafana_enabled ? 1 : 0
 }
 
 locals {
-  grafana_admin_password  = var.grafana_enabled ? data.kubernetes_secret.mushop_utils_grafana.0.data.admin-password : "Grafana_Not_Deployed"
+  grafana_admin_password = var.grafana_enabled ? data.kubernetes_secret.grafana.0.data.admin-password : "Grafana_Not_Deployed"
 }
 
 output "grafana_admin_password" {

@@ -80,6 +80,6 @@ variable "grafana_enabled" {
 
 # Cluster Tools Outputs
 output "grafana_admin_password" {
-  value = module.cluster-tools.grafana_admin_password
+  value     = module.cluster-tools.grafana_admin_password
   sensitive = true
 }
