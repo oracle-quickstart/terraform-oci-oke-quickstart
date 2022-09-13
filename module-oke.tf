@@ -44,7 +44,9 @@ module "oke" {
   region           = var.region
 
   # Deployment Tags + Freeform Tags
-  freeform_deployment_tags = local.freeform_deployment_tags
+  cluster_freeform_deployment_tags        = local.freeform_deployment_tags
+  load_balancers_freeform_deployment_tags = local.freeform_deployment_tags
+  block_volumes_freeform_deployment_tags  = local.freeform_deployment_tags
 
   # OKE Cluster
   ## create_new_oke_cluster
@@ -74,7 +76,8 @@ module "oke_node_pool" {
   source   = "./modules/oke-node-pool"
 
   # Deployment Tags + Freeform Tags
-  freeform_deployment_tags = local.freeform_deployment_tags
+  node_pools_freeform_deployment_tags   = local.freeform_deployment_tags
+  worker_nodes_freeform_deployment_tags = local.freeform_deployment_tags
 
   # Oracle Cloud Infrastructure Tenancy and Compartment OCID
   tenancy_ocid = var.tenancy_ocid
@@ -135,10 +138,6 @@ module "oke_cluster_autoscaler" {
 }
 
 ## OKE Cluster Details
-variable "app_name" {
-  default     = "K8s App"
-  description = "Application name. Will be used as prefix to identify resources, such as OKE, VCN, ATP, and others"
-}
 variable "create_new_oke_cluster" {
   default     = true
   description = "Creates a new OKE cluster, node pool and network resources"
@@ -293,7 +292,7 @@ resource "random_string" "deploy_id" {
 resource "oci_identity_compartment" "oke_compartment" {
   compartment_id = var.compartment_ocid
   name           = "${local.app_name_normalized}-${local.deploy_id}"
-  description    = "${var.app_name} ${var.oke_compartment_description} (Deployment ${local.deploy_id})"
+  description    = "${local.app_name} ${var.oke_compartment_description} (Deployment ${local.deploy_id})"
   enable_delete  = true
 
   count = var.create_new_compartment_for_oke ? 1 : 0
@@ -315,7 +314,9 @@ locals {
   "Quickstart" = "oke_base" }
   freeform_deployment_tags = merge(var.tag_values.freeformTags, local.deploy_tags)
   workers_public_ssh_key   = var.generate_public_ssh_key ? tls_private_key.oke_worker_node_ssh_key.public_key_openssh : var.public_ssh_key
+  app_name                 = var.app_name
   app_name_normalized      = substr(replace(lower(var.app_name), " ", "-"), 0, 6)
+  app_name_for_dns         = substr(lower(replace(var.app_name, "/\\W|_|\\s/", "")), 0, 6)
 }
 
 # OKE Outputs
