@@ -31,3 +31,62 @@ resource "helm_release" "cert_manager" {
 
   count = var.cert_manager_enabled ? 1 : 0
 }
+
+resource "kubernetes_manifest" "clusterissuer_letsencrypt_prod" {
+  manifest = {
+    "apiVersion" = "cert-manager.io/v1"
+    "kind"       = "ClusterIssuer"
+    "metadata" = {
+      "name" = "letsencrypt-prod"
+    }
+    "spec" = {
+      "acme" = {
+        "email" = "${var.ingress_email_issuer}"
+        "privateKeySecretRef" = {
+          "name" = "letsencrypt-prod"
+        }
+        "server" = "https://acme-v02.api.letsencrypt.org/directory"
+        "solvers" = [
+          {
+            "http01" = {
+              "ingress" = {
+                "class" = "nginx"
+              }
+            }
+          },
+        ]
+      }
+    }
+  }
+
+  count = var.cert_manager_enabled ? 1 : 0
+}
+resource "kubernetes_manifest" "clusterissuer_letsencrypt_staging" {
+  manifest = {
+    "apiVersion" = "cert-manager.io/v1"
+    "kind"       = "ClusterIssuer"
+    "metadata" = {
+      "name" = "letsencrypt-staging"
+    }
+    "spec" = {
+      "acme" = {
+        "email" = "${var.ingress_email_issuer}"
+        "privateKeySecretRef" = {
+          "name" = "letsencrypt-staging"
+        }
+        "server" = "https://acme-staging-v02.api.letsencrypt.org/directory"
+        "solvers" = [
+          {
+            "http01" = {
+              "ingress" = {
+                "class" = "nginx"
+              }
+            }
+          },
+        ]
+      }
+    }
+  }
+
+  count = var.cert_manager_enabled ? 1 : 0
+}
