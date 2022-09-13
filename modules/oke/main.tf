@@ -8,7 +8,7 @@ resource "oci_containerengine_cluster" "oke_cluster" {
   name               = "${local.app_name} (${local.deploy_id})"
   vcn_id             = oci_core_virtual_network.oke_vcn[0].id
   kms_key_id         = var.oci_vault_key_id_oke_secrets != "" ? var.oci_vault_key_id_oke_secrets : null
-  freeform_tags      = var.freeform_deployment_tags
+  freeform_tags      = var.cluster_freeform_deployment_tags
 
   endpoint_config {
     is_public_ip_enabled = (var.cluster_endpoint_visibility == "Private") ? false : true
@@ -29,10 +29,10 @@ resource "oci_containerengine_cluster" "oke_cluster" {
       pods_cidr     = lookup(var.network_cidrs, "PODS-CIDR")
     }
     persistent_volume_config {
-      freeform_tags = var.freeform_deployment_tags
+      freeform_tags = var.block_volumes_freeform_deployment_tags
     }
     service_lb_config {
-      freeform_tags = var.freeform_deployment_tags
+      freeform_tags = var.load_balancers_freeform_deployment_tags
     }
   }
   image_policy_config {
