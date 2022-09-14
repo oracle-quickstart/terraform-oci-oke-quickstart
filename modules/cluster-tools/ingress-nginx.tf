@@ -102,7 +102,7 @@ locals {
   # ingress_controller_load_balancer_hostname = var.ingress_nginx_enabled ? (data.kubernetes_service.ingress.0.status.0.load_balancer.0.ingress.0.hostname == "" ?
   # (var.ingress_hosts_include_nip_io ? local.app_nip_io_domain : local.ingress_controller_load_balancer_ip) : data.kubernetes_service.ingress.0.status.0.load_balancer.0.ingress.0.hostname) : "#Ingress_Controller_Not_Deployed"
   ingress_controller_load_balancer_hostname = var.ingress_nginx_enabled ? (
-    var.ingress_hosts != "" ? local.ingress_hosts[0] : (var.ingress_hosts_include_nip_io ? local.app_nip_io_domain : local.ingress_controller_load_balancer_ip)) : "#Ingress_Controller_Not_Deployed"
+  var.ingress_hosts != "" ? local.ingress_hosts[0] : (var.ingress_hosts_include_nip_io ? local.app_nip_io_domain : local.ingress_controller_load_balancer_ip)) : "#Ingress_Controller_Not_Deployed"
 
   ingress_nginx_annotations_basic = {
     "nginx.ingress.kubernetes.io/rewrite-target" = "/$2"
