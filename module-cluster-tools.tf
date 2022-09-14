@@ -6,9 +6,9 @@ module "cluster-tools" {
   source = "./modules/cluster-tools"
 
   # Oracle Cloud Infrastructure Tenancy and Compartment OCID
-  tenancy_ocid     = var.tenancy_ocid
-  compartment_ocid = var.compartment_ocid
-  region           = var.region
+  tenancy_ocid = var.tenancy_ocid
+  # compartment_ocid = var.compartment_ocid
+  region = var.region
 
   # Deployment Tags + Freeform Tags
   freeform_deployment_tags = local.freeform_deployment_tags
