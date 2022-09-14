@@ -141,10 +141,10 @@ variable "show_advanced" {
 
 # App Name Locals
 locals {
-  app_name            = var.cluster_freeform_deployment_tags.AppName
-  deploy_id           = var.cluster_freeform_deployment_tags.DeploymentID
-  app_name_normalized = substr(replace(lower(var.cluster_freeform_deployment_tags.AppName), " ", "-"), 0, 6)
-  app_name_for_dns    = substr(lower(replace(var.cluster_freeform_deployment_tags.AppName, "/\\W|_|\\s/", "")), 0, 6)
+  app_name            = var.cluster_tags.freeformTags.AppName
+  deploy_id           = var.cluster_tags.freeformTags.DeploymentID
+  app_name_normalized = substr(replace(lower(var.cluster_tags.freeformTags.AppName), " ", "-"), 0, 6)
+  app_name_for_dns    = substr(lower(replace(var.cluster_tags.freeformTags.AppName, "/\\W|_|\\s/", "")), 0, 6)
 }
 
 # OKE Compartment
@@ -153,12 +153,12 @@ locals {
 }
 
 # Deployment Details + Freeform Tags
-variable "cluster_freeform_deployment_tags" {
+variable "cluster_tags" {
   description = "Tags to be added to the cluster resources"
 }
-variable "load_balancers_freeform_deployment_tags" {
+variable "load_balancers_tags" {
   description = "Tags to be added to the load balancers resources"
 }
-variable "block_volumes_freeform_deployment_tags" {
+variable "block_volumes_tags" {
   description = "Tags to be added to the block volumes resources"
 }

@@ -10,8 +10,8 @@ module "cluster-tools" {
   # compartment_ocid = var.compartment_ocid
   region = var.region
 
-  # Deployment Tags + Freeform Tags
-  freeform_deployment_tags = local.freeform_deployment_tags
+  # Deployment Tags + Freeform Tags + Defined Tags
+  oci_tag_values = local.oci_tag_values
 
   # Cluster Tools
   ## Namespace

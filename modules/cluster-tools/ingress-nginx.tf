@@ -46,8 +46,8 @@ variable "ingress_email_issuer" {
   default     = "no-reply@example.cloud"
   description = "You must replace this email address with your own. The certificate provider will use this to contact you about expiring certificates, and issues related to your account."
 }
-# Deployment Details + Freeform Tags
-variable "freeform_deployment_tags" {
+# Deployment Details + Freeform Tags + Defined Tags
+variable "oci_tag_values" {
   description = "Tags to be added to the resources"
 }
 
@@ -119,7 +119,7 @@ locals {
     (var.ingress_tls && var.cert_manager_enabled) ? local.ingress_nginx_annotations_cert_manager : {}
   )
   ingress_hosts     = compact(concat(split(",", var.ingress_hosts), [local.app_nip_io_domain]))
-  app_name          = var.freeform_deployment_tags.AppName
+  app_name          = var.oci_tag_values.freeformTags.AppName
   app_name_for_dns  = substr(lower(replace(local.app_name, "/\\W|_|\\s/", "")), 0, 6)
   app_nip_io_domain = (var.ingress_nginx_enabled && var.ingress_hosts_include_nip_io) ? format("${local.app_name_for_dns}.%s.${var.nip_io_domain}", local.ingress_controller_load_balancer_ip_hex) : ""
 }

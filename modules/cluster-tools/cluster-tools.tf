@@ -27,7 +27,7 @@ locals {
 
 # OCI Provider
 variable "tenancy_ocid" {}
-variable "compartment_ocid" {}
+# variable "compartment_ocid" {}
 variable "region" {}
 
 # Namespace

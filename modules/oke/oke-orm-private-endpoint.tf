@@ -13,7 +13,8 @@ resource "oci_resourcemanager_private_endpoint" "private_kubernetes_endpoint" {
   description    = "Resource Manager Private Endpoint for OKE for the ${local.app_name} - ${local.deploy_id}"
   vcn_id         = oci_core_virtual_network.oke_vcn[0].id
   subnet_id      = oci_core_subnet.oke_k8s_endpoint_subnet[0].id
-  freeform_tags  = var.cluster_freeform_deployment_tags
+  freeform_tags  = var.cluster_tags.freeformTags
+  defined_tags   = var.cluster_tags.definedTags
 
   count = var.create_new_oke_cluster ? ((var.cluster_endpoint_visibility == "Private") ? 1 : 0) : 0
 }

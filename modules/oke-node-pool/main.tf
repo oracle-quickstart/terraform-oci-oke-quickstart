@@ -9,7 +9,8 @@ resource "oci_containerengine_node_pool" "oke_node_pool" {
   name               = var.node_pool_name
   node_shape         = var.node_pool_shape
   ssh_public_key     = var.public_ssh_key
-  freeform_tags      = var.node_pools_freeform_deployment_tags
+  freeform_tags      = var.node_pools_tags.freeformTags
+  defined_tags       = var.node_pools_tags.definedTags
 
   node_config_details {
     dynamic "placement_configs" {
@@ -26,7 +27,8 @@ resource "oci_containerengine_node_pool" "oke_node_pool" {
     # nsg_ids       = []
     size          = var.node_pool_min_nodes
     kms_key_id    = var.oci_vault_key_id_oke_node_boot_volume != "" ? var.oci_vault_key_id_oke_node_boot_volume : null
-    freeform_tags = var.worker_nodes_freeform_deployment_tags
+    freeform_tags = var.worker_nodes_tags.freeformTags
+    defined_tags  = var.worker_nodes_tags.definedTags
   }
 
   dynamic "node_shape_config" {

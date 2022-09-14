@@ -7,7 +7,8 @@ resource "oci_core_virtual_network" "oke_vcn" {
   compartment_id = local.oke_compartment_ocid
   display_name   = "OKE ${local.app_name} VCN - ${local.deploy_id}"
   dns_label      = "oke${local.deploy_id}"
-  freeform_tags  = var.cluster_freeform_deployment_tags
+  freeform_tags  = var.cluster_tags.freeformTags
+  defined_tags   = var.cluster_tags.definedTags
 
   count = var.create_new_oke_cluster ? 1 : 0
 }
@@ -22,7 +23,8 @@ resource "oci_core_subnet" "oke_k8s_endpoint_subnet" {
   route_table_id             = (var.cluster_endpoint_visibility == "Private") ? oci_core_route_table.oke_private_route_table[0].id : oci_core_route_table.oke_public_route_table[0].id
   dhcp_options_id            = oci_core_virtual_network.oke_vcn[0].default_dhcp_options_id
   security_list_ids          = [oci_core_security_list.oke_endpoint_security_list[0].id]
-  freeform_tags              = var.cluster_freeform_deployment_tags
+  freeform_tags              = var.cluster_tags.freeformTags
+  defined_tags               = var.cluster_tags.definedTags
 
   count = var.create_new_oke_cluster ? 1 : 0
 }
@@ -36,7 +38,8 @@ resource "oci_core_subnet" "oke_nodes_subnet" {
   route_table_id             = (var.cluster_workers_visibility == "Private") ? oci_core_route_table.oke_private_route_table[0].id : oci_core_route_table.oke_public_route_table[0].id
   dhcp_options_id            = oci_core_virtual_network.oke_vcn[0].default_dhcp_options_id
   security_list_ids          = [oci_core_security_list.oke_nodes_security_list[0].id]
-  freeform_tags              = var.cluster_freeform_deployment_tags
+  freeform_tags              = var.cluster_tags.freeformTags
+  defined_tags               = var.cluster_tags.definedTags
 
   count = var.create_new_oke_cluster ? 1 : 0
 }
@@ -50,7 +53,8 @@ resource "oci_core_subnet" "oke_lb_subnet" {
   route_table_id             = oci_core_route_table.oke_public_route_table[0].id
   dhcp_options_id            = oci_core_virtual_network.oke_vcn[0].default_dhcp_options_id
   security_list_ids          = [oci_core_security_list.oke_lb_security_list[0].id]
-  freeform_tags              = var.cluster_freeform_deployment_tags
+  freeform_tags              = var.cluster_tags.freeformTags
+  defined_tags               = var.cluster_tags.definedTags
 
   count = var.create_new_oke_cluster ? 1 : 0
 }
@@ -73,7 +77,8 @@ resource "oci_core_route_table" "oke_private_route_table" {
   compartment_id = local.oke_compartment_ocid
   vcn_id         = oci_core_virtual_network.oke_vcn[0].id
   display_name   = "oke-private-route-table-${local.app_name_normalized}-${local.deploy_id}"
-  freeform_tags  = var.cluster_freeform_deployment_tags
+  freeform_tags  = var.cluster_tags.freeformTags
+  defined_tags   = var.cluster_tags.definedTags
 
   route_rules {
     description       = "Traffic to the internet"
@@ -94,7 +99,8 @@ resource "oci_core_route_table" "oke_public_route_table" {
   compartment_id = local.oke_compartment_ocid
   vcn_id         = oci_core_virtual_network.oke_vcn[0].id
   display_name   = "oke-public-route-table-${local.app_name_normalized}-${local.deploy_id}"
-  freeform_tags  = var.cluster_freeform_deployment_tags
+  freeform_tags  = var.cluster_tags.freeformTags
+  defined_tags   = var.cluster_tags.definedTags
 
   route_rules {
     description       = "Traffic to/from internet"
@@ -126,7 +132,8 @@ resource "oci_core_nat_gateway" "oke_nat_gateway" {
   compartment_id = local.oke_compartment_ocid
   display_name   = "oke-nat-gateway-${local.app_name_normalized}-${local.deploy_id}"
   vcn_id         = oci_core_virtual_network.oke_vcn[0].id
-  freeform_tags  = var.cluster_freeform_deployment_tags
+  freeform_tags  = var.cluster_tags.freeformTags
+  defined_tags   = var.cluster_tags.definedTags
 
   count = var.create_new_oke_cluster ? 1 : 0
 }
@@ -136,7 +143,8 @@ resource "oci_core_internet_gateway" "oke_internet_gateway" {
   display_name   = "oke-internet-gateway-${local.app_name_normalized}-${local.deploy_id}"
   enabled        = true
   vcn_id         = oci_core_virtual_network.oke_vcn[0].id
-  freeform_tags  = var.cluster_freeform_deployment_tags
+  freeform_tags  = var.cluster_tags.freeformTags
+  defined_tags   = var.cluster_tags.definedTags
 
   count = var.create_new_oke_cluster ? 1 : 0
 }
@@ -145,7 +153,8 @@ resource "oci_core_service_gateway" "oke_service_gateway" {
   compartment_id = local.oke_compartment_ocid
   display_name   = "oke-service-gateway-${local.app_name_normalized}-${local.deploy_id}"
   vcn_id         = oci_core_virtual_network.oke_vcn[0].id
-  freeform_tags  = var.cluster_freeform_deployment_tags
+  freeform_tags  = var.cluster_tags.freeformTags
+  defined_tags   = var.cluster_tags.definedTags
 
   services {
     service_id = lookup(data.oci_core_services.all_services.services[0], "id")

@@ -199,7 +199,7 @@ resource "kubernetes_ingress_v1" "grafana" {
 
     tls {
       secret_name = "grafana-${var.ingress_cluster_issuer}-tls"
-      hosts = local.ingress_hosts
+      hosts       = local.ingress_hosts
     }
   }
   depends_on = [helm_release.ingress_nginx, helm_release.grafana]

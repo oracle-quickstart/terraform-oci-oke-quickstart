@@ -6,7 +6,8 @@ resource "oci_core_security_list" "extra_subnet_security_list" {
   compartment_id = var.oke_vcn_compartment_ocid
   display_name   = "${local.subnet_name_normalized}-seclist-${local.deploy_id}"
   vcn_id         = var.oke_vcn_ocid
-  freeform_tags  = var.freeform_deployment_tags
+  freeform_tags  = var.oci_tag_values.freeformTags
+  defined_tags   = var.oci_tag_values.definedTags
 
   # Ingresses
 

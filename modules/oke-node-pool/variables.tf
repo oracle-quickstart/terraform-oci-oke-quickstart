@@ -85,13 +85,13 @@ variable "tenancy_ocid" {}
 
 # App Name Locals
 locals {
-  app_name_normalized = substr(replace(lower(var.node_pools_freeform_deployment_tags.AppName), " ", "-"), 0, 6)
+  app_name_normalized = substr(replace(lower(var.node_pools_tags.freeformTags.AppName), " ", "-"), 0, 6)
 }
 
 # Deployment Details + Freeform Tags
-variable "node_pools_freeform_deployment_tags" {
+variable "node_pools_tags" {
   description = "Tags to be added to the node pools resources"
 }
-variable "worker_nodes_freeform_deployment_tags" {
+variable "worker_nodes_tags" {
   description = "Tags to be added to the worker nodes resources"
 }
