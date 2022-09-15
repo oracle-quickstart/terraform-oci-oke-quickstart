@@ -12,7 +12,8 @@ resource "oci_core_subnet" "extra_subnet" {
   route_table_id             = oci_core_route_table.extra_subnet_route_table[0].id
   dhcp_options_id            = var.oke_vcn_default_dhcp_ocid
   security_list_ids          = [oci_core_security_list.extra_subnet_security_list[0].id]
-  freeform_tags              = var.freeform_deployment_tags
+  freeform_tags              = var.oci_tag_values.freeformTags
+  defined_tags               = var.oci_tag_values.definedTags
 
   count = var.create_new_subnet ? 1 : 0
 }
@@ -21,7 +22,8 @@ resource "oci_core_route_table" "extra_subnet_route_table" {
   compartment_id = var.oke_vcn_compartment_ocid
   vcn_id         = var.oke_vcn_ocid
   display_name   = "${local.subnet_name_normalized}-route-table-${local.deploy_id}"
-  freeform_tags  = var.freeform_deployment_tags
+  freeform_tags  = var.oci_tag_values.freeformTags
+  defined_tags   = var.oci_tag_values.definedTags
 
   route_rules {
     description       = "Traffic to/from internet"

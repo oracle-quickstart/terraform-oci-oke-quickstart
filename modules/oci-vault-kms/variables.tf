@@ -17,7 +17,7 @@ variable "existent_encryption_key_id" {
 }
 
 # Deployment Details + Freeform Tags
-variable "freeform_deployment_tags" {
+variable "oci_tag_values" {
   description = "Tags to be added to the resources"
 }
 
@@ -48,3 +48,11 @@ variable "create_compartment_policies" {
 
 # OCI Provider
 variable "tenancy_ocid" {}
+
+# Conditional locals
+locals {
+  app_dynamic_group   = (var.use_encryption_from_oci_vault && var.create_dynamic_group_for_nodes_in_compartment) ? oci_identity_dynamic_group.app_dynamic_group.0.name : "void"
+  app_name_normalized = substr(replace(lower(var.oci_tag_values.freeformTags.AppName), " ", "-"), 0, 6)
+  app_name            = var.oci_tag_values.freeformTags.AppName
+  deploy_id           = var.oci_tag_values.freeformTags.DeploymentID
+}

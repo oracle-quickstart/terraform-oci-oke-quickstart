@@ -149,6 +149,63 @@ EOF
   count = var.grafana_enabled ? 1 : 0
 }
 
+## Grafana Ingress
+resource "kubernetes_ingress_v1" "grafana" {
+  wait_for_load_balancer = true
+  metadata {
+    name        = "grafana"
+    namespace   = kubernetes_namespace.cluster_tools.id
+    annotations = local.ingress_nginx_annotations
+  }
+  spec {
+    ingress_class_name = "nginx"
+    rule {
+      http {
+        path {
+          path      = "/grafana(/|$)(.*)"
+          path_type = "Prefix"
+          backend {
+            service {
+              name = "grafana"
+              port {
+                number = 80
+              }
+            }
+          }
+        }
+      }
+    }
+
+    dynamic "rule" {
+      for_each = local.ingress_hosts
+      content {
+        host = rule.value
+        http {
+          path {
+            path      = "/grafana(/|$)(.*)"
+            path_type = "Prefix"
+            backend {
+              service {
+                name = "grafana"
+                port {
+                  number = 80
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    tls {
+      secret_name = "grafana-${var.ingress_cluster_issuer}-tls"
+      hosts       = local.ingress_hosts
+    }
+  }
+  depends_on = [helm_release.ingress_nginx, helm_release.grafana]
+
+  count = (var.grafana_enabled && var.ingress_nginx_enabled) ? 1 : 0
+}
 ## Kubernetes Secret: Grafana Admin Password
 data "kubernetes_secret" "grafana" {
   metadata {

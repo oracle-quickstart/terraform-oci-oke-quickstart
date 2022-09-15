@@ -73,11 +73,3 @@ locals {
     "Allow group ${var.user_admin_group_for_vault_policy} to use key-delegate in compartment id ${var.oke_cluster_compartment_ocid}"
   ]
 }
-
-# Conditional locals
-locals {
-  app_dynamic_group   = (var.use_encryption_from_oci_vault && var.create_dynamic_group_for_nodes_in_compartment) ? oci_identity_dynamic_group.app_dynamic_group.0.name : "void"
-  app_name_normalized = substr(replace(lower(var.freeform_deployment_tags.AppName), " ", "-"), 0, 6)
-  app_name            = var.freeform_deployment_tags.AppName
-  deploy_id           = var.freeform_deployment_tags.DeploymentID
-}

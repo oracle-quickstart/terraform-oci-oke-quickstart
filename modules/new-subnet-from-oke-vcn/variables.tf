@@ -40,8 +40,8 @@ variable "subnet_name" {
   description = "Subnet Name"
 }
 
-# Deployment Details + Freeform Tags
-variable "freeform_deployment_tags" {
+# Deployment Details + Freeform Tags + Defined Tags
+variable "oci_tag_values" {
   description = "Tags to be added to the resources"
 }
 
@@ -49,5 +49,5 @@ variable "freeform_deployment_tags" {
 locals {
   subnet_name_for_dns    = substr(lower(replace(var.subnet_name, "/\\W|_|\\s/", "")), 0, 6)
   subnet_name_normalized = substr(replace(lower(var.subnet_name), " ", "-"), 0, 6)
-  deploy_id              = var.freeform_deployment_tags.DeploymentID
+  deploy_id              = var.oci_tag_values.freeformTags.DeploymentID
 }
