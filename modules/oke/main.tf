@@ -31,11 +31,11 @@ resource "oci_containerengine_cluster" "oke_cluster" {
     }
     persistent_volume_config {
       freeform_tags = var.block_volumes_tags.freeformTags
-      defined_tags  = var.block_volumes_tags.definedTags
+      # defined_tags  = var.block_volumes_tags.definedTags
     }
     service_lb_config {
       freeform_tags = var.load_balancers_tags.freeformTags
-      defined_tags  = var.load_balancers_tags.definedTags
+      # defined_tags  = var.load_balancers_tags.definedTags
     }
   }
   image_policy_config {
@@ -46,6 +46,10 @@ resource "oci_containerengine_cluster" "oke_cluster" {
   }
   cluster_pod_network_options {
     cni_type = "FLANNEL_OVERLAY"
+  }
+
+  lifecycle {
+    ignore_changes = [id]
   }
 
   count = var.create_new_oke_cluster ? 1 : 0
