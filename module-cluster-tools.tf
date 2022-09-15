@@ -110,7 +110,7 @@ variable "prometheus_enabled" {
 
 ## Grafana
 variable "grafana_enabled" {
-  default     = false
+  default     = true
   description = "Enable Grafana Dashboards. Includes example dashboards and Prometheus, OCI Logging and OCI Metrics datasources"
 }
 
@@ -135,7 +135,4 @@ output "grafana_url" {
 output "app_url" {
   value       = (var.ingress_nginx_enabled) ? format("${local.url_protocol}://%s", local.app_domain) : null
   description = "Application URL"
-}
-output "ingress_hosts" {
-  value = module.cluster-tools.ingress_hosts
 }

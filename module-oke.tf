@@ -14,7 +14,6 @@ module "vault" {
   tenancy_ocid = var.tenancy_ocid
 
   # Deployment Tags + Freeform Tags + Defined Tags
-  # freeform_deployment_tags = local.freeform_deployment_tags
   oci_tag_values = local.oci_tag_values
 
   # Encryption (OCI Vault/Key Management/KMS)
@@ -44,7 +43,7 @@ module "oke" {
   compartment_ocid = local.oke_compartment_ocid
   region           = var.region
 
-  # Deployment Tags + Freeform Tags
+  # Deployment Tags + Freeform Tags + Defined Tags
   cluster_tags        = local.oci_tag_values
   load_balancers_tags = local.oci_tag_values
   block_volumes_tags  = local.oci_tag_values

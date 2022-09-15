@@ -141,6 +141,6 @@ output "url_protocol" {
 # output "app_domain" {
 #   value = (var.ingress_hosts != "") ? local.ingress_controller_load_balancer_hostname : (var.ingress_hosts_include_nip_io ? local.app_nip_io_domain : local.ingress_controller_load_balancer_hostname)
 # }
-output "ingress_hosts" {
-  value = local.ingress_hosts
-}
+# output "ingress_hosts" {
+#   value = local.ingress_hosts
+# }
