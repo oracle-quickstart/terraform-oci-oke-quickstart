@@ -65,7 +65,7 @@ variableGroups:
     - create_vault_policies_for_group
     - user_admin_group_for_vault_policy
 
-  - title: "Cluster Tools - Ingress"
+  - title: "Cluster Tools - Ingress Controller"
     variables:
     - ingress_nginx_enabled
     - ingress_load_balancer_shape
@@ -75,20 +75,21 @@ variableGroups:
     #   and:
     #     - show_advanced
 
-  - title: "Hidden: Cluster Tools - Ingress"
+  - title: "Cluster Tools - Ingress"
     variables:
+    - ingress_hosts_include_nip_io
+    - nip_io_domain
     - ingress_hosts
+    - cert_manager_enabled
     - ingress_tls
     - ingress_cluster_issuer
     - ingress_email_issuer
-    visible: false
 
   - title: "Cluster Tools"
     variables:
     - metrics_server_enabled
     - prometheus_enabled
     - grafana_enabled
-    - cert_manager_enabled
     # visible:
     #   and:
     #     - show_advanced
@@ -537,7 +538,7 @@ variables:
     - "100Mbps"
     - "400Mbps"
     - "8000Mbps"
-    title: "Select a shape for the load balancer created by the Ingress"
+    title: "Select a shape for the load balancer created by the Ingress Controller"
     visible:
       and:
         - show_advanced
@@ -573,12 +574,37 @@ variables:
           - ingress_load_balancer_shape 
           - "flexible"
 
+  ingress_hosts_include_nip_io:
+    type: boolean
+    title: "Optional dynamic DNS valid domain name?"
+    visible:
+      and:
+        - ingress_nginx_enabled
+
+  nip_io_domain:
+    type: enum
+    enum:
+    - "nip.io"
+    title: "Dynamic wildcard DNS service"
+    visible: false
+      # and:
+      #   - show_advanced
+      #   - ingress_nginx_enabled
+      #   - ingress_hosts_include_nip_io
+
   ingress_hosts:
     type: string
     title: "Optional valid domain name"
     visible:
       and:
         - show_advanced
+        - ingress_nginx_enabled
+
+  cert_manager_enabled:
+    type: boolean
+    title: "Certificate Management"
+    visible:
+      and:
         - ingress_nginx_enabled
 
   ingress_tls:
@@ -628,10 +654,6 @@ variables:
   grafana_enabled:
     type: boolean
     title: "Grafana"
-
-  cert_manager_enabled:
-    type: boolean
-    title: "Certificate Management"
 
   tag_values:
     type: oci:identity:tag:value
