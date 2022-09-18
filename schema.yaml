@@ -78,6 +78,7 @@ variableGroups:
   - title: "Cluster Tools - Ingress"
     variables:
     - ingress_hosts_include_nip_io
+    - use_custom_nip_io_domain
     - nip_io_domain
     - ingress_hosts
     - cert_manager_enabled
@@ -581,16 +582,26 @@ variables:
       and:
         - ingress_nginx_enabled
 
+  use_custom_nip_io_domain:
+    type: boolean
+    title: "Use custom nip.io domain suffix?"
+    description: If you want to use a custom nip.io domain suffix, you must first deploy a nip.io service with a custom domain.
+    default: false
+    visible:
+      and:
+        - show_advanced
+        - ingress_nginx_enabled
+        - ingress_hosts_include_nip_io
+
   nip_io_domain:
-    type: enum
-    enum:
-    - "nip.io"
-    title: "Dynamic wildcard DNS service"
-    visible: false
-      # and:
-      #   - show_advanced
-      #   - ingress_nginx_enabled
-      #   - ingress_hosts_include_nip_io
+    type: string
+    title: "Dynamic wildcard DNS service domain"
+    visible:
+      and:
+        - show_advanced
+        - ingress_nginx_enabled
+        - ingress_hosts_include_nip_io
+        - use_custom_nip_io_domain
 
   ingress_hosts:
     type: string
