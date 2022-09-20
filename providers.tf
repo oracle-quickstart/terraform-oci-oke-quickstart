@@ -9,6 +9,7 @@ terraform {
       source  = "oracle/oci"
       version = "~> 4, < 5"
       # https://registry.terraform.io/providers/oracle/oci/
+      configuration_aliases = [oci.home_region, oci.current_region]
     }
     kubernetes = {
       source  = "hashicorp/kubernetes"

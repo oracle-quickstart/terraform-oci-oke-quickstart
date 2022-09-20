@@ -3,8 +3,8 @@
 # 
 
 output "vcn_id" {
-  value = var.create_new_vcn ? oci_core_vcn.main[0].id : var.existent_vcn_ocid
+  value = data.oci_core_vcn.main_or_existent.id
 }
 output "default_dhcp_options_id" {
-  value = var.create_new_vcn ? oci_core_vcn.main[0].default_dhcp_options_id : null
+  value = data.oci_core_vcn.main_or_existent.default_dhcp_options_id
 }
