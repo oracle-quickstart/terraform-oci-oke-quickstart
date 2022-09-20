@@ -9,37 +9,6 @@ resource "oci_core_security_list" "security_list" {
   freeform_tags  = var.security_list_tags.freeformTags
   defined_tags   = var.security_list_tags.definedTags
 
-  dynamic "ingress_security_rules" {
-    for_each = var.ingress_security_rules
-    content {
-      description = ingress_security_rules.value.description
-      source      = ingress_security_rules.value.source
-      source_type = ingress_security_rules.value.source_type
-      protocol    = ingress_security_rules.value.protocol
-      stateless   = ingress_security_rules.value.stateless
-      tcp_options {
-        max = ingress_security_rules.value.tcp_options.max
-        min = ingress_security_rules.value.tcp_options.min
-        source_port_range {
-          max = ingress_security_rules.value.tcp_options.source_port_range.max
-          min = ingress_security_rules.value.tcp_options.source_port_range.min
-        }
-      }
-      udp_options {
-        max = ingress_security_rules.value.udp_options.max
-        min = ingress_security_rules.value.udp_options.min
-        source_port_range {
-          max = ingress_security_rules.value.udp_options.source_port_range.max
-          min = ingress_security_rules.value.udp_options.source_port_range.min
-        }
-      }
-      icmp_options {
-        type = ingress_security_rules.value.icmp_options.type
-        code = ingress_security_rules.value.icmp_options.code
-      }
-    }
-  }
-
   dynamic "egress_security_rules" {
     for_each = var.egress_security_rules
     content {
@@ -48,25 +17,132 @@ resource "oci_core_security_list" "security_list" {
       destination_type = egress_security_rules.value.destination_type
       protocol         = egress_security_rules.value.protocol
       stateless        = egress_security_rules.value.stateless
-      tcp_options {
-        max = egress_security_rules.value.tcp_options.max
-        min = egress_security_rules.value.tcp_options.min
-        source_port_range {
-          max = egress_security_rules.value.tcp_options.source_port_range.max
-          min = egress_security_rules.value.tcp_options.source_port_range.min
+
+      dynamic "tcp_options" {
+        for_each = (egress_security_rules.value.tcp_options.max != -1 && egress_security_rules.value.tcp_options.min != -1) ? [1] : []
+        content {
+          max = egress_security_rules.value.tcp_options.max
+          min = egress_security_rules.value.tcp_options.min
+          dynamic "source_port_range" {
+            for_each = can(egress_security_rules.value.tcp_options.source_port_range.max) ? [1] : []
+            content {
+              max = egress_security_rules.value.tcp_options.source_port_range.max
+              min = egress_security_rules.value.tcp_options.source_port_range.min
+            }
+          }
         }
       }
-      udp_options {
-        max = egress_security_rules.value.udp_options.max
-        min = egress_security_rules.value.udp_options.min
-        source_port_range {
-          max = egress_security_rules.value.udp_options.source_port_range.max
-          min = egress_security_rules.value.udp_options.source_port_range.min
+      dynamic "udp_options" {
+        for_each = (egress_security_rules.value.udp_options.max != -1 && egress_security_rules.value.udp_options.min != -1) ? [1] : []
+        content {
+          max = egress_security_rules.value.udp_options.max
+          min = egress_security_rules.value.udp_options.min
+          dynamic "source_port_range" {
+            for_each = can(egress_security_rules.value.udp_options.source_port_range.max) ? [1] : []
+            content {
+              max = egress_security_rules.value.udp_options.source_port_range.max
+              min = egress_security_rules.value.udp_options.source_port_range.min
+            }
+          }
         }
       }
-      icmp_options {
-        type = egress_security_rules.value.icmp_options.type
-        code = egress_security_rules.value.icmp_options.code
+      dynamic "icmp_options" {
+        for_each = can(egress_security_rules.value.icmp_options.type) ? [1] : []
+        content {
+          type = egress_security_rules.value.icmp_options.type
+          code = egress_security_rules.value.icmp_options.code
+        }
+      }
+      #   tcp_options {
+      #     max = egress_security_rules.value.tcp_options.max
+      #     min = egress_security_rules.value.tcp_options.min
+      #   }
+      #   dynamic "tcp_options" {
+      #     # for_each = lookup(egress_security_rules,"tcp_options",{})
+      #     for_each = egress_security_rules.value.tcp_options
+      #     content {
+      #       max = lookup(egress_security_rules.value.tcp_options, "max")
+      #       min = lookup(egress_security_rules.value.tcp_options, "min")
+
+      # #       dynamic "source_port_range" {
+      # #         for_each = tcp_options.value.source_port_range
+      # #         content {
+      # #           max = source_port_range.value.max
+      # #           min = source_port_range.value.min
+      # #         }
+      # #       }
+      #     }
+      #   }
+
+      #   dynamic "udp_options" {
+      #     for_each = egress_security_rules.value.udp_options
+      #     content {
+      #       max = udp_options.value.max
+      #       min = udp_options.value.min
+
+      #       dynamic "source_port_range" {
+      #         for_each = udp_options.value.source_port_range
+      #         content {
+      #           max = source_port_range.value.max
+      #           min = source_port_range.value.min
+      #         }
+      #       }
+      #     }
+      #   }
+
+      #   dynamic "icmp_options" {
+      #     for_each = egress_security_rules.value.icmp_options
+      #     content {
+      #       type = icmp_options.value.type
+      #       code = icmp_options.value.code
+      #     }
+      #   }
+    }
+  }
+
+  dynamic "ingress_security_rules" {
+    for_each = var.ingress_security_rules
+    content {
+      description = ingress_security_rules.value.description
+      source      = ingress_security_rules.value.source
+      source_type = ingress_security_rules.value.source_type
+      protocol    = ingress_security_rules.value.protocol
+      stateless   = ingress_security_rules.value.stateless
+
+      dynamic "tcp_options" {
+        for_each = (ingress_security_rules.value.tcp_options.max != -1 && ingress_security_rules.value.tcp_options.min != -1) ? [1] : []
+        content {
+          max = ingress_security_rules.value.tcp_options.max
+          min = ingress_security_rules.value.tcp_options.min
+          dynamic "source_port_range" {
+            for_each = can(ingress_security_rules.value.tcp_options.source_port_range.max) ? [1] : []
+            content {
+              max = ingress_security_rules.value.tcp_options.source_port_range.max
+              min = ingress_security_rules.value.tcp_options.source_port_range.min
+            }
+          }
+        }
+      }
+      dynamic "udp_options" {
+        for_each = (ingress_security_rules.value.udp_options.max != -1 && ingress_security_rules.value.udp_options.min != -1) ? [1] : []
+        content {
+          max = ingress_security_rules.value.udp_options.max
+          min = ingress_security_rules.value.udp_options.min
+          dynamic "source_port_range" {
+            for_each = can(ingress_security_rules.value.udp_options.source_port_range.max) ? [1] : []
+            content {
+              max = ingress_security_rules.value.udp_options.source_port_range.max
+              min = ingress_security_rules.value.udp_options.source_port_range.min
+            }
+          }
+        }
+      }
+      dynamic "icmp_options" {
+        for_each = can(ingress_security_rules.value.icmp_options.type) ? [1] : []
+        content {
+          type = ingress_security_rules.value.icmp_options.type
+          code = ingress_security_rules.value.icmp_options.code
+        }
       }
     }
   }

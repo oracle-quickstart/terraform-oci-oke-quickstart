@@ -43,6 +43,7 @@ variable "egress_security_rules" {
   }))
   default = []
 }
+
 variable "ingress_security_rules" {
   type = list(object({
     description = string
@@ -73,6 +74,67 @@ variable "ingress_security_rules" {
   }))
   default = []
 }
+
+# variable "egress_security_rules" {
+#   type = list(object({
+#     description      = optional(string)
+#     destination      = string
+#     destination_type = optional(string)
+#     protocol         = string
+#     stateless        = optional(bool)
+#     tcp_options = optional(object({
+#       max = optional(number)
+#       min = optional(number)
+#       source_port_range = optional(object({
+#         max = number
+#         min = number
+#       }))
+#     }))
+#     udp_options = optional(object({
+#       max = optional(number)
+#       min = optional(number)
+#       source_port_range = optional(object({
+#         max = number
+#         min = number
+#       }))
+#     }))
+#     icmp_options = optional(object({
+#       type = number
+#       code = optional(number)
+#     }))
+#   }))
+#   default = []
+# }
+# variable "ingress_security_rules" {
+#   type = list(object({
+#     description = optional(string)
+#     source      = string
+#     source_type = optional(string)
+#     protocol    = string
+#     stateless   = optional(bool)
+#     tcp_options = optional(object({
+#       max = optional(number)
+#       min = optional(number)
+#       source_port_range = optional(object({
+#         max = number
+#         min = number
+#       }))
+#     }))
+#     udp_options = optional(object({
+#       max = optional(number)
+#       min = optional(number)
+#       source_port_range = optional(object({
+#         max = number
+#         min = number
+#       }))
+#     }))
+#     icmp_options = optional(object({
+#       type = number
+#       code = optional(number)
+#     }))
+#   }))
+#   default = []
+# }
 
 # Deployment Details + Freeform Tags + Defined Tags
 variable "security_list_tags" {

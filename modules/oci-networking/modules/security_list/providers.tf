@@ -16,4 +16,5 @@ terraform {
       # https://registry.terraform.io/providers/hashicorp/local/
     }
   }
+  # experiments = [module_variable_optional_attrs]
 }
