@@ -10,5 +10,10 @@ terraform {
       version = "~> 4"
       # https://registry.terraform.io/providers/oracle/oci/
     }
+    local = {
+      source  = "hashicorp/local"
+      version = "~> 2"
+      # https://registry.terraform.io/providers/hashicorp/local/
+    }
   }
 }
