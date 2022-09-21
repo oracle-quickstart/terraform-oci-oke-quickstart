@@ -8,3 +8,9 @@ output "vcn_id" {
 output "default_dhcp_options_id" {
   value = data.oci_core_vcn.main_or_existent.default_dhcp_options_id
 }
+output "default_route_table_id" {
+  value = data.oci_core_vcn.main_or_existent.default_route_table_id
+}
+output "default_security_list_id" {
+  value = data.oci_core_vcn.main_or_existent.default_security_list_id
+}

@@ -2,20 +2,32 @@
 # Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 # 
 
+# OCI Provider
+variable "tenancy_ocid" {}
+variable "compartment_ocid" {}
+variable "region" {}
+
+# Network Details
+variable "vcn_id" { description = "VCN OCID to deploy OKE Cluster" }
+variable "k8s_endpoint_subnet_id" { description = "Kubernetes Endpoint Subnet OCID to deploy OKE Cluster" }
+variable "nodes_subnet_id" { description = "Nodes Subnet OCID to deploy OKE Cluster" }
+variable "lb_subnet_id" { description = "Load Balancer Subnet OCID to deploy OKE Cluster" }
+variable "cluster_workers_visibility" {
+  default     = "Private"
+  description = "The Kubernetes worker nodes that are created will be hosted in public or private subnet(s)"
+}
+variable "cluster_endpoint_visibility" {
+  default     = "Public"
+  description = "The Kubernetes cluster that is created will be hosted on a public subnet with a public IP address auto-assigned or on a private subnet. If Private, additional configuration will be necessary to run kubectl commands"
+}
+variable "network_cidrs" {}
+variable "cni_type" {
+  default     = "FLANNEL_OVERLAY"
+  description = "The CNI type to use for the cluster. Valid values are: FLANNEL_OVERLAY, CALICO, or CILIUM"
+}
+
 # OKE Variables
 ## OKE Cluster Details
-# variable "app_name" {
-#   default     = "OKE App"
-#   description = "Application name. Will be used as prefix to identify resources, such as OKE, VCN, ATP, and others"
-# }
-# variable "app_deployment_environment" {
-#   default     = "generic" # e.g.: Development, QA, Stage, ...
-#   description = "Deployment environment for the freeform tags"
-# }
-# variable "app_deployment_type" {
-#   default     = "generic" # e.g.: App Type 1, App Type 2, Red, Purple, ...
-#   description = "Deployment type for the freeform tags"
-# }
 variable "create_new_oke_cluster" {
   default     = false
   description = "Creates a new OKE cluster and node pool"
@@ -47,28 +59,6 @@ variable "cluster_options_admission_controller_options_is_pod_security_policy_en
   default     = false
 }
 
-## OKE Visibility (Workers and Endpoint)
-
-variable "cluster_workers_visibility" {
-  default     = "Private"
-  description = "The Kubernetes worker nodes that are created will be hosted in public or private subnet(s)"
-
-  validation {
-    condition     = var.cluster_workers_visibility == "Private" || var.cluster_workers_visibility == "Public"
-    error_message = "Sorry, but cluster visibility can only be Private or Public."
-  }
-}
-
-variable "cluster_endpoint_visibility" {
-  default     = "Public"
-  description = "The Kubernetes cluster that is created will be hosted on a public subnet with a public IP address auto-assigned or on a private subnet. If Private, additional configuration will be necessary to run kubectl commands"
-
-  validation {
-    condition     = var.cluster_endpoint_visibility == "Private" || var.cluster_endpoint_visibility == "Public"
-    error_message = "Sorry, but cluster endpoint visibility can only be Private or Public."
-  }
-}
-
 ## OKE Encryption details
 variable "oci_vault_key_id_oke_secrets" {
   default     = null
@@ -91,33 +81,6 @@ variable "user_admin_group_for_vault_policy" {
 variable "k8s_version" {
   default     = "Latest"
   description = "Kubernetes version installed on your Control Plane"
-}
-
-# OCI Provider
-variable "tenancy_ocid" {}
-variable "compartment_ocid" {}
-variable "region" {}
-
-# Network Details
-## CIDRs
-variable "network_cidrs" {
-  type = map(string)
-
-  default = {
-    VCN-CIDR                      = "10.20.0.0/16"
-    SUBNET-REGIONAL-CIDR          = "10.20.10.0/24"
-    LB-SUBNET-REGIONAL-CIDR       = "10.20.20.0/24"
-    APIGW-FN-SUBNET-REGIONAL-CIDR = "10.20.30.0/24"
-    ENDPOINT-SUBNET-REGIONAL-CIDR = "10.20.0.0/28"
-    ALL-CIDR                      = "0.0.0.0/0"
-    PODS-CIDR                     = "10.244.0.0/16"
-    KUBERNETES-SERVICE-CIDR       = "10.96.0.0/16"
-  }
-}
-## VCN
-variable "create_new_vcn" {
-  default     = false
-  description = "Creates a new VCN"
 }
 
 # Create Dynamic Group and Policies
