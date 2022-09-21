@@ -53,50 +53,6 @@ resource "oci_core_security_list" "security_list" {
           code = egress_security_rules.value.icmp_options.code
         }
       }
-      #   tcp_options {
-      #     max = egress_security_rules.value.tcp_options.max
-      #     min = egress_security_rules.value.tcp_options.min
-      #   }
-      #   dynamic "tcp_options" {
-      #     # for_each = lookup(egress_security_rules,"tcp_options",{})
-      #     for_each = egress_security_rules.value.tcp_options
-      #     content {
-      #       max = lookup(egress_security_rules.value.tcp_options, "max")
-      #       min = lookup(egress_security_rules.value.tcp_options, "min")
-
-      # #       dynamic "source_port_range" {
-      # #         for_each = tcp_options.value.source_port_range
-      # #         content {
-      # #           max = source_port_range.value.max
-      # #           min = source_port_range.value.min
-      # #         }
-      # #       }
-      #     }
-      #   }
-
-      #   dynamic "udp_options" {
-      #     for_each = egress_security_rules.value.udp_options
-      #     content {
-      #       max = udp_options.value.max
-      #       min = udp_options.value.min
-
-      #       dynamic "source_port_range" {
-      #         for_each = udp_options.value.source_port_range
-      #         content {
-      #           max = source_port_range.value.max
-      #           min = source_port_range.value.min
-      #         }
-      #       }
-      #     }
-      #   }
-
-      #   dynamic "icmp_options" {
-      #     for_each = egress_security_rules.value.icmp_options
-      #     content {
-      #       type = icmp_options.value.type
-      #       code = icmp_options.value.code
-      #     }
-      #   }
     }
   }
 
@@ -145,6 +101,10 @@ resource "oci_core_security_list" "security_list" {
         }
       }
     }
+  }
+
+  lifecycle {
+    ignore_changes = [freeform_tags, defined_tags, egress_security_rules, ingress_security_rules]
   }
 
   count = var.create_security_list ? 1 : 0
