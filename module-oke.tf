@@ -53,11 +53,18 @@ module "oke" {
   create_new_oke_cluster  = var.create_new_oke_cluster
   existent_oke_cluster_id = var.existent_oke_cluster_id
 
-  # ## Cluster Workers visibility
-  # cluster_workers_visibility = var.cluster_workers_visibility
-
-  # ## Cluster API Endpoint visibility
-  # cluster_endpoint_visibility = var.cluster_endpoint_visibility
+  ## Network Details
+  vcn_id                 = module.vcn.vcn_id
+  network_cidrs          = local.network_cidrs
+  k8s_endpoint_subnet_id = var.create_subnets ? module.subnets["oke_k8s_endpoint_subnet"].subnet_id : var.existent_oke_k8s_endpoint_subnet_ocid
+  nodes_subnet_id        = var.create_subnets ? module.subnets["oke_nodes_subnet"].subnet_id : var.existent_oke_nodes_subnet_ocid
+  lb_subnet_id           = var.create_subnets ? module.subnets["oke_lb_subnet"].subnet_id : var.existent_oke_load_balancer_subnet_ocid
+  # pods_network_subnet_id = var.cluster_cni_type == "OCI_VCN_IP_NATIVE" ? (var.create_subnets ? module.subnets["oke_pods_network_subnet"].subnet_id : var.existent_oke_pods_network_subnet_ocid) : null
+  cni_type = "FLANNEL_OVERLAY" # var.cluster_cni_type
+  ### Cluster Workers visibility
+  cluster_workers_visibility = var.cluster_workers_visibility
+  ### Cluster API Endpoint visibility
+  cluster_endpoint_visibility = var.cluster_endpoint_visibility
 
   ## Control Plane Kubernetes Version
   k8s_version = var.k8s_version
@@ -101,7 +108,9 @@ module "oke_node_pool" {
   image_operating_system_version            = each.value.image_operating_system_version
 
   # OKE Network Details
-  oke_vcn_nodes_subnet_ocid = module.oke.oke_vcn_nodes_subnet_ocid
+  oke_vcn_nodes_subnet_ocid = var.create_new_oke_cluster ? module.subnets["oke_nodes_subnet"].subnet_id : null
+  # oke_vcn_pod_network_subnet_ocid    = var.cluster_cni_type == "VCN-Native" ? (var.create_new_oke_cluster ? module.subnets["oke_pods_network_subnet"].subnet_id : null) : null
+
 
   # Encryption (OCI Vault/Key Management/KMS)
   oci_vault_key_id_oke_node_boot_volume = module.vault.oci_vault_key_id

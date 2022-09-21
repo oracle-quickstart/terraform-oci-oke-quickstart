@@ -21,7 +21,7 @@ module "vcn" {
   vcn_tags = local.oci_tag_values
 
   # Virtual Cloud Network (VCN) arguments
-  create_new_vcn          = true # local.create_new_vcn
+  create_new_vcn          = local.create_new_vcn
   existent_vcn_ocid       = var.existent_vcn_ocid
   cidr_blocks             = local.vcn_cidr_blocks
   display_name            = "[${local.app_name}] VCN for OKE (${local.deploy_id})"
@@ -66,17 +66,17 @@ module "gateways" {
   gateways_tags = local.oci_tag_values
 
   # Internet Gateway
-  create_internet_gateway       = true
+  create_internet_gateway       = local.create_subnets
   internet_gateway_display_name = "Internet Gateway (${local.deploy_id})"
   internet_gateway_enabled      = true
 
   # NAT Gateway
-  create_nat_gateway       = true
+  create_nat_gateway       = local.create_subnets
   nat_gateway_display_name = "NAT Gateway (${local.deploy_id})"
   nat_gateway_public_ip_id = null
 
   # Service Gateway
-  create_service_gateway       = true
+  create_service_gateway       = local.create_subnets
   service_gateway_display_name = "Service Gateway (${local.deploy_id})"
 
   # Local Peering Gateway (LPG)

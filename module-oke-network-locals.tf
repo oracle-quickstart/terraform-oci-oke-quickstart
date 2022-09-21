@@ -8,7 +8,7 @@
 
 # Required locals for the oci-networking module
 locals {
-  create_new_vcn                = (var.create_new_oke_cluster || var.create_new_vcn) ? true : false
+  create_new_vcn                = (var.create_new_oke_cluster && var.create_new_vcn) ? true : false
   create_subnets                = (var.create_new_oke_cluster || var.create_subnets) ? true : false
   subnets                       = concat(local.subnets_oke, local.subnet_vcn_native_pod_networking, local.subnet_fss_mount_targets)
   route_tables                  = concat(local.route_tables_oke)
