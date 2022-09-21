@@ -2,6 +2,8 @@
 # Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 # 
 
+# File Version: 0.7.1
+
 resource "oci_containerengine_node_pool" "oke_node_pool" {
   cluster_id         = var.oke_cluster_ocid
   compartment_id     = var.oke_cluster_compartment_ocid
@@ -53,6 +55,15 @@ resource "oci_containerengine_node_pool" "oke_node_pool" {
   initial_node_labels {
     key   = "name"
     value = var.node_pool_name
+  }
+
+  dynamic "initial_node_labels" {
+    for_each = var.extra_initial_node_labels
+
+    content {
+      key   = initial_node_labels.value.key
+      value = initial_node_labels.value.value
+    }
   }
 
   count = var.create_new_node_pool ? 1 : 0

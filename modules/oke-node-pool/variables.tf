@@ -26,6 +26,10 @@ variable "node_pool_name" {
   default     = "pool1"
   description = "Name of the node pool"
 }
+variable "extra_initial_node_labels" {
+  default     = {}
+  description = "Extra initial node labels to be added to the node pool"
+}
 variable "node_pool_min_nodes" {
   default     = 3
   description = "The number of worker nodes in the node pool. If select Cluster Autoscaler, will assume the minimum number of nodes configured"

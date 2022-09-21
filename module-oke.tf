@@ -2,7 +2,7 @@
 # Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 # 
 
-# File Version: 0.7.0
+# File Version: 0.7.1
 
 module "vault" {
   source = "./modules/oci-vault-kms"
@@ -131,6 +131,7 @@ locals {
       existent_oke_nodepool_id_for_autoscaler   = var.existent_oke_nodepool_id_for_autoscaler_1
       image_operating_system                    = var.image_operating_system_1
       image_operating_system_version            = var.image_operating_system_version_1
+      extra_initial_node_labels                 = var.extra_initial_node_labels_1
     },
   ]
 }
@@ -222,6 +223,10 @@ variable "k8s_version" {
 variable "node_pool_name_1" {
   default     = "pool1"
   description = "Name of the node pool"
+}
+variable "extra_initial_node_labels_1" {
+  default     = {}
+  description = "Extra initial node labels to be added to the node pool"
 }
 variable "num_pool_workers_1" {
   default     = 3
