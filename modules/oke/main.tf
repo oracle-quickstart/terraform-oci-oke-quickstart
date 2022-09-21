@@ -6,18 +6,18 @@ resource "oci_containerengine_cluster" "oke_cluster" {
   compartment_id     = local.oke_compartment_ocid
   kubernetes_version = (var.k8s_version == "Latest") ? local.cluster_k8s_latest_version : var.k8s_version
   name               = "${local.app_name} (${local.deploy_id})"
-  vcn_id             = oci_core_virtual_network.oke_vcn[0].id
+  vcn_id             = var.vcn_id
   kms_key_id         = var.oci_vault_key_id_oke_secrets != "" ? var.oci_vault_key_id_oke_secrets : null
   freeform_tags      = var.cluster_tags.freeformTags
   defined_tags       = var.cluster_tags.definedTags
 
   endpoint_config {
     is_public_ip_enabled = (var.cluster_endpoint_visibility == "Private") ? false : true
-    subnet_id            = oci_core_subnet.oke_k8s_endpoint_subnet[0].id
+    subnet_id            = var.k8s_endpoint_subnet_id
     nsg_ids              = []
   }
   options {
-    service_lb_subnet_ids = [oci_core_subnet.oke_lb_subnet[0].id]
+    service_lb_subnet_ids = [var.lb_subnet_id]
     add_ons {
       is_kubernetes_dashboard_enabled = var.cluster_options_add_ons_is_kubernetes_dashboard_enabled
       is_tiller_enabled               = false # Default is false, left here for reference
@@ -45,11 +45,11 @@ resource "oci_containerengine_cluster" "oke_cluster" {
     # }
   }
   cluster_pod_network_options {
-    cni_type = "FLANNEL_OVERLAY"
+    cni_type = var.cni_type
   }
 
   lifecycle {
-    ignore_changes = [id]
+    ignore_changes = [freeform_tags, defined_tags, kubernetes_version, id]
   }
 
   count = var.create_new_oke_cluster ? 1 : 0

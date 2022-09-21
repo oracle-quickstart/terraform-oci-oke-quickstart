@@ -53,10 +53,17 @@ module "oke" {
   create_new_oke_cluster  = var.create_new_oke_cluster
   existent_oke_cluster_id = var.existent_oke_cluster_id
 
-  ## Cluster Workers visibility
+  ## Network Details
+  vcn_id                 = module.vcn.vcn_id
+  network_cidrs          = local.network_cidrs
+  k8s_endpoint_subnet_id = var.create_subnets ? module.subnets["oke_k8s_endpoint_subnet"].subnet_id : var.existent_oke_k8s_endpoint_subnet_ocid
+  nodes_subnet_id        = var.create_subnets ? module.subnets["oke_nodes_subnet"].subnet_id : var.existent_oke_nodes_subnet_ocid
+  lb_subnet_id           = var.create_subnets ? module.subnets["oke_lb_subnet"].subnet_id : var.existent_oke_load_balancer_subnet_ocid
+  # pods_network_subnet_id = var.cluster_cni_type == "OCI_VCN_IP_NATIVE" ? (var.create_subnets ? module.subnets["oke_pods_network_subnet"].subnet_id : var.existent_oke_pods_network_subnet_ocid) : null
+  cni_type = "FLANNEL_OVERLAY" # var.cluster_cni_type
+  ### Cluster Workers visibility
   cluster_workers_visibility = var.cluster_workers_visibility
-
-  ## Cluster API Endpoint visibility
+  ### Cluster API Endpoint visibility
   cluster_endpoint_visibility = var.cluster_endpoint_visibility
 
   ## Control Plane Kubernetes Version
@@ -101,7 +108,9 @@ module "oke_node_pool" {
   image_operating_system_version            = each.value.image_operating_system_version
 
   # OKE Network Details
-  oke_vcn_nodes_subnet_ocid = module.oke.oke_vcn_nodes_subnet_ocid
+  oke_vcn_nodes_subnet_ocid = var.create_new_oke_cluster ? module.subnets["oke_nodes_subnet"].subnet_id : null
+  # oke_vcn_pod_network_subnet_ocid    = var.cluster_cni_type == "VCN-Native" ? (var.create_new_oke_cluster ? module.subnets["oke_pods_network_subnet"].subnet_id : null) : null
+
 
   # Encryption (OCI Vault/Key Management/KMS)
   oci_vault_key_id_oke_node_boot_volume = module.vault.oci_vault_key_id
@@ -122,6 +131,14 @@ locals {
       image_operating_system_version            = var.image_operating_system_version_1
     },
   ]
+}
+# Generate ssh keys to access Worker Nodes, if generate_public_ssh_key=true, applies to the pool
+resource "tls_private_key" "oke_worker_node_ssh_key" {
+  algorithm = "RSA"
+  rsa_bits  = 2048
+}
+locals {
+  workers_public_ssh_key = var.generate_public_ssh_key ? tls_private_key.oke_worker_node_ssh_key.public_key_openssh : var.public_ssh_key
 }
 
 module "oke_cluster_autoscaler" {
@@ -152,29 +169,6 @@ variable "create_new_compartment_for_oke" {
 }
 variable "oke_compartment_description" {
   default = "Compartment for OKE, Nodes and Services"
-}
-
-## OKE Visibility (Workers and Endpoint)
-
-variable "cluster_workers_visibility" {
-  default     = "Private"
-  description = "The Kubernetes worker nodes that are created will be hosted in public or private subnet(s)"
-
-  validation {
-    condition     = var.cluster_workers_visibility == "Private" || var.cluster_workers_visibility == "Public"
-    error_message = "Sorry, but cluster visibility can only be Private or Public."
-  }
-}
-
-# NOTE: Private Endpoint is only supported when using OCI Resource Manager for deployment.
-variable "cluster_endpoint_visibility" {
-  default     = "Public"
-  description = "The Kubernetes cluster that is created will be hosted on a public subnet with a public IP address auto-assigned or on a private subnet. If Private, additional configuration will be necessary to run kubectl commands"
-
-  validation {
-    condition     = var.cluster_endpoint_visibility == "Private" || var.cluster_endpoint_visibility == "Public"
-    error_message = "Sorry, but cluster endpoint visibility can only be Private or Public."
-  }
 }
 
 ## OKE Encryption details
@@ -276,19 +270,6 @@ variable "create_compartment_policies" {
   description = "Creates policies that will reside on the compartment. e.g.: Policies to support Cluster Autoscaler, OCI Logging datasource on Grafana"
 }
 
-variable "tag_values" {
-  type = map(any)
-  default = { "freeformTags" = {
-    "Environment" = "Development", # e.g.: Demo, Sandbox, Development, QA, Stage, ...
-  "DeploymentType" = "generic" } } # e.g.: App Type 1, App Type 2, Red, Purple, ...
-  description = "Use Tagging to add metadata to resources. All resources created by this stack will be tagged with the selected tag values."
-}
-
-resource "random_string" "deploy_id" {
-  length  = 4
-  special = false
-}
-
 resource "oci_identity_compartment" "oke_compartment" {
   compartment_id = var.compartment_ocid
   name           = "${local.app_name_normalized}-${local.deploy_id}"
@@ -297,39 +278,13 @@ resource "oci_identity_compartment" "oke_compartment" {
 
   count = var.create_new_compartment_for_oke ? 1 : 0
 }
-
-# Generate ssh keys to access Worker Nodes, if generate_public_ssh_key=true, applies to the pool
-resource "tls_private_key" "oke_worker_node_ssh_key" {
-  algorithm = "RSA"
-  rsa_bits  = 2048
-}
-
-# Locals
 locals {
-  deploy_id            = random_string.deploy_id.result
   oke_compartment_ocid = var.create_new_compartment_for_oke ? oci_identity_compartment.oke_compartment.0.id : var.compartment_ocid
-  deploy_tags = {
-    "DeploymentID" = local.deploy_id,
-    "AppName"      = var.app_name,
-  "Quickstart" = "oke_base" }
-  # freeform_deployment_tags = merge(var.tag_values.freeformTags, local.deploy_tags)
-  oci_tag_values = {
-    "freeformTags" = merge(var.tag_values.freeformTags, local.deploy_tags),
-    "definedTags"  = var.tag_values.definedTags
-  }
-  workers_public_ssh_key = var.generate_public_ssh_key ? tls_private_key.oke_worker_node_ssh_key.public_key_openssh : var.public_ssh_key
-  app_name               = var.app_name
-  app_name_normalized    = substr(replace(lower(var.app_name), " ", "-"), 0, 6)
-  app_name_for_dns       = substr(lower(replace(var.app_name, "/\\W|_|\\s/", "")), 0, 6)
 }
 
 # OKE Outputs
-
 output "comments" {
   value = module.oke.comments
-}
-output "deploy_id" {
-  value = local.deploy_id
 }
 output "deployed_oke_kubernetes_version" {
   value = module.oke.deployed_oke_kubernetes_version

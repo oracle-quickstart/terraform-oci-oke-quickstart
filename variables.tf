@@ -11,8 +11,3 @@ variable "fingerprint" {
 variable "private_key_path" {
   default = ""
 }
-
-variable "app_name" {
-  default     = "K8s App"
-  description = "Application name. Will be used as prefix to identify resources, such as OKE, VCN, ATP, and others"
-}
