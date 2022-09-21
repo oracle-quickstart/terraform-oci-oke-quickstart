@@ -30,11 +30,32 @@ variableGroups:
     - compartment_ocid
     - existent_oke_cluster_id
     - k8s_version
+    - create_new_compartment_for_oke
+
+  - title: "OKE Network Configuration"
+    variables:
     - cluster_workers_visibility
     - cluster_endpoint_visibility
     - existent_oke_cluster_vcn
+    - create_orm_private_endpoint
     - existent_oke_cluster_private_endpoint
-    - create_new_compartment_for_oke
+    - cluster_load_balancer_visibility
+    - create_new_vcn
+    - existent_vcn_compartment_ocid
+    - existent_vcn_ocid
+    - vcn_cidr_blocks
+    - create_subnets
+    - existent_oke_k8s_endpoint_subnet_ocid
+    - existent_oke_nodes_subnet_ocid
+    - existent_oke_load_balancer_subnet_ocid
+
+  - title: "OKE Network - Hidden"
+    variables:
+    - is_ipv6enabled
+    - ipv6private_cidr_blocks
+    - existent_oke_vcn_native_pod_networking_subnet_ocid
+    - existent_oke_fss_mount_targets_subnet_ocid
+    visible: false
 
   - title: "OKE Worker Nodes"
     variables:
@@ -71,9 +92,6 @@ variableGroups:
     - ingress_load_balancer_shape
     - ingress_load_balancer_shape_flex_min
     - ingress_load_balancer_shape_flex_max
-    # visible:
-    #   and:
-    #     - show_advanced
 
   - title: "Cluster Tools - Ingress"
     variables:
@@ -91,26 +109,6 @@ variableGroups:
     - metrics_server_enabled
     - prometheus_enabled
     - grafana_enabled
-    # visible:
-    #   and:
-    #     - show_advanced
-
-  # - title: "Network Configuration"
-  #   variables:
-  #     - network_strategy
-  #     - vcn_id
-  #     - vcn_display_name
-  #     - vcn_cidr_block
-  #     - vcn_dns_label
-  #     - subnet_type
-  #     - subnet_span
-  #     - subnet_id
-  #     - subnet_display_name
-  #     - subnet_cidr_block
-  #     - subnet_dns_label
-  #   visible:
-  #     and:
-  #       - show_advanced
 
   - title: "Tagging"
     variables:
@@ -121,7 +119,6 @@ variableGroups:
       - user_ocid
       - fingerprint
       - private_key_path
-      # - network_cidrs
       - node_pool_boot_volume_size_in_gbs_1
       - oke_compartment_description
     visible: false
@@ -147,7 +144,7 @@ variables:
     description: "Shows advanced options, allowing enable customer-managed encryption keys, select your ssh key, select/unselect cluster utilities, do not create policies, and other advanced options"
     visible: true
 
-  # OKE Cluster
+  # OKE Cluster Configuration
   create_new_oke_cluster:
     type: boolean
     title: "Create new OKE Cluster"
@@ -171,35 +168,6 @@ variables:
       not:
         - create_new_oke_cluster
 
-  existent_oke_cluster_vcn:
-    type: oci:core:vcn:id
-    title: "Existent OKE Cluster VCN for Private Endpoint"
-    required: true
-    dependsOn:
-      compartmentId: compartment_ocid
-    visible:
-      and:
-        - not:
-          - create_new_oke_cluster
-        - eq:
-          - cluster_endpoint_visibility 
-          - "Private"
-
-  existent_oke_cluster_private_endpoint:
-    type: oci:resourcemanager:privateendpoint:id
-    title: "Existent OKE Cluster ORM Private Endpoint"
-    required: true
-    dependsOn:
-      compartmentId: compartment_ocid
-      vcnId: existent_oke_cluster_vcn
-    visible:
-      and:
-        - not:
-          - create_new_oke_cluster
-        - eq:
-          - cluster_endpoint_visibility 
-          - "Private"
-
   k8s_version:
     type: oci:kubernetes:versions:id
     title: "Kubernetes Version"
@@ -212,6 +180,15 @@ variables:
         - create_new_oke_cluster
         - show_advanced
 
+  create_new_compartment_for_oke:
+    type: boolean
+    title: "Create new Compartment"
+    visible:
+      and:
+        - create_new_oke_cluster
+        - show_advanced
+
+  # OKE Network
   cluster_workers_visibility:
     type: enum
     enum:
@@ -234,20 +211,169 @@ variables:
     #   and:
     #     - create_new_oke_cluster
 
-  create_new_compartment_for_oke:
+  existent_oke_cluster_vcn:
+    type: oci:core:vcn:id
+    title: "Existent OKE Cluster VCN for Private Endpoint"
+    required: true
+    dependsOn:
+      compartmentId: compartment_ocid
+    visible:
+      and:
+        - not:
+          - create_new_oke_cluster
+        - eq:
+          - cluster_endpoint_visibility 
+          - "Private"
+
+  create_orm_private_endpoint:
     type: boolean
-    title: "Create new Compartment"
+    title: "Create ORM Private Endpoint for Kubernetes API Endpoint"
+    visible:
+      eq:
+        - cluster_endpoint_visibility 
+        - "Private"
+
+  existent_oke_cluster_private_endpoint:
+    type: oci:resourcemanager:privateendpoint:id
+    title: "Existent OKE Cluster ORM Private Endpoint"
+    required: true
+    dependsOn:
+      compartmentId: compartment_ocid
+      vcnId: existent_oke_cluster_vcn
+    visible:
+      and:
+        - not:
+          - create_new_oke_cluster
+          - create_orm_private_endpoint
+        - eq:
+          - cluster_endpoint_visibility 
+          - "Private"
+
+  cluster_load_balancer_visibility:
+    type: enum
+    enum:
+    - "Private"
+    - "Public"
+    title: "Choose Load Balancers visibility type"
+    required: true
+    visible: false
+      # and:
+      #   - create_new_oke_cluster
+      #   - show_advanced
+
+  create_new_vcn:
+    type: boolean
+    title: "Create new Virtual Cloud Network (VCN)?"
     visible:
       and:
         - create_new_oke_cluster
         - show_advanced
 
+  existent_vcn_compartment_ocid:
+    type: oci:identity:compartment:id
+    title: "Existent VCN Compartment"
+    required: true
+    default: compartment_ocid
+    visible:
+      and:
+        - and:
+          - create_new_oke_cluster
+          - show_advanced
+        - not:
+          - create_new_vcn
+  
+  existent_vcn_ocid:
+    type: oci:core:vcn:id
+    title: "Existent VCN to be used for OKE Cluster"
+    required: true
+    dependsOn:
+        compartmentId: existent_vcn_compartment_ocid
+    visible:
+      and:
+        - and:
+          - create_new_oke_cluster
+          - show_advanced
+        - not:
+          - create_new_vcn
+
+  vcn_cidr_blocks:
+    type: string
+    title: VCN CIDR BLOCK
+    required: true
+    default: 10.20.0.0/16
+    pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
+    visible:
+      and:
+        - create_new_oke_cluster
+        - create_new_vcn
+        - show_advanced
+
+  create_subnets:
+    type: boolean
+    title: "Create all subnets for the OKE VCN?"
+    visible:
+      and:
+        - create_new_oke_cluster
+        - show_advanced
+  
+  existent_oke_k8s_endpoint_subnet_ocid:
+    type: oci:core:subnet:id
+    title: "Existent subnet for Kubernetes API Endpoint"
+    required: true
+    dependsOn:
+        compartmentId: existent_vcn_compartment_ocid
+        vcnId: existent_vcn_ocid
+    visible:
+      and:
+        - and:
+          - create_new_oke_cluster
+          - show_advanced
+        - not:
+          - create_subnets
+        - not:
+          - create_new_vcn
+
+  existent_oke_nodes_subnet_ocid:
+    type: oci:core:subnet:id
+    title: "Existent subnet for OKE Worker Nodes"
+    required: true
+    dependsOn:
+        compartmentId: existent_vcn_compartment_ocid
+        vcnId: existent_vcn_ocid
+    visible:
+      and:
+        - and:
+          - create_new_oke_cluster
+          - show_advanced
+        - not:
+          - create_subnets
+        - not:
+          - create_new_vcn
+
+  existent_oke_load_balancer_subnet_ocid:
+    type: oci:core:subnet:id
+    title: "Existent subnet for Load Balancers created by Kubernetes"
+    required: true
+    dependsOn:
+        compartmentId: existent_vcn_compartment_ocid
+        vcnId: existent_vcn_ocid
+    visible:
+      and:
+        - and:
+          - create_new_oke_cluster
+          - show_advanced
+        - not:
+          - create_subnets
+        - not:
+          - create_new_vcn
+
+  # OKE Worker Nodes - Node Pool
   cluster_autoscaler_enabled:
     type: boolean
     title: "Enable Cluster Autoscaler" 
-    visible:
-      and:
-        - create_new_oke_cluster 
+    # visible:
+    #   and:
+    #     - create_new_oke_cluster 
 
   num_pool_workers_1:
     type: integer
@@ -314,6 +440,7 @@ variables:
     visible:
       and:
         - create_new_oke_cluster
+        - show_advanced
 
   # node_pool_node_shape_config_ocpus:
   #   type: integer
@@ -461,19 +588,6 @@ variables:
         - show_advanced
         - use_encryption_from_oci_vault
 
-  # existent_encryption_key_id:
-  #   type: string
-  #   title: "Existent Encryption Key OCID"
-  #   required: true
-  #   visible:
-  #     and:
-  #       - and:
-  #         - create_new_oke_cluster
-  #         - show_advanced
-  #         - use_encryption_from_oci_vault
-  #       - not:
-  #         - create_new_encryption_key
-
   existent_encryption_key_vault:
     type: oci:kms:vault:id
     title: "Existent Encryption Key Vault"
@@ -491,7 +605,7 @@ variables:
 
   existent_encryption_key_id:
     type: oci:kms:key:id
-    title: "Existent Encryption Key"
+    title: "Existent Encryption Key OCID"
     required: true
     dependsOn:
       compartmentId: compartment_ocid
@@ -673,71 +787,6 @@ variables:
     visible: show_advanced
     dependsOn:
       compartmentId: compartment_ocid
-
-  # Network Type Options
-  # network_strategy:
-  #   type: enum
-  #   title: Network Strategy
-  #   description: Create or use existing Network Stack (VCN and Subnet)
-  #   enum:
-  #     - "Create New VCN and Subnet"
-  #     # - "Use Existing VCN and Subnet"
-  #   required: true
-  #   default: "Create New VCN and Subnet"
-  #   visible:
-  #     and:
-  #       - create_new_oke_cluster
-  #       - show_advanced
-
-  # subnet_type:
-  #   visible: #($network_strategy  == ""Create New VCN and Subnet"")
-  #     eq:
-  #       - network_strategy 
-  #       - "Create New VCN and Subnet"
-  #   type: enum
-  #   title: Subnet Type
-  #   description: Choose between private and public subnets
-  #   enum:
-  #     - "Private Subnet"
-  #     - "Public Subnet"
-  #   required: true
-  #   default: "Private Subnet"
-
-  # vcn_id:
-  #   visible: #($network_strategy  == "Use Existing VCN and Subnet")
-  #     eq:
-  #       - network_strategy 
-  #       - "Use Existing VCN and Subnet"
-  #   type: oci:core:vcn:id
-  #   dependsOn:
-  #     compartmentId: compartment_ocid 
-  #   required: true
-  #   title: Existing Network
-  #   description: An existing Virtual Cloud Network (VCN) in which to create the compute instances, network resources, and load balancers. If not specified, a new VCN is created.
-
-  # vcn_cidr_block:
-  #   visible: #($network_strategy  == ""Create New VCN and Subnet"")
-  #     eq:
-  #       - network_strategy 
-  #       - "Create New VCN and Subnet"
-  #   type: string
-  #   required: true
-  #   default: 10.20.0.0/16
-  #   pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
-  #   title: VCN CIDR BLOCK
-  #   description: The CIDR of the new Virtual Cloud Network (VCN). If you plan to peer this VCN with another VCN, the VCNs must not have overlapping CIDRs.
-
-  # subnet_cidr_block:
-  #   visible: #($network_strategy  == ""Create New VCN and Subnet"")
-  #     eq:
-  #       - network_strategy 
-  #       - "Create New VCN and Subnet"
-  #   type: string
-  #   default: 10.20.10.0/24
-  #   pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
-  #   required: true
-  #   title: Subnet CIDR
-  #   description: The CIDR of the new Subnet. The new subnet's CIDR should not overlap with any other subnet CIDRs.
 
 outputGroups:
   - title: Deployment Info

@@ -24,6 +24,10 @@ variable "existent_oke_cluster_id" {
   default     = ""
   description = "Using existent OKE Cluster. Only the application and services will be provisioned. If select cluster autoscaler feature, you need to get the node pool id and enter when required"
 }
+variable "create_orm_private_endpoint" {
+  default     = false
+  description = "Creates a new private endpoint for the OKE cluster"
+}
 variable "existent_oke_cluster_private_endpoint" {
   default     = ""
   description = "Resource Manager Private Endpoint to access the OKE Private Cluster"

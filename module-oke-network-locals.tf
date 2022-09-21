@@ -29,7 +29,7 @@ locals {
       route_table_id             = (var.cluster_endpoint_visibility == "Private") ? module.route_tables["private"].route_table_id : module.route_tables["public"].route_table_id
       dhcp_options_id            = module.vcn.default_dhcp_options_id
       security_list_ids          = [module.security_lists["oke_endpoint_security_list"].security_list_id]
-      ipv6cidr_block = null
+      ipv6cidr_block             = null
     },
     {
       subnet_name                = "oke_nodes_subnet"
@@ -41,7 +41,7 @@ locals {
       route_table_id             = (var.cluster_workers_visibility == "Private") ? module.route_tables["private"].route_table_id : module.route_tables["public"].route_table_id
       dhcp_options_id            = module.vcn.default_dhcp_options_id
       security_list_ids          = [module.security_lists["oke_nodes_security_list"].security_list_id]
-      ipv6cidr_block = null
+      ipv6cidr_block             = null
     },
     {
       subnet_name                = "oke_lb_subnet"
@@ -53,19 +53,19 @@ locals {
       route_table_id             = (var.cluster_load_balancer_visibility == "Private") ? module.route_tables["private"].route_table_id : module.route_tables["public"].route_table_id
       dhcp_options_id            = module.vcn.default_dhcp_options_id
       security_list_ids          = [module.security_lists["oke_lb_security_list"].security_list_id]
-      ipv6cidr_block = null
+      ipv6cidr_block             = null
     }
   ]
-  subnet_fss_mount_targets         = [] # 10.20.20.64/26 (10,81) = 62 usable IPs (10.20.20.64 - 10.20.20.255)
   subnet_vcn_native_pod_networking = [] # 10.20.128.0/17 (1,1) = 32766 usable IPs (10.20.128.0 - 10.20.255.255)
+  subnet_fss_mount_targets         = [] # 10.20.20.64/26 (10,81) = 62 usable IPs (10.20.20.64 - 10.20.20.255)
 }
 
 # OKE Route Tables definitions
 locals {
   route_tables_oke = [
     {
-      route_table_name   = "private"
-      display_name       = "OKE Private Route Table (${local.deploy_id})"
+      route_table_name = "private"
+      display_name     = "OKE Private Route Table (${local.deploy_id})"
       route_rules = [
         {
           description       = "Traffic to the internet"
@@ -82,8 +82,8 @@ locals {
 
     },
     {
-      route_table_name   = "public"
-      display_name       = "OKE Public Route Table (${local.deploy_id})"
+      route_table_name = "public"
+      display_name     = "OKE Public Route Table (${local.deploy_id})"
       route_rules = [
         {
           description       = "Traffic to/from internet"
@@ -98,8 +98,8 @@ locals {
 locals {
   security_lists_oke = [
     {
-      security_list_name   = "oke_nodes_security_list"
-      display_name         = "OKE Node Workers Security List (${local.deploy_id})"
+      security_list_name = "oke_nodes_security_list"
+      display_name       = "OKE Node Workers Security List (${local.deploy_id})"
       egress_security_rules = [
         {
           description      = "Allow pods on one worker node to communicate with pods on other worker nodes"
@@ -211,8 +211,8 @@ locals {
       ingress_security_rules = []
     },
     {
-      security_list_name   = "oke_endpoint_security_list"
-      display_name         = "OKE K8s API Endpoint Security List (${local.deploy_id})"
+      security_list_name = "oke_endpoint_security_list"
+      display_name       = "OKE K8s API Endpoint Security List (${local.deploy_id})"
       egress_security_rules = [
         {
           description      = "Allow Kubernetes Control Plane to communicate with OKE"
@@ -303,7 +303,7 @@ locals {
     LB-REGIONAL-SUBNET-CIDR                        = cidrsubnet(local.vcn_cidr_blocks[0], 6, 4)   # e.g.: "10.20.16.0/22" = 1021 usable IPs (10.20.16.0 - 10.20.19.255)
     FSS-MOUNT-TARGETS-REGIONAL-SUBNET-CIDR         = cidrsubnet(local.vcn_cidr_blocks[0], 10, 81) # e.g.: "10.20.20.64/26" = 62 usable IPs (10.20.20.64 - 10.20.20.255)
     APIGW-FN-REGIONAL-SUBNET-CIDR                  = cidrsubnet(local.vcn_cidr_blocks[0], 8, 30)  # e.g.: "10.20.30.0/24" = 254 usable IPs (10.20.30.0 - 10.20.30.255)
-    VCN-NATIVE-POD-NETWORKING-REGIONAL-SUBNET-CIDR = cidrsubnet(local.vcn_cidr_blocks[0], 1, 1)   # e.g.: "10.20.128.0/17" (1,1) = 32766 usable IPs (10.20.128.0 - 10.20.255.255)
+    VCN-NATIVE-POD-NETWORKING-REGIONAL-SUBNET-CIDR = cidrsubnet(local.vcn_cidr_blocks[0], 1, 1)   # e.g.: "10.20.128.0/17" = 32766 usable IPs (10.20.128.0 - 10.20.255.255)
     PODS-CIDR                                      = "10.244.0.0/16"
     KUBERNETES-SERVICE-CIDR                        = "10.96.0.0/16"
     ALL-CIDR                                       = "0.0.0.0/0"
@@ -353,7 +353,7 @@ variable "cluster_load_balancer_visibility" {
 # VCN Variables
 variable "create_subnets" {
   default     = true
-  description = "Create subnets for OKE"
+  description = "Create subnets for OKE: Endpoint, Nodes, Load Balancers. If CNI Type VCN-Native, also creates the PODs VCN. If FSS Mount Targets, also creates the FSS Mount Targets Subnet"
 }
 variable "existent_oke_k8s_endpoint_subnet_ocid" {
   default     = ""
