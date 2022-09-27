@@ -50,6 +50,16 @@ variable "node_pool_node_shape_config_memory_in_gbs" {
   default     = "16" # Only used if flex shape is selected
   description = "You can customize the amount of memory allocated to a flexible shape"
 }
+variable "node_pool_shape_specifc_ad" {
+  description = "The number of the AD to get the shape for the node pool"
+  type        = number
+  default     = 0
+
+  validation {
+    condition     = var.node_pool_shape_specifc_ad >= 0 && var.node_pool_shape_specifc_ad <= 3
+    error_message = "Invalid AD number, should be 0 to get all ADs or 1, 2 or 3 to be a specific AD."
+  }
+}
 variable "existent_oke_nodepool_id_for_autoscaler" {
   default     = ""
   description = "Nodepool Id of the existent OKE to use with Cluster Autoscaler"

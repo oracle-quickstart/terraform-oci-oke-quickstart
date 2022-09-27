@@ -21,3 +21,10 @@ data "oci_core_images" "node_pool_images" {
 data "oci_identity_availability_domains" "ADs" {
   compartment_id = var.tenancy_ocid
 }
+# Gets a specfic Availability Domain
+data "oci_identity_availability_domain" "specfic" {
+  compartment_id = var.tenancy_ocid
+  ad_number      = var.node_pool_shape_specifc_ad
+
+  count = (var.node_pool_shape_specifc_ad > 0) ? 1 : 0
+}
