@@ -11,7 +11,7 @@
 ################################################################################
 
 ################################################################################
-# OCI Vault (KMS) - Key Management Service to use with OKE
+# Module: OCI Vault (KMS) - Key Management Service to use with OKE
 ################################################################################
 module "vault" {
   source = "./modules/oci-vault-kms"
@@ -42,7 +42,7 @@ module "vault" {
 }
 
 ################################################################################
-# Oracle Container Engine for Kubernetes (OKE) Cluster
+# Module: Oracle Container Engine for Kubernetes (OKE) Cluster
 ################################################################################
 module "oke" {
   source = "./modules/oke"
@@ -74,7 +74,7 @@ module "oke" {
   nodes_subnet_id        = var.create_subnets ? module.subnets["oke_nodes_subnet"].subnet_id : var.existent_oke_nodes_subnet_ocid
   lb_subnet_id           = var.create_subnets ? module.subnets["oke_lb_subnet"].subnet_id : var.existent_oke_load_balancer_subnet_ocid
   # pods_network_subnet_id = var.cluster_cni_type == "OCI_VCN_IP_NATIVE" ? (var.create_subnets ? module.subnets["oke_pods_network_subnet"].subnet_id : var.existent_oke_pods_network_subnet_ocid) : null
-  cni_type = var.cluster_cni_type
+  cni_type = local.cni_type
   ### Cluster Workers visibility
   cluster_workers_visibility = var.cluster_workers_visibility
   ### Cluster API Endpoint visibility
@@ -93,7 +93,7 @@ module "oke" {
 }
 
 ################################################################################
-# OKE Node Pool
+# Module: OKE Node Pool
 ################################################################################
 module "oke_node_pool" {
   for_each = { for map in local.node_pools : map.node_pool_name => map }
@@ -117,7 +117,7 @@ module "oke_node_pool" {
   node_pool_max_nodes                       = each.value.node_pool_max_nodes
   node_k8s_version                          = each.value.node_k8s_version
   node_pool_shape                           = each.value.node_pool_shape
-  node_pool_shape_specifc_ad          = each.value.node_pool_shape_specifc_ad
+  node_pool_shape_specifc_ad                = each.value.node_pool_shape_specifc_ad
   node_pool_node_shape_config_ocpus         = each.value.node_pool_node_shape_config_ocpus
   node_pool_node_shape_config_memory_in_gbs = each.value.node_pool_node_shape_config_memory_in_gbs
   existent_oke_nodepool_id_for_autoscaler   = each.value.existent_oke_nodepool_id_for_autoscaler
@@ -141,7 +141,7 @@ locals {
       node_pool_max_nodes                       = var.cluster_autoscaler_max_nodes_1
       node_k8s_version                          = var.k8s_version # TODO: Allow to set different version for each node pool
       node_pool_shape                           = var.node_pool_instance_shape_1.instanceShape
-      node_pool_shape_specifc_ad = var.node_pool_shape_specifc_ad_1
+      node_pool_shape_specifc_ad                = var.node_pool_shape_specifc_ad_1
       node_pool_node_shape_config_ocpus         = var.node_pool_instance_shape_1.ocpus
       node_pool_node_shape_config_memory_in_gbs = var.node_pool_instance_shape_1.memory
       node_pool_boot_volume_size_in_gbs         = var.node_pool_boot_volume_size_in_gbs_1
@@ -163,7 +163,7 @@ locals {
 }
 
 ################################################################################
-# OKE Cluster Autoscaler
+# Module: OKE Cluster Autoscaler
 ################################################################################
 module "oke_cluster_autoscaler" {
   source = "./modules/oke-cluster-autoscaler"
@@ -179,7 +179,7 @@ module "oke_cluster_autoscaler" {
 }
 
 ################################################################################
-# OKE Variables
+# Variables: OKE Cluster
 ################################################################################
 ## OKE Cluster Details
 variable "create_new_oke_cluster" {
@@ -247,6 +247,9 @@ variable "existent_oke_nodepool_id_for_autoscaler_1" {
   description = "Nodepool Id of the existent OKE to use with Cluster Autoscaler (pool1)"
 }
 
+################################################################################
+# Variables: OKE Node Pool 1
+################################################################################
 ## OKE Node Pool Details
 variable "k8s_version" {
   default     = "Latest"
@@ -315,6 +318,9 @@ variable "public_ssh_key" {
   description = "In order to access your private nodes with a public SSH key you will need to set up a bastion host (a.k.a. jump box). If using public nodes, bastion is not needed. Left blank to not import keys."
 }
 
+################################################################################
+# Variables: Dynamic Group and Policies for OKE
+################################################################################
 # Create Dynamic Group and Policies
 variable "create_dynamic_group_for_nodes_in_compartment" {
   default     = true
@@ -351,7 +357,7 @@ data "oci_core_services" "all_services_network" {
 }
 
 ################################################################################
-# OKE Network variables
+# Variables: OKE Network
 ################################################################################
 # OKE Network Visibility (Workers, Endpoint and Load Balancers)
 variable "cluster_workers_visibility" {
@@ -527,7 +533,7 @@ locals {
       display_name       = "OKE Node Workers Security List (${local.deploy_id})"
       egress_security_rules = [
         {
-          description      = "Allow pods on one worker node to communicate with pods on other worker nodes"
+          description      = "Allows communication from (or to) worker nodes"
           destination      = lookup(local.network_cidrs, "NODES-REGIONAL-SUBNET-CIDR")
           destination_type = "CIDR_BLOCK"
           protocol         = local.security_list_ports.all_protocols
@@ -536,7 +542,16 @@ locals {
           udp_options      = { max = -1, min = -1, source_port_range = null }
           icmp_options     = null
           }, {
-          description      = "Worker Nodes access to Internet"
+          description      = "Allow worker nodes to communicate with pods on other worker nodes (when using VCN-native pod networking)"
+          destination      = lookup(local.network_cidrs, "VCN-NATIVE-POD-NETWORKING-REGIONAL-SUBNET-CIDR")
+          destination_type = "CIDR_BLOCK"
+          protocol         = local.security_list_ports.all_protocols
+          stateless        = false
+          tcp_options      = { max = -1, min = -1, source_port_range = null }
+          udp_options      = { max = -1, min = -1, source_port_range = null }
+          icmp_options     = null
+          }, {
+          description      = "(optional) Allow worker nodes to communicate with internet"
           destination      = lookup(local.network_cidrs, "ALL-CIDR")
           destination_type = "CIDR_BLOCK"
           protocol         = local.security_list_ports.all_protocols
@@ -548,7 +563,7 @@ locals {
           description      = "Allow nodes to communicate with OKE to ensure correct start-up and continued functioning"
           destination      = lookup(data.oci_core_services.all_services_network.services[0], "cidr_block")
           destination_type = "SERVICE_CIDR_BLOCK"
-          protocol         = local.security_list_ports.tcp_protocol_number
+          protocol         = local.security_list_ports.all_protocols
           stateless        = false
           tcp_options      = { max = local.security_list_ports.https_port_number, min = local.security_list_ports.https_port_number, source_port_range = null }
           udp_options      = { max = -1, min = -1, source_port_range = null }
@@ -592,7 +607,7 @@ locals {
       }]
       ingress_security_rules = [
         {
-          description  = "Allow pods on one worker node to communicate with pods on other worker nodes"
+          description  = "Allows communication from (or to) worker nodes"
           source       = lookup(local.network_cidrs, "NODES-REGIONAL-SUBNET-CIDR")
           source_type  = "CIDR_BLOCK"
           protocol     = local.security_list_ports.all_protocols
@@ -601,7 +616,16 @@ locals {
           udp_options  = { max = -1, min = -1, source_port_range = null }
           icmp_options = null
           }, {
-          description  = "Inbound SSH traffic to worker nodes"
+          description  = "Allow pods on one worker node to communicate with pods on other worker nodes (when using VCN-native pod networking)"
+          source       = lookup(local.network_cidrs, "VCN-NATIVE-POD-NETWORKING-REGIONAL-SUBNET-CIDR")
+          source_type  = "CIDR_BLOCK"
+          protocol     = local.security_list_ports.all_protocols
+          stateless    = false
+          tcp_options  = { max = -1, min = -1, source_port_range = null }
+          udp_options  = { max = -1, min = -1, source_port_range = null }
+          icmp_options = null
+          }, {
+          description  = "(optional) Allow inbound SSH traffic to worker nodes"
           source       = lookup(local.network_cidrs, (var.cluster_workers_visibility == "Private") ? "VCN-MAIN-CIDR" : "ALL-CIDR")
           source_type  = "CIDR_BLOCK"
           protocol     = local.security_list_ports.tcp_protocol_number
@@ -610,12 +634,21 @@ locals {
           udp_options  = { max = -1, min = -1, source_port_range = null }
           icmp_options = null
           }, {
-          description  = "TCP access from Kubernetes Control Plane"
+          description  = "Allow control plane to communicate with worker nodes"
           source       = lookup(local.network_cidrs, "ENDPOINT-REGIONAL-SUBNET-CIDR")
           source_type  = "CIDR_BLOCK"
           protocol     = local.security_list_ports.tcp_protocol_number
           stateless    = false
           tcp_options  = { max = -1, min = -1, source_port_range = null }
+          udp_options  = { max = -1, min = -1, source_port_range = null }
+          icmp_options = null
+          }, {
+          description  = "Kubernetes API endpoint to worker node communication (when using VCN-native pod networking)"
+          source       = lookup(local.network_cidrs, "ENDPOINT-REGIONAL-SUBNET-CIDR")
+          source_type  = "CIDR_BLOCK"
+          protocol     = local.security_list_ports.tcp_protocol_number
+          stateless    = false
+          tcp_options  = { max = local.security_list_ports.k8s_api_endpoint_to_worker_port_number, min = local.security_list_ports.k8s_api_endpoint_to_worker_port_number, source_port_range = null }
           udp_options  = { max = -1, min = -1, source_port_range = null }
           icmp_options = null
           }, {
@@ -627,34 +660,54 @@ locals {
           tcp_options  = { max = -1, min = -1, source_port_range = null }
           udp_options  = { max = -1, min = -1, source_port_range = null }
           icmp_options = { type = "3", code = "4" }
+          }, {
+          description  = "Load Balancer to Worker nodes node ports"
+          source       = lookup(local.network_cidrs, "LB-REGIONAL-SUBNET-CIDR")
+          source_type  = "CIDR_BLOCK"
+          protocol     = local.security_list_ports.all_protocols
+          stateless    = false
+          tcp_options  = { max = 32767, min = 30000, source_port_range = null }
+          udp_options  = { max = -1, min = -1, source_port_range = null }
+          icmp_options = null
       }]
     },
     {
-      security_list_name     = "oke_lb_security_list"
-      display_name           = "OKE Load Balancer Security List (${local.deploy_id})"
-      egress_security_rules  = []
-      ingress_security_rules = []
+      security_list_name = "oke_lb_security_list"
+      display_name       = "OKE Load Balancer Security List (${local.deploy_id})"
+      egress_security_rules = [
+        {
+          description      = "Allow traffic to worker nodes"
+          destination      = lookup(local.network_cidrs, "ALL-CIDR")
+          destination_type = "CIDR_BLOCK"
+          protocol         = local.security_list_ports.all_protocols
+          stateless        = false
+          tcp_options      = { max = 32767, min = 30000, source_port_range = null }
+          udp_options      = { max = -1, min = -1, source_port_range = null }
+          icmp_options     = null
+      }]
+      ingress_security_rules = [
+        {
+          description  = "Allow inbound traffic to Load Balancer"
+          source       = lookup(local.network_cidrs, "ALL-CIDR")
+          source_type  = "CIDR_BLOCK"
+          protocol     = local.security_list_ports.tcp_protocol_number
+          stateless    = false
+          tcp_options  = { max = local.security_list_ports.https_port_number, min = local.security_list_ports.https_port_number, source_port_range = null }
+          udp_options  = { max = -1, min = -1, source_port_range = null }
+          icmp_options = null
+      }]
     },
     {
       security_list_name = "oke_endpoint_security_list"
       display_name       = "OKE K8s API Endpoint Security List (${local.deploy_id})"
       egress_security_rules = [
         {
-          description      = "Allow Kubernetes Control Plane to communicate with OKE"
+          description      = "Allow Kubernetes API Endpoint to communicate with OKE"
           destination      = lookup(data.oci_core_services.all_services_network.services[0], "cidr_block")
           destination_type = "SERVICE_CIDR_BLOCK"
           protocol         = local.security_list_ports.tcp_protocol_number
           stateless        = false
           tcp_options      = { max = local.security_list_ports.https_port_number, min = local.security_list_ports.https_port_number, source_port_range = null }
-          udp_options      = { max = -1, min = -1, source_port_range = null }
-          icmp_options     = null
-          }, {
-          description      = "All traffic to worker nodes"
-          destination      = lookup(local.network_cidrs, "NODES-REGIONAL-SUBNET-CIDR")
-          destination_type = "CIDR_BLOCK"
-          protocol         = local.security_list_ports.tcp_protocol_number
-          stateless        = false
-          tcp_options      = { max = -1, min = -1, source_port_range = null }
           udp_options      = { max = -1, min = -1, source_port_range = null }
           icmp_options     = null
           }, {
@@ -666,10 +719,37 @@ locals {
           tcp_options      = { max = -1, min = -1, source_port_range = null }
           udp_options      = { max = -1, min = -1, source_port_range = null }
           icmp_options     = { type = "3", code = "4" }
+          }, {
+          description      = "All traffic to worker nodes (when using flannel for pod networking)"
+          destination      = lookup(local.network_cidrs, "NODES-REGIONAL-SUBNET-CIDR")
+          destination_type = "CIDR_BLOCK"
+          protocol         = local.security_list_ports.tcp_protocol_number
+          stateless        = false
+          tcp_options      = { max = -1, min = -1, source_port_range = null }
+          udp_options      = { max = -1, min = -1, source_port_range = null }
+          icmp_options     = null
+          }, {
+          description      = "Kubernetes API endpoint to pod communication (when using VCN-native pod networking)"
+          destination      = lookup(local.network_cidrs, "VCN-NATIVE-POD-NETWORKING-REGIONAL-SUBNET-CIDR")
+          destination_type = "CIDR_BLOCK"
+          protocol         = local.security_list_ports.all_protocols
+          stateless        = false
+          tcp_options      = { max = -1, min = -1, source_port_range = null }
+          udp_options      = { max = -1, min = -1, source_port_range = null }
+          icmp_options     = null
+          }, {
+          description      = "Kubernetes API endpoint to worker node communication (when using VCN-native pod networking)"
+          destination      = lookup(local.network_cidrs, "NODES-REGIONAL-SUBNET-CIDR")
+          destination_type = "CIDR_BLOCK"
+          protocol         = local.security_list_ports.tcp_protocol_number
+          stateless        = false
+          tcp_options      = { max = local.security_list_ports.k8s_api_endpoint_to_worker_port_number, min = local.security_list_ports.k8s_api_endpoint_to_worker_port_number, source_port_range = null }
+          udp_options      = { max = -1, min = -1, source_port_range = null }
+          icmp_options     = null
       }]
       ingress_security_rules = [
         {
-          description  = "External access to Kubernetes API endpoint"
+          description  = "(optional) Client access to Kubernetes API endpoint"
           source       = lookup(local.network_cidrs, (var.cluster_endpoint_visibility == "Private") ? "VCN-MAIN-CIDR" : "ALL-CIDR")
           source_type  = "CIDR_BLOCK"
           protocol     = local.security_list_ports.tcp_protocol_number
@@ -704,6 +784,113 @@ locals {
           tcp_options  = { max = -1, min = -1, source_port_range = null }
           udp_options  = { max = -1, min = -1, source_port_range = null }
           icmp_options = { type = "3", code = "4" }
+          }, {
+          description  = "Pod to Kubernetes API endpoint communication (when using VCN-native pod networking)"
+          source       = lookup(local.network_cidrs, "VCN-NATIVE-POD-NETWORKING-REGIONAL-SUBNET-CIDR")
+          source_type  = "CIDR_BLOCK"
+          protocol     = local.security_list_ports.tcp_protocol_number
+          stateless    = false
+          tcp_options  = { max = local.security_list_ports.k8s_api_endpoint_port_number, min = local.security_list_ports.k8s_api_endpoint_port_number, source_port_range = null }
+          udp_options  = { max = -1, min = -1, source_port_range = null }
+          icmp_options = null
+          }, {
+          description  = "Pod to control plane communication (when using VCN-native pod networking)"
+          source       = lookup(local.network_cidrs, "VCN-NATIVE-POD-NETWORKING-REGIONAL-SUBNET-CIDR")
+          source_type  = "CIDR_BLOCK"
+          protocol     = local.security_list_ports.tcp_protocol_number
+          stateless    = false
+          tcp_options  = { max = local.security_list_ports.k8s_worker_to_control_plane_port_number, min = local.security_list_ports.k8s_worker_to_control_plane_port_number, source_port_range = null }
+          udp_options  = { max = -1, min = -1, source_port_range = null }
+          icmp_options = null
+      }]
+    },
+    {
+      security_list_name = "oke_pod_network_security_list"
+      display_name       = "OKE VCN Native Pod Networking Security List (${local.deploy_id})"
+      egress_security_rules = [
+        {
+          description      = "Allow pods to communicate with each other"
+          destination      = lookup(local.network_cidrs, "VCN-NATIVE-POD-NETWORKING-REGIONAL-SUBNET-CIDR")
+          destination_type = "CIDR_BLOCK"
+          protocol         = local.security_list_ports.all_protocols
+          stateless        = false
+          tcp_options      = { max = -1, min = -1, source_port_range = null }
+          udp_options      = { max = -1, min = -1, source_port_range = null }
+          icmp_options     = null
+          }, {
+          description      = "Path discovery"
+          destination      = lookup(data.oci_core_services.all_services_network.services[0], "cidr_block")
+          destination_type = "SERVICE_CIDR_BLOCK"
+          protocol         = local.security_list_ports.icmp_protocol_number
+          stateless        = false
+          tcp_options      = { max = -1, min = -1, source_port_range = null }
+          udp_options      = { max = -1, min = -1, source_port_range = null }
+          icmp_options     = { type = "3", code = "4" }
+          }, {
+          description      = "Allow worker nodes to communicate with OCI services"
+          destination      = lookup(data.oci_core_services.all_services_network.services[0], "cidr_block")
+          destination_type = "SERVICE_CIDR_BLOCK"
+          protocol         = local.security_list_ports.tcp_protocol_number
+          stateless        = false
+          tcp_options      = { max = -1, min = -1, source_port_range = null }
+          udp_options      = { max = -1, min = -1, source_port_range = null }
+          icmp_options     = null
+          }, {
+          description      = "Pod to Kubernetes API endpoint communication (when using VCN-native pod networking)"
+          destination      = lookup(local.network_cidrs, "ENDPOINT-REGIONAL-SUBNET-CIDR")
+          destination_type = "CIDR_BLOCK"
+          protocol         = local.security_list_ports.tcp_protocol_number
+          stateless        = false
+          tcp_options      = { max = local.security_list_ports.k8s_api_endpoint_port_number, min = local.security_list_ports.k8s_api_endpoint_port_number, source_port_range = null }
+          udp_options      = { max = -1, min = -1, source_port_range = null }
+          icmp_options     = null
+          }, {
+          description      = "Pod to Kubernetes API endpoint communication (when using VCN-native pod networking)"
+          destination      = lookup(local.network_cidrs, "ENDPOINT-REGIONAL-SUBNET-CIDR")
+          destination_type = "CIDR_BLOCK"
+          protocol         = local.security_list_ports.tcp_protocol_number
+          stateless        = false
+          tcp_options      = { max = local.security_list_ports.k8s_worker_to_control_plane_port_number, min = local.security_list_ports.k8s_worker_to_control_plane_port_number, source_port_range = null }
+          udp_options      = { max = -1, min = -1, source_port_range = null }
+          icmp_options     = null
+          }, {
+          description      = "(optional) Allow pods to communicate with internet"
+          destination      = lookup(local.network_cidrs, "ALL-CIDR")
+          destination_type = "CIDR_BLOCK"
+          protocol         = local.security_list_ports.all_protocols
+          stateless        = false
+          tcp_options      = { max = local.security_list_ports.https_port_number, min = local.security_list_ports.https_port_number, source_port_range = null }
+          udp_options      = { max = -1, min = -1, source_port_range = null }
+          icmp_options     = null
+      }]
+      ingress_security_rules = [
+        {
+          description  = "Kubernetes API endpoint to pod communication (when using VCN-native pod networking)"
+          source       = lookup(local.network_cidrs, "ENDPOINT-REGIONAL-SUBNET-CIDR")
+          source_type  = "CIDR_BLOCK"
+          protocol     = local.security_list_ports.all_protocols
+          stateless    = false
+          tcp_options  = { max = -1, min = -1, source_port_range = null }
+          udp_options  = { max = -1, min = -1, source_port_range = null }
+          icmp_options = null
+          }, {
+          description  = "Allow pods on one worker node to communicate with pods on other worker nodes"
+          source       = lookup(local.network_cidrs, "NODES-REGIONAL-SUBNET-CIDR")
+          source_type  = "CIDR_BLOCK"
+          protocol     = local.security_list_ports.all_protocols
+          stateless    = false
+          tcp_options  = { max = -1, min = -1, source_port_range = null }
+          udp_options  = { max = -1, min = -1, source_port_range = null }
+          icmp_options = null
+          }, {
+          description  = "Allow pods to communicate with each other"
+          source       = lookup(local.network_cidrs, "VCN-NATIVE-POD-NETWORKING-REGIONAL-SUBNET-CIDR")
+          source_type  = "CIDR_BLOCK"
+          protocol     = local.security_list_ports.all_protocols
+          stateless    = false
+          tcp_options  = { max = -1, min = -1, source_port_range = null }
+          udp_options  = { max = -1, min = -1, source_port_range = null }
+          icmp_options = null
       }]
     }
   ]
@@ -711,6 +898,7 @@ locals {
     http_port_number                        = 80
     https_port_number                       = 443
     k8s_api_endpoint_port_number            = 6443
+    k8s_api_endpoint_to_worker_port_number  = 10250
     k8s_worker_to_control_plane_port_number = 12250
     ssh_port_number                         = 22
     tcp_protocol_number                     = "6"
@@ -733,4 +921,5 @@ locals {
     KUBERNETES-SERVICE-CIDR                        = "10.96.0.0/16"
     ALL-CIDR                                       = "0.0.0.0/0"
   }
+  cni_type = (var.cluster_cni_type == "OCI_VCN_IP_NATIVE" || var.node_pool_cni_type_1 == "OCI_VCN_IP_NATIVE") ? "OCI_VCN_IP_NATIVE" : "FLANNEL_OVERLAY"
 }
