@@ -1,11 +1,6 @@
 module "oke-base" {
   source = "github.com/oracle-quickstart/oke-base?ref=0.7.1"
 
-  #   providers = {
-  #     oci             = oci
-  #     oci.home_region = oci.home_region
-  #   }
-
   # Oracle Cloud Infrastructure Tenancy and Compartment OCID
   tenancy_ocid     = var.tenancy_ocid
   compartment_ocid = var.compartment_ocid
@@ -24,10 +19,10 @@ module "oke-base" {
   # OKE Node Pool 1 arguments
   #   node_pool_cni_type_1           = "FLANNEL_OVERLAY" # Use "OCI_VCN_IP_NATIVE" for VCN Native PODs Network
   cluster_autoscaler_enabled     = true
-  cluster_autoscaler_min_nodes_1 = 3  # Minimum number of nodes in the node pool
-  cluster_autoscaler_max_nodes_1 = 10 # Maximum number of nodes in the node pool
-  num_pool_workers_1             = 3  # If cluster_autoscaler_enabled=false, will use this for Number of nodes in the node pool
-  node_pool_instance_shape_1     = { "instanceShape" = "VM.Standard.E4.Flex", "ocpus" = 2, "memory" = 64 }
+  cluster_autoscaler_min_nodes_1 = 3                                                                       # Minimum number of nodes in the node pool
+  cluster_autoscaler_max_nodes_1 = 10                                                                      # Maximum number of nodes in the node pool
+  num_pool_workers_1             = 3                                                                       # If cluster_autoscaler_enabled=false, will use this for Number of nodes in the node pool
+  node_pool_instance_shape_1     = { "instanceShape" = "VM.Standard.E4.Flex", "ocpus" = 2, "memory" = 64 } # If not using a Flex shape, ocpus and memory are ignored
 
   # VCN for OKE arguments
   vcn_cidr_blocks = "10.20.0.0/16"
