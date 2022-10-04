@@ -20,7 +20,7 @@
 ################################################################################
 
 ################################################################################
-# Virtual Cloud Network (VCN)
+# Module: Virtual Cloud Network (VCN)
 ################################################################################
 module "vcn" {
   source = "./modules/oci-networking/modules/vcn"
@@ -42,7 +42,7 @@ module "vcn" {
 }
 
 ################################################################################
-# Subnets
+# Module: Subnets
 ################################################################################
 module "subnets" {
   for_each = { for map in local.subnets : map.subnet_name => map }
@@ -70,7 +70,7 @@ module "subnets" {
 }
 
 ################################################################################
-# Gateways
+# Module: Gateways
 ################################################################################
 module "gateways" {
   source = "./modules/oci-networking/modules/gateways"
@@ -103,7 +103,7 @@ module "gateways" {
 }
 
 ################################################################################
-# Route Tables
+# Module: Route Tables
 ################################################################################
 module "route_tables" {
   for_each = { for map in local.route_tables : map.route_table_name => map }
@@ -124,7 +124,7 @@ module "route_tables" {
 }
 
 ################################################################################
-# Security Lists
+# Module: Security Lists
 ################################################################################
 module "security_lists" {
   for_each = { for map in local.security_lists : map.security_list_name => map }
@@ -145,7 +145,9 @@ module "security_lists" {
   ingress_security_rules = each.value.ingress_security_rules
 }
 
-# VCN Variables
+################################################################################
+# OCI Netowork - VCN Variables
+################################################################################
 variable "create_new_vcn" {
   default     = true
   description = "Creates a new Virtual Cloud Network (VCN). If false, the VCN must be provided in the variable 'existent_vcn_ocid'."
