@@ -436,7 +436,7 @@ variable "existent_oke_fss_mount_targets_subnet_ocid" {
 
 # OKE Subnets definitions
 locals {
-  subnets_oke = concat(local.subnets_oke_standard, local.subnet_vcn_native_pod_networking, local.subnet_fss_mount_targets)
+  subnets_oke = concat(local.subnets_oke_standard, local.subnet_vcn_native_pod_networking, local.subnet_bastion, local.subnet_fss_mount_targets)
   subnets_oke_standard = [
     {
       subnet_name                = "oke_k8s_endpoint_subnet"
@@ -488,6 +488,7 @@ locals {
       security_list_ids          = [module.security_lists["oke_pod_network_security_list"].security_list_id]
       ipv6cidr_block             = null
   }] : []
+  subnet_bastion           = []
   subnet_fss_mount_targets = [] # 10.20.20.64/26 (10,81) = 62 usable IPs (10.20.20.64 - 10.20.20.255)
 }
 
@@ -917,6 +918,7 @@ locals {
     FSS-MOUNT-TARGETS-REGIONAL-SUBNET-CIDR         = cidrsubnet(local.vcn_cidr_blocks[0], 10, 81) # e.g.: "10.20.20.64/26" = 62 usable IPs (10.20.20.64 - 10.20.20.255)
     APIGW-FN-REGIONAL-SUBNET-CIDR                  = cidrsubnet(local.vcn_cidr_blocks[0], 8, 30)  # e.g.: "10.20.30.0/24" = 254 usable IPs (10.20.30.0 - 10.20.30.255)
     VCN-NATIVE-POD-NETWORKING-REGIONAL-SUBNET-CIDR = cidrsubnet(local.vcn_cidr_blocks[0], 1, 1)   # e.g.: "10.20.128.0/17" = 32766 usable IPs (10.20.128.0 - 10.20.255.255)
+    BASTION-REGIONAL-SUBNET-CIDR                   = cidrsubnet(local.vcn_cidr_blocks[0], 12, 32) # e.g.: "10.20.2.0/28" = 15 usable IPs
     PODS-CIDR                                      = "10.244.0.0/16"
     KUBERNETES-SERVICE-CIDR                        = "10.96.0.0/16"
     ALL-CIDR                                       = "0.0.0.0/0"
