@@ -20,11 +20,14 @@ resource "oci_containerengine_node_pool" "oke_node_pool" {
 
       content {
         availability_domain = placement_configs.value.name
-        subnet_id           = var.oke_vcn_nodes_subnet_ocid
+        subnet_id           = var.nodes_subnet_id
       }
     }
     node_pool_pod_network_option_details {
-      cni_type = "FLANNEL_OVERLAY"
+      cni_type          = var.cni_type
+      max_pods_per_node = 31
+      pod_nsg_ids       = []
+      pod_subnet_ids    = [var.vcn_native_pod_networking_subnet_ocid]
     }
     # nsg_ids       = []
     size          = var.node_pool_min_nodes
