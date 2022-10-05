@@ -5,6 +5,7 @@
 ---
 
 # Oracle Container Engine for Kubernetes ([OKE][oke]) Base stack
+# Terraform Oracle Container Engine for Kubernetes ([OKE][oke]) Quickstart Module
 
 [![Stack Release](https://img.shields.io/github/v/release/oracle-quickstart/oke-base.svg)](https://github.com/oracle-quickstart/oke-base/releases)
 [![Stack Build](https://img.shields.io/github/workflow/status/oracle-quickstart/oke-base/Generate%20stacks%20and%20publish%20release?label=stack&logo=oracle&logoColor=red)][magic_oke_stack]
@@ -14,7 +15,9 @@
 ![Stack Downloads](https://img.shields.io/github/downloads/oracle-quickstart/oke-base/total?logo=terraform)
 [![GitHub issues](https://img.shields.io/github/issues/oracle-quickstart/oke-base.svg)](https://github.com/oracle-quickstart/oke-base/issues)
 
-This repo contains a Terraform Module for how to deploy Oracle Container Engine for [Kubernetes][kubernetes_101] ([OKE][oke]) cluster on Oracle Cloud Infrastructure ([OCI][oci]). This module is designed to be used with the [OCI Resource Manager][oci_rm] to deploy a cluster in a single step. The module can also be used with the [OCI Terraform Provider][oci_tf_provider] to deploy a cluster using local or CloudShell Terraform cli.
+This module handles opinionated Oracle Container Engine for [Kubernetes][kubernetes_101] ([OKE][oke]) cluster creation on Oracle Cloud Infrastructure ([OCI][oci]). This module is designed to be used with the [OCI Resource Manager][oci_rm] to deploy a cluster in a single step. The module can also be used with the [OCI Terraform Provider][oci_tf_provider] to deploy a cluster using local or CloudShell Terraform cli.
+
+Sub modules are provided to create a cluster with a single node pool, or a cluster with multiple node pools. Enables Cluster Autoscaler, OCI Vault(KMS) for customer-managed encryption keys for secrets, block volumes. The module also provides a sub module to create a cluster with a single node pool and a private endpoint to Oracle Resource Manager (ORM).
 
 This repo also includes the modules for deploying the following cluster components on the OKE cluster:
 
@@ -31,6 +34,41 @@ This repo also includes the modules for deploying the following cluster componen
 | [Jaeger](modules/jaeger) | This module deploys the Jaeger tracing system on the OKE cluster. |
 | [Kiali](modules/kiali) | This module deploys the Kiali tracing system on the OKE cluster. |
 | [Keycloak](modules/keycloak) | This module deploys the Keycloak identity and access management system on the OKE cluster. | -->
+
+## Usage
+
+There are multiple examples included in the [examples](https://github.com/oracle-quickstart/terraform-oci-oke-quickstart/tree/main/examples) folder but simple usage is as follows:
+
+```hcl
+module "oke-quickstart" {
+  source = "github.com/oracle-quickstart/terraform-oci-oke-quickstart?ref=0.8.0"
+
+  # Oracle Cloud Infrastructure Tenancy and Compartment OCID
+  tenancy_ocid     = var.tenancy_ocid
+  compartment_ocid = var.compartment_ocid
+  region           = var.region
+
+  # Note: Just few arguments are showing here to simplify the basic example. All other arguments are using default values.
+  # App Name to identify deployment. Used for naming resources.
+  app_name = "Basic"
+
+  # Freeform Tags + Defined Tags. Tags are applied to all resources.
+  tag_values = { "freeformTags" = { "Environment" = "Development", "DeploymentType" = "basic" }, "definedTags" = {} }
+
+  # OKE Cluster arguments
+  #   cluster_cni_type = "FLANNEL_OVERLAY" # Use "OCI_VCN_IP_NATIVE" for VCN Native PODs Network
+
+  # OKE Node Pool 1 arguments
+  #   node_pool_cni_type_1           = "FLANNEL_OVERLAY" # Use "OCI_VCN_IP_NATIVE" for VCN Native PODs Network
+  cluster_autoscaler_enabled     = true
+  node_pool_initial_num_worker_nodes_1             = 3                                                                         # Minimum number of nodes in the node pool
+  node_pool_max_num_worker_nodes_1 = 10                                                                      # Maximum number of nodes in the node pool
+  node_pool_instance_shape_1     = { "instanceShape" = "VM.Standard.E4.Flex", "ocpus" = 2, "memory" = 64 } # If not using a Flex shape, ocpus and memory are ignored
+
+  # VCN for OKE arguments
+  vcn_cidr_blocks = "10.20.0.0/16"
+}
+```
 
 ## Deploy Using Oracle Resource Manager
 
@@ -91,7 +129,7 @@ terraform plan
 terraform apply
 ```
 
-### Terraform Variables
+## Terraform Variables
 
 A complete listing of the Terraform variables used in this stack are referenced [here](VARIABLES.md). This document is automatically generated
 using the [terraform-docs](https://github.com/terraform-docs/terraform-docs) with the following command:
