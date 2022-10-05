@@ -146,7 +146,7 @@ module "security_lists" {
 }
 
 ################################################################################
-# OCI Netowork - VCN Variables
+# OCI Network - VCN Variables
 ################################################################################
 variable "create_new_vcn" {
   default     = true
