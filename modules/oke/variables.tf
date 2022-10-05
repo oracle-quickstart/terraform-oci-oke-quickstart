@@ -10,7 +10,6 @@ variable "region" {}
 # Network Details
 variable "vcn_id" { description = "VCN OCID to deploy OKE Cluster" }
 variable "k8s_endpoint_subnet_id" { description = "Kubernetes Endpoint Subnet OCID to deploy OKE Cluster" }
-variable "nodes_subnet_id" { description = "Nodes Subnet OCID to deploy OKE Cluster" }
 variable "lb_subnet_id" { description = "Load Balancer Subnet OCID to deploy OKE Cluster" }
 variable "cluster_workers_visibility" {
   default     = "Private"
