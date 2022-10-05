@@ -50,7 +50,7 @@ locals {
     #   image_operating_system                    = null
     #   image_operating_system_version            = null
     #   extra_initial_node_labels                 = [{ key = "app.pixel/gpu", value = "true" }]
-    #   cni_type                                  = "FLANNEL_OVERLAY" # If use "OCI_VCN_IP_NATIVE", then need to set "create_pod_network_subnet" to true
+    #   cni_type                                  = "FLANNEL_OVERLAY" # "FLANNEL_OVERLAY" or "OCI_VCN_IP_NATIVE"
     # },
   ]
 }

@@ -70,11 +70,9 @@ module "oke" {
   ## Network Details
   vcn_id                 = module.vcn.vcn_id
   network_cidrs          = local.network_cidrs
-  k8s_endpoint_subnet_id = var.create_subnets ? module.subnets["oke_k8s_endpoint_subnet"].subnet_id : var.existent_oke_k8s_endpoint_subnet_ocid
-  nodes_subnet_id        = var.create_subnets ? module.subnets["oke_nodes_subnet"].subnet_id : var.existent_oke_nodes_subnet_ocid
-  lb_subnet_id           = var.create_subnets ? module.subnets["oke_lb_subnet"].subnet_id : var.existent_oke_load_balancer_subnet_ocid
-  # pods_network_subnet_id = var.cluster_cni_type == "OCI_VCN_IP_NATIVE" ? (var.create_subnets ? module.subnets["oke_pods_network_subnet"].subnet_id : var.existent_oke_pods_network_subnet_ocid) : null
-  cni_type = local.cni_type
+  k8s_endpoint_subnet_id = local.create_subnets ? module.subnets["oke_k8s_endpoint_subnet"].subnet_id : var.existent_oke_k8s_endpoint_subnet_ocid
+  lb_subnet_id           = local.create_subnets ? module.subnets["oke_lb_subnet"].subnet_id : var.existent_oke_load_balancer_subnet_ocid
+  cni_type               = local.cni_type
   ### Cluster Workers visibility
   cluster_workers_visibility = var.cluster_workers_visibility
   ### Cluster API Endpoint visibility
@@ -124,11 +122,12 @@ module "oke_node_pool" {
   public_ssh_key                            = local.workers_public_ssh_key
   image_operating_system                    = each.value.image_operating_system
   image_operating_system_version            = each.value.image_operating_system_version
+  extra_initial_node_labels                 = each.value.extra_initial_node_labels
+  cni_type                                  = each.value.cni_type
 
   # OKE Network Details
-  oke_vcn_nodes_subnet_ocid = var.create_new_oke_cluster ? module.subnets["oke_nodes_subnet"].subnet_id : null
-  # oke_vcn_pod_network_subnet_ocid    = var.cluster_cni_type == "VCN-Native" ? (var.create_new_oke_cluster ? module.subnets["oke_pods_network_subnet"].subnet_id : null) : null
-
+  nodes_subnet_id                       = local.create_subnets ? module.subnets["oke_nodes_subnet"].subnet_id : var.existent_oke_nodes_subnet_ocid
+  vcn_native_pod_networking_subnet_ocid = each.value.cni_type == "OCI_VCN_IP_NATIVE" ? (local.create_subnets ? module.subnets["oke_pods_network_subnet"].subnet_id : var.existent_oke_vcn_native_pod_networking_subnet_ocid) : ""
 
   # Encryption (OCI Vault/Key Management/KMS)
   oci_vault_key_id_oke_node_boot_volume = module.vault.oci_vault_key_id
@@ -141,7 +140,7 @@ locals {
       node_pool_max_nodes                       = var.cluster_autoscaler_max_nodes_1
       node_k8s_version                          = var.k8s_version # TODO: Allow to set different version for each node pool
       node_pool_shape                           = var.node_pool_instance_shape_1.instanceShape
-      node_pool_shape_specifc_ad                = var.node_pool_shape_specifc_ad_1
+      node_pool_shape_specific_ad                = var.node_pool_shape_specific_ad_1
       node_pool_node_shape_config_ocpus         = var.node_pool_instance_shape_1.ocpus
       node_pool_node_shape_config_memory_in_gbs = var.node_pool_instance_shape_1.memory
       node_pool_boot_volume_size_in_gbs         = var.node_pool_boot_volume_size_in_gbs_1
@@ -288,13 +287,13 @@ variable "node_pool_instance_shape_1" {
   }
   description = "A shape is a template that determines the number of OCPUs, amount of memory, and other resources allocated to a newly created instance for the Worker Node. Select at least 2 OCPUs and 16GB of memory if using Flex shapes"
 }
-variable "node_pool_shape_specifc_ad_1" {
+variable "node_pool_shape_specific_ad_1" {
   description = "The number of the AD to get the shape for the node pool"
   type        = number
   default     = 0
 
   validation {
-    condition     = var.node_pool_shape_specifc_ad_1 >= 0 && var.node_pool_shape_specifc_ad_1 <= 3
+    condition     = var.node_pool_shape_specific_ad_1 >= 0 && var.node_pool_shape_specific_ad_1 <= 3
     error_message = "Invalid AD number, should be 0 to get all ADs or 1, 2 or 3 to be a specific AD."
   }
 }
@@ -477,7 +476,7 @@ locals {
   ]
   subnet_vcn_native_pod_networking = (var.create_pod_network_subnet || var.cluster_cni_type == "OCI_VCN_IP_NATIVE" || var.node_pool_cni_type_1 == "OCI_VCN_IP_NATIVE") ? [
     {
-      subnet_name                = "oke_pod_network_subnet"
+      subnet_name                = "oke_pods_network_subnet"
       cidr_block                 = lookup(local.network_cidrs, "VCN-NATIVE-POD-NETWORKING-REGIONAL-SUBNET-CIDR") # e.g.: 10.20.128.0/17 (1,1) = 32766 usable IPs (10.20.128.0 - 10.20.255.255)
       display_name               = "OKE PODs Network subnet (${local.deploy_id})"
       dns_label                  = "okenpn${local.deploy_id}"
@@ -564,9 +563,9 @@ locals {
           description      = "Allow nodes to communicate with OKE to ensure correct start-up and continued functioning"
           destination      = lookup(data.oci_core_services.all_services_network.services[0], "cidr_block")
           destination_type = "SERVICE_CIDR_BLOCK"
-          protocol         = local.security_list_ports.all_protocols
+          protocol         = local.security_list_ports.tcp_protocol_number
           stateless        = false
-          tcp_options      = { max = local.security_list_ports.https_port_number, min = local.security_list_ports.https_port_number, source_port_range = null }
+          tcp_options      = { max = -1, min = -1, source_port_range = null }
           udp_options      = { max = -1, min = -1, source_port_range = null }
           icmp_options     = null
           }, {
@@ -665,7 +664,7 @@ locals {
           description  = "Load Balancer to Worker nodes node ports"
           source       = lookup(local.network_cidrs, "LB-REGIONAL-SUBNET-CIDR")
           source_type  = "CIDR_BLOCK"
-          protocol     = local.security_list_ports.all_protocols
+          protocol     = local.security_list_ports.tcp_protocol_number # all_protocols
           stateless    = false
           tcp_options  = { max = 32767, min = 30000, source_port_range = null }
           udp_options  = { max = -1, min = -1, source_port_range = null }
@@ -680,7 +679,7 @@ locals {
           description      = "Allow traffic to worker nodes"
           destination      = lookup(local.network_cidrs, "ALL-CIDR")
           destination_type = "CIDR_BLOCK"
-          protocol         = local.security_list_ports.all_protocols
+          protocol         = local.security_list_ports.tcp_protocol_number # all_protocols
           stateless        = false
           tcp_options      = { max = 32767, min = 30000, source_port_range = null }
           udp_options      = { max = -1, min = -1, source_port_range = null }
@@ -858,7 +857,7 @@ locals {
           description      = "(optional) Allow pods to communicate with internet"
           destination      = lookup(local.network_cidrs, "ALL-CIDR")
           destination_type = "CIDR_BLOCK"
-          protocol         = local.security_list_ports.all_protocols
+          protocol         = local.security_list_ports.tcp_protocol_number
           stateless        = false
           tcp_options      = { max = local.security_list_ports.https_port_number, min = local.security_list_ports.https_port_number, source_port_range = null }
           udp_options      = { max = -1, min = -1, source_port_range = null }
@@ -918,7 +917,7 @@ locals {
     FSS-MOUNT-TARGETS-REGIONAL-SUBNET-CIDR         = cidrsubnet(local.vcn_cidr_blocks[0], 10, 81) # e.g.: "10.20.20.64/26" = 62 usable IPs (10.20.20.64 - 10.20.20.255)
     APIGW-FN-REGIONAL-SUBNET-CIDR                  = cidrsubnet(local.vcn_cidr_blocks[0], 8, 30)  # e.g.: "10.20.30.0/24" = 254 usable IPs (10.20.30.0 - 10.20.30.255)
     VCN-NATIVE-POD-NETWORKING-REGIONAL-SUBNET-CIDR = cidrsubnet(local.vcn_cidr_blocks[0], 1, 1)   # e.g.: "10.20.128.0/17" = 32766 usable IPs (10.20.128.0 - 10.20.255.255)
-    BASTION-REGIONAL-SUBNET-CIDR                   = cidrsubnet(local.vcn_cidr_blocks[0], 12, 32) # e.g.: "10.20.2.0/28" = 15 usable IPs
+    BASTION-REGIONAL-SUBNET-CIDR                   = cidrsubnet(local.vcn_cidr_blocks[0], 12, 32) # e.g.: "10.20.2.0/28" = 15 usable IPs (10.20.2.0 - 10.20.2.15)
     PODS-CIDR                                      = "10.244.0.0/16"
     KUBERNETES-SERVICE-CIDR                        = "10.96.0.0/16"
     ALL-CIDR                                       = "0.0.0.0/0"
