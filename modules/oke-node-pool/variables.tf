@@ -92,10 +92,10 @@ variable "public_ssh_key" {
 
 # OKE Network Variables
 variable "nodes_subnet_id" { description = "Nodes Subnet OCID to deploy OKE Cluster" }
-variable "vcn_native_pod_networking_subnet_ocid" { 
-  default = ""
+variable "vcn_native_pod_networking_subnet_ocid" {
+  default     = ""
   description = "VCN Native Pod Networking Subnet OCID used by the OKE Cluster"
-  }
+}
 
 # Customer Manager Encryption Keys
 variable "oci_vault_key_id_oke_node_boot_volume" {
