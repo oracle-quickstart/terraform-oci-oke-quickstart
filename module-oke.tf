@@ -136,11 +136,11 @@ locals {
   node_pool_1 = [
     {
       node_pool_name                            = var.node_pool_name_1 != "" ? var.node_pool_name_1 : "pool1" # Must be unique
-      node_pool_min_nodes                       = var.cluster_autoscaler_enabled ? var.cluster_autoscaler_min_nodes_1 : var.num_pool_workers_1
-      node_pool_max_nodes                       = var.cluster_autoscaler_max_nodes_1
+      node_pool_min_nodes                       = var.node_pool_initial_num_worker_nodes_1
+      node_pool_max_nodes                       = var.node_pool_max_num_worker_nodes_1
       node_k8s_version                          = var.k8s_version # TODO: Allow to set different version for each node pool
       node_pool_shape                           = var.node_pool_instance_shape_1.instanceShape
-      node_pool_shape_specific_ad                = var.node_pool_shape_specific_ad_1
+      node_pool_shape_specific_ad               = var.node_pool_shape_specific_ad_1
       node_pool_node_shape_config_ocpus         = var.node_pool_instance_shape_1.ocpus
       node_pool_node_shape_config_memory_in_gbs = var.node_pool_instance_shape_1.memory
       node_pool_boot_volume_size_in_gbs         = var.node_pool_boot_volume_size_in_gbs_1
@@ -233,11 +233,11 @@ variable "cluster_autoscaler_enabled" {
   default     = true
   description = "Enables OKE cluster autoscaler. Node pools will auto scale based on the resources usage"
 }
-variable "cluster_autoscaler_min_nodes_1" {
+variable "node_pool_initial_num_worker_nodes_1" {
   default     = 3
-  description = "Minimum number of nodes on the node pool to be scheduled by the Kubernetes (pool1)"
+  description = "The number of worker nodes in the node pool. If enable Cluster Autoscaler, will assume the minimum number of nodes on the node pool to be scheduled by the Kubernetes (pool1)"
 }
-variable "cluster_autoscaler_max_nodes_1" {
+variable "node_pool_max_num_worker_nodes_1" {
   default     = 10
   description = "Maximum number of nodes on the node pool to be scheduled by the Kubernetes (pool1)"
 }
@@ -271,10 +271,6 @@ variable "node_pool_cni_type_1" {
     condition     = var.node_pool_cni_type_1 == "FLANNEL_OVERLAY" || var.node_pool_cni_type_1 == "OCI_VCN_IP_NATIVE"
     error_message = "Sorry, but OKE currently only supports FLANNEL_OVERLAY or OCI_VCN_IP_NATIVE CNI types."
   }
-}
-variable "num_pool_workers_1" {
-  default     = 3
-  description = "The number of worker nodes in the node pool. If select Cluster Autoscaler, will assume the minimum number of nodes configured"
 }
 
 #### ocpus and memory are only used if flex shape is selected
