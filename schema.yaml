@@ -70,6 +70,7 @@ variableGroups:
     - image_operating_system_1
     - image_operating_system_version_1
     - node_pool_name_1
+    - node_pool_cni_type_1
 
   - title: "Dynamic Group and Policies"
     variables:
@@ -121,6 +122,11 @@ variableGroups:
       - private_key_path
       - node_pool_boot_volume_size_in_gbs_1
       - oke_compartment_description
+      - cluster_cni_type
+      - create_pod_network_subnet
+      - extra_initial_node_labels_1
+      - node_pool_shape_specific_ad_1
+      - pods_network_visibility
     visible: false
 
 variables:
@@ -485,6 +491,18 @@ variables:
   node_pool_name_1:
     type: string
     title: "Node Pool Name"
+    required: true
+    visible:
+      and:
+        - create_new_oke_cluster
+        - show_advanced
+
+  node_pool_cni_type_1:
+    type: enum
+    title: "Node Pool CNI Type"
+    enum:
+      - "FLANNEL_OVERLAY"
+      - "OCI_VCN_IP_NATIVE"
     required: true
     visible:
       and:
