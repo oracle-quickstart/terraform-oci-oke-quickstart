@@ -1,34 +1,53 @@
+# Terraform OKE Submodule
 
+This module deploys an OKE Kubernetes cluster.
 
-## How to use this Module
+## Usage
 
-Each Module has the following folder structure:
+```hcl
+module "oke" {
+  source = "./modules/oke"
 
-- [modules](https://github.com/oracle-quickstart/oke-base/tree/master/modules): This folder contains the reusable
-  code for this Module, broken down into one or more submodules.
-<!-- - [examples](https://github.com/oracle-quickstart/oke-base/tree/master/examples): This folder contains examples
-  of how to use the submodules.
-- [test](https://github.com/oracle-quickstart/oke-base/tree/master/test): Automated tests for the submodules and
-  examples. -->
+  providers = {
+    oci             = oci
+    oci.home_region = oci.home_region
+  }
 
-## What's a Terraform Module?
+  # Oracle Cloud Infrastructure Tenancy and Compartment OCID
+  tenancy_ocid     = var.tenancy_ocid
+  compartment_ocid = local.oke_compartment_ocid
+  region           = var.region
 
-A Terraform Module refers to a self-contained packages of Terraform configurations that are managed as a group. This repo
-is a Terraform Module and contains many "submodules" which can be composed together to create useful infrastructure patterns.
+  # Deployment Tags + Freeform Tags + Defined Tags
+  cluster_tags        = local.oci_tag_values
+  load_balancers_tags = local.oci_tag_values
+  block_volumes_tags  = local.oci_tag_values
 
-## Which projects use this Module?
+  # OKE Cluster
+  ## create_new_oke_cluster
+  create_new_oke_cluster  = var.create_new_oke_cluster
+  existent_oke_cluster_id = var.existent_oke_cluster_id
 
-- [oci-cloudnative (MuShop)](https://github.com/oracle-quickstart/oci-cloudnative): This project is a reference
-  implementation of a cloud native microservices application on Oracle Cloud Infrastructure (OCI). It is a
-  multi-tiered application that demonstrates how to build and deploy a cloud native application on OCI using
-  Kubernetes, Docker, Istio, and other open source technologies.
+  ## Network Details
+  vcn_id                 = module.vcn.vcn_id
+  network_cidrs          = local.network_cidrs
+  k8s_endpoint_subnet_id = local.create_subnets ? module.subnets["oke_k8s_endpoint_subnet"].subnet_id : var.existent_oke_k8s_endpoint_subnet_ocid
+  lb_subnet_id           = local.create_subnets ? module.subnets["oke_lb_subnet"].subnet_id : var.existent_oke_load_balancer_subnet_ocid
+  cni_type               = local.cni_type
+  ### Cluster Workers visibility
+  cluster_workers_visibility = var.cluster_workers_visibility
+  ### Cluster API Endpoint visibility
+  cluster_endpoint_visibility = var.cluster_endpoint_visibility
 
-- [oke-unreal-pixel-streaming](https://github.com/oracle-quickstart/oke-unreal-pixel-streaming): This project deploys
-  a Kubernetes cluster on Oracle Cloud Infrastructure (OCI) and deploys the Unreal Pixel Streaming demo application
-  on the cluster.
+  ## Control Plane Kubernetes Version
+  k8s_version = var.k8s_version
 
-- [oke-sysdig](https://github.com/oracle-quickstart/oke-sysdig): This project deploy a Sysdig Secure agent on an OKE cluster.
+  ## Create Dynamic group and Policies for Autoscaler and OCI Metrics and Logging
+  create_dynamic_group_for_nodes_in_compartment = var.create_dynamic_group_for_nodes_in_compartment
+  create_compartment_policies                   = var.create_compartment_policies
 
-- [oke-snyk](https://github.com/oracle-quickstart/oke-snyk): This project deploy a Snyk agent on an OKE cluster.
-
-- several other projects, samples, demos, and customers quickstarts.
+  ## Encryption (OCI Vault/Key Management/KMS)
+  oci_vault_key_id_oke_secrets      = module.vault.oci_vault_key_id
+  oci_vault_key_id_oke_image_policy = module.vault.oci_vault_key_id
+}
+```
