@@ -16,15 +16,18 @@ resource "oci_containerengine_node_pool" "oke_node_pool" {
 
   node_config_details {
     dynamic "placement_configs" {
-      for_each = data.oci_identity_availability_domains.ADs.availability_domains
+      for_each = local.node_pool_ads # data.oci_identity_availability_domains.ADs.availability_domains
 
       content {
         availability_domain = placement_configs.value.name
-        subnet_id           = var.oke_vcn_nodes_subnet_ocid
+        subnet_id           = var.nodes_subnet_id
       }
     }
     node_pool_pod_network_option_details {
-      cni_type = "FLANNEL_OVERLAY"
+      cni_type          = var.cni_type
+      max_pods_per_node = 31
+      pod_nsg_ids       = []
+      pod_subnet_ids    = [var.vcn_native_pod_networking_subnet_ocid]
     }
     # nsg_ids       = []
     size          = var.node_pool_min_nodes
@@ -76,4 +79,7 @@ locals {
   # Gets the latest Kubernetes version supported by the node pool
   node_pool_k8s_latest_version = reverse(sort(data.oci_containerengine_node_pool_option.node_pool.kubernetes_versions))[0]
   node_k8s_version             = (var.node_k8s_version == "Latest") ? local.node_pool_k8s_latest_version : var.node_k8s_version
+
+  # Get ADs for the shape to be used on the node pool
+  node_pool_ads = (var.node_pool_shape_specifc_ad > 0) ? data.oci_identity_availability_domain.specfic : data.oci_identity_availability_domains.ADs.availability_domains
 }

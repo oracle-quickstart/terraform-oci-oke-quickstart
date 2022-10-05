@@ -10,7 +10,6 @@ variable "region" {}
 # Network Details
 variable "vcn_id" { description = "VCN OCID to deploy OKE Cluster" }
 variable "k8s_endpoint_subnet_id" { description = "Kubernetes Endpoint Subnet OCID to deploy OKE Cluster" }
-variable "nodes_subnet_id" { description = "Nodes Subnet OCID to deploy OKE Cluster" }
 variable "lb_subnet_id" { description = "Load Balancer Subnet OCID to deploy OKE Cluster" }
 variable "cluster_workers_visibility" {
   default     = "Private"
@@ -23,7 +22,12 @@ variable "cluster_endpoint_visibility" {
 variable "network_cidrs" {}
 variable "cni_type" {
   default     = "FLANNEL_OVERLAY"
-  description = "The CNI type to use for the cluster. Valid values are: FLANNEL_OVERLAY, CALICO, or CILIUM"
+  description = "The CNI type to use for the cluster. Valid values are: FLANNEL_OVERLAY or OCI_VCN_IP_NATIVE"
+
+  validation {
+    condition     = var.cni_type == "FLANNEL_OVERLAY" || var.cni_type == "OCI_VCN_IP_NATIVE"
+    error_message = "Sorry, but OKE currently only supports FLANNEL_OVERLAY or OCI_VCN_IP_NATIVE CNI types."
+  }
 }
 
 # OKE Variables

@@ -2,7 +2,7 @@
 # Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 # 
 
-# File Version: 0.7.0
+# File Version: 0.8.0
 
 # Dependencies:
 #   - module-defaults.tf file
@@ -13,6 +13,15 @@
 #   - local.route_tables
 #   - local.security_lists
 
+################################################################################
+#
+#       *** Note: Normally, you should not need to edit this file. ***
+#
+################################################################################
+
+################################################################################
+# Module: Virtual Cloud Network (VCN)
+################################################################################
 module "vcn" {
   source = "./modules/oci-networking/modules/vcn"
 
@@ -26,12 +35,15 @@ module "vcn" {
   create_new_vcn          = local.create_new_vcn
   existent_vcn_ocid       = var.existent_vcn_ocid
   cidr_blocks             = local.vcn_cidr_blocks
-  display_name            = "[${local.app_name}] VCN for OKE (${local.deploy_id})"
+  display_name            = local.vcn_display_name
   dns_label               = "${local.app_name_for_dns}${local.deploy_id}"
   is_ipv6enabled          = var.is_ipv6enabled
   ipv6private_cidr_blocks = var.ipv6private_cidr_blocks
 }
 
+################################################################################
+# Module: Subnets
+################################################################################
 module "subnets" {
   for_each = { for map in local.subnets : map.subnet_name => map }
   source   = "./modules/oci-networking/modules/subnet"
@@ -57,6 +69,9 @@ module "subnets" {
   ipv6cidr_block             = each.value.ipv6cidr_block    # If null, no IPv6 CIDR block is assigned
 }
 
+################################################################################
+# Module: Gateways
+################################################################################
 module "gateways" {
   source = "./modules/oci-networking/modules/gateways"
 
@@ -87,6 +102,9 @@ module "gateways" {
   local_peering_gateway_peer_id      = null
 }
 
+################################################################################
+# Module: Route Tables
+################################################################################
 module "route_tables" {
   for_each = { for map in local.route_tables : map.route_table_name => map }
   source   = "./modules/oci-networking/modules/route_table"
@@ -105,6 +123,9 @@ module "route_tables" {
   route_rules        = each.value.route_rules
 }
 
+################################################################################
+# Module: Security Lists
+################################################################################
 module "security_lists" {
   for_each = { for map in local.security_lists : map.security_list_name => map }
   source   = "./modules/oci-networking/modules/security_list"
@@ -124,7 +145,9 @@ module "security_lists" {
   ingress_security_rules = each.value.ingress_security_rules
 }
 
-# VCN Variables
+################################################################################
+# OCI Netowork - VCN Variables
+################################################################################
 variable "create_new_vcn" {
   default     = true
   description = "Creates a new Virtual Cloud Network (VCN). If false, the VCN must be provided in the variable 'existent_vcn_ocid'."

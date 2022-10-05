@@ -29,7 +29,7 @@ resource "kubernetes_service_account" "cluster_autoscaler_sa" {
       k8s-app   = "cluster-autoscaler"
     }
   }
-  automount_service_account_token = true
+  automount_service_account_token = false
 
   count = local.cluster_autoscaler_enabled ? 1 : 0
 }
