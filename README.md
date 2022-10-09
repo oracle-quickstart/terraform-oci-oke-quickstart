@@ -1,19 +1,15 @@
-# NOTE
-
-**This is a pre-release version of the module, some features have not been migrated from MuShop's OKE Cluster deployment.**
+# NOTE: **This is a pre-release version of the module, some features have not been migrated from MuShop's OKE Cluster deployment.**
 
 ---
-
-# Oracle Container Engine for Kubernetes ([OKE][oke]) Base stack
 # Terraform Oracle Container Engine for Kubernetes ([OKE][oke]) Quickstart Module
 
-[![Stack Release](https://img.shields.io/github/v/release/oracle-quickstart/oke-base.svg)](https://github.com/oracle-quickstart/oke-base/releases)
-[![Stack Build](https://img.shields.io/github/workflow/status/oracle-quickstart/oke-base/Generate%20stacks%20and%20publish%20release?label=stack&logo=oracle&logoColor=red)][magic_oke_stack]
-![AquaSec TFSec](https://img.shields.io/github/workflow/status/oracle-quickstart/oke-base/tfsec?label=tfsec&logo=aqua)
+[![Stack Release](https://img.shields.io/github/v/release/oracle-quickstart/terraform-oci-oke-quickstart.svg)](https://github.com/oracle-quickstart/terraform-oci-oke-quickstart/releases)
+[![Stack Build](https://img.shields.io/github/workflow/status/oracle-quickstart/terraform-oci-oke-quickstart/Generate%20stacks%20and%20publish%20release?label=stack&logo=oracle&logoColor=red)][magic_oke_stack]
+![AquaSec TFSec](https://img.shields.io/github/workflow/status/oracle-quickstart/terraform-oci-oke-quickstart/tfsec?label=tfsec&logo=aqua)
 ![Terraform](https://img.shields.io/badge/terraform->%3D%201.1-%235835CC.svg?logo=terraform)
-![Stack License](https://img.shields.io/github/license/oracle-quickstart/oke-base)
-![Stack Downloads](https://img.shields.io/github/downloads/oracle-quickstart/oke-base/total?logo=terraform)
-[![GitHub issues](https://img.shields.io/github/issues/oracle-quickstart/oke-base.svg)](https://github.com/oracle-quickstart/oke-base/issues)
+![Stack License](https://img.shields.io/github/license/oracle-quickstart/terraform-oci-oke-quickstart)
+![Stack Downloads](https://img.shields.io/github/downloads/oracle-quickstart/terraform-oci-oke-quickstart/total?logo=terraform)
+[![GitHub issues](https://img.shields.io/github/issues/oracle-quickstart/terraform-oci-oke-quickstart.svg)](https://github.com/oracle-quickstart/terraform-oci-oke-quickstart/issues)
 
 This module handles opinionated Oracle Container Engine for [Kubernetes][kubernetes_101] ([OKE][oke]) cluster creation on Oracle Cloud Infrastructure ([OCI][oci]). This module is designed to be used with the [OCI Resource Manager][oci_rm] to deploy a cluster in a single step. The module can also be used with the [OCI Terraform Provider][oci_tf_provider] to deploy a cluster using local or CloudShell Terraform cli.
 
@@ -108,11 +104,11 @@ Next, rename the file to **terraform.tfvars**. You can override the example valu
 Clone the source code from suing the following command:
 
 ```bash
-git clone github.com/oracle-quickstart/oke-base
+git clone github.com/oracle-quickstart/terraform-oci-oke-quickstart
 ```
 
 ```bash
-cd oke-base
+cd terraform-oci-oke-quickstart
 ```
 
 ### Running Terraform
@@ -165,7 +161,7 @@ MINOR, and PATCH versions on each release to indicate any incompatibilities.
 
 ## Questions
 
-If you have an issue or a question, please take a look at our [FAQs](./FAQs.md) or [open an issue](https://github.com/oracle-quickstart/oke-base/issues/new).
+If you have an issue or a question, please take a look at our [FAQs](./FAQs.md) or [open an issue](https://github.com/oracle-quickstart/terraform-oci-oke-quickstart/issues/new).
 
 ## Contributing
 
@@ -186,4 +182,4 @@ See [LICENSE](./LICENSE) for more details.
 [orm_landing]:https://www.oracle.com/cloud/systems-management/resource-manager/
 [oci_tf_provider]: https://www.terraform.io/docs/providers/oci/index.html
 [magic_button]: https://oci-resourcemanager-plugin.plugins.oci.oraclecloud.com/latest/deploy-to-oracle-cloud.svg
-[magic_oke_stack]: https://cloud.oracle.com/resourcemanager/stacks/create?zipUrl=https://github.com/oracle-quickstart/oke-base/releases/latest/download/oke-base-stack-latest.zip
+[magic_oke_stack]: https://cloud.oracle.com/resourcemanager/stacks/create?zipUrl=https://github.com/oracle-quickstart/terraform-oci-oke-quickstart/releases/latest/download/terraform-oci-oke-quickstart-stack-latest.zip
