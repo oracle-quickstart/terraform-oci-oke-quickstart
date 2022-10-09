@@ -1,7 +1,9 @@
-# NOTE: **This is a pre-release version of the module, some features have not been migrated from MuShop's OKE Cluster deployment.**
+# Terraform Oracle Container Engine for Kubernetes ([OKE][oke]) Quickstart Module
 
 ---
-# Terraform Oracle Container Engine for Kubernetes ([OKE][oke]) Quickstart Module
+## *** **_NOTE:_** This is a pre-release version of the module, some features have not been migrated from MuShop's OKE Cluster deployment. ***
+
+---
 
 [![Stack Release](https://img.shields.io/github/v/release/oracle-quickstart/terraform-oci-oke-quickstart.svg)](https://github.com/oracle-quickstart/terraform-oci-oke-quickstart/releases)
 [![Stack Build](https://img.shields.io/github/workflow/status/oracle-quickstart/terraform-oci-oke-quickstart/Generate%20stacks%20and%20publish%20release?label=stack&logo=oracle&logoColor=red)][magic_oke_stack]
