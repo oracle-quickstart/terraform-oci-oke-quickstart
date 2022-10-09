@@ -1,7 +1,9 @@
-# NOTE: **This is a pre-release version of the module, some features have not been migrated from MuShop's OKE Cluster deployment.**
+# Terraform Oracle Container Engine for Kubernetes ([OKE][oke]) Quickstart Module
 
 ---
-# Terraform Oracle Container Engine for Kubernetes ([OKE][oke]) Quickstart Module
+## *** **_NOTE:_** This is a pre-release version of the module, some features have not been migrated from MuShop's OKE Cluster deployment. ***
+
+---
 
 [![Stack Release](https://img.shields.io/github/v/release/oracle-quickstart/terraform-oci-oke-quickstart.svg)](https://github.com/oracle-quickstart/terraform-oci-oke-quickstart/releases)
 [![Stack Build](https://img.shields.io/github/workflow/status/oracle-quickstart/terraform-oci-oke-quickstart/Generate%20stacks%20and%20publish%20release?label=stack&logo=oracle&logoColor=red)][magic_oke_stack]
@@ -68,8 +70,7 @@ module "oke-quickstart" {
 
 ## Deploy Using Oracle Resource Manager
 
-    If you aren't already signed in, when prompted, enter the tenancy and user credentials.
-    Review and accept the terms and conditions.
+> **_NOTE:_** If you aren't already signed in, when prompted, enter the tenancy and user credentials. Review and accept the terms and conditions.
 
 1. Click to deploy the stack
 
@@ -118,21 +119,28 @@ After specifying the required variables you can run the stack using the followin
 ```bash
 terraform init
 ```
+
 ```bash
 terraform plan
 ```
+
 ```bash
 terraform apply
 ```
 
+```bash
+terraform destroy -refresh=false
+```
+
 ## Terraform Variables
 
-A complete listing of the Terraform variables used in this stack are referenced [here](VARIABLES.md). This document is automatically generated
+A complete listing of the Terraform variables used in this stack are referenced [here](VARIABLES.md). 
+<!-- This document is automatically generated
 using the [terraform-docs](https://github.com/terraform-docs/terraform-docs) with the following command:
 
 ```bash
 terraform-docs markdown table --sort-by required --show inputs --show outputs . > VARIABLES.md
-```
+``` -->
 
 ## What's a Terraform Module?
 
@@ -182,4 +190,4 @@ See [LICENSE](./LICENSE) for more details.
 [orm_landing]:https://www.oracle.com/cloud/systems-management/resource-manager/
 [oci_tf_provider]: https://www.terraform.io/docs/providers/oci/index.html
 [magic_button]: https://oci-resourcemanager-plugin.plugins.oci.oraclecloud.com/latest/deploy-to-oracle-cloud.svg
-[magic_oke_stack]: https://cloud.oracle.com/resourcemanager/stacks/create?zipUrl=https://github.com/oracle-quickstart/terraform-oci-oke-quickstart/releases/latest/download/terraform-oci-oke-quickstart-stack-latest.zip
+[magic_oke_stack]: https://cloud.oracle.com/resourcemanager/stacks/create?zipUrl=https://github.com/oracle-quickstart/terraform-oci-oke-quickstart/releases/latest/download/terraform-oci-oke-quickstart-stack.zip
