@@ -42,7 +42,7 @@ locals {
     #   node_pool_max_nodes                       = 2
     #   node_k8s_version                          = var.k8s_version
     #   node_pool_shape                           = "BM.GPU.A10.4"
-    #   node_pool_shape_specifc_ad                = 3 # Optional, if not provided or set = 0, will be randomly assigned
+    #   node_pool_shape_specific_ad                = 3 # Optional, if not provided or set = 0, will be randomly assigned
     #   node_pool_node_shape_config_ocpus         = 1
     #   node_pool_node_shape_config_memory_in_gbs = 1
     #   node_pool_boot_volume_size_in_gbs         = "100"

@@ -81,5 +81,5 @@ locals {
   node_k8s_version             = (var.node_k8s_version == "Latest") ? local.node_pool_k8s_latest_version : var.node_k8s_version
 
   # Get ADs for the shape to be used on the node pool
-  node_pool_ads = (var.node_pool_shape_specifc_ad > 0) ? data.oci_identity_availability_domain.specfic : data.oci_identity_availability_domains.ADs.availability_domains
+  node_pool_ads = (var.node_pool_shape_specific_ad > 0) ? data.oci_identity_availability_domain.specfic : data.oci_identity_availability_domains.ADs.availability_domains
 }
