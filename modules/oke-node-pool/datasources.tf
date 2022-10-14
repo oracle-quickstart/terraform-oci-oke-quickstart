@@ -24,7 +24,7 @@ data "oci_identity_availability_domains" "ADs" {
 # Gets a specfic Availability Domain
 data "oci_identity_availability_domain" "specfic" {
   compartment_id = var.tenancy_ocid
-  ad_number      = var.node_pool_shape_specifc_ad
+  ad_number      = var.node_pool_shape_specific_ad
 
-  count = (var.node_pool_shape_specifc_ad > 0) ? 1 : 0
+  count = (var.node_pool_shape_specific_ad > 0) ? 1 : 0
 }

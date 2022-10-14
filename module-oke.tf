@@ -115,7 +115,7 @@ module "oke_node_pool" {
   node_pool_max_nodes                       = each.value.node_pool_max_nodes
   node_k8s_version                          = each.value.node_k8s_version
   node_pool_shape                           = each.value.node_pool_shape
-  node_pool_shape_specifc_ad                = each.value.node_pool_shape_specifc_ad
+  node_pool_shape_specific_ad               = each.value.node_pool_shape_specific_ad
   node_pool_node_shape_config_ocpus         = each.value.node_pool_node_shape_config_ocpus
   node_pool_node_shape_config_memory_in_gbs = each.value.node_pool_node_shape_config_memory_in_gbs
   existent_oke_nodepool_id_for_autoscaler   = each.value.existent_oke_nodepool_id_for_autoscaler
