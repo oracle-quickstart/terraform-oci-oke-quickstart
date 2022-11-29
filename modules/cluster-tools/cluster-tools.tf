@@ -7,6 +7,8 @@ resource "kubernetes_namespace" "cluster_tools" {
   metadata {
     name = var.cluster_tools_namespace
   }
+
+  count = local.use_cluster_tools_namespace ? 1 : 0
 }
 
 locals {
@@ -23,6 +25,7 @@ locals {
     metrics_server         = "https://kubernetes-sigs.github.io/metrics-server"
     metrics_server_version = "3.8.2"
   }
+  use_cluster_tools_namespace = (var.grafana_enabled || var.ingress_nginx_enabled || var.cert_manager_enabled || var.prometheus_enabled) ? true : false
 }
 
 # OCI Provider
