@@ -35,7 +35,7 @@ module "vcn" {
   # Virtual Cloud Network (VCN) arguments
   create_new_vcn          = local.create_new_vcn
   existent_vcn_ocid       = var.existent_vcn_ocid
-  cidr_blocks             = local.vcn_cidr_blocks
+  cidr_blocks             = local.pre_vcn_cidr_blocks
   display_name            = local.vcn_display_name
   dns_label               = "${local.app_name_for_dns}${local.deploy_id}"
   is_ipv6enabled          = var.is_ipv6enabled
