@@ -52,7 +52,7 @@ module "cluster-tools" {
 # Kubernetes Cluster Tools
 ## IngressController/LoadBalancer
 variable "ingress_nginx_enabled" {
-  default     = true
+  default     = false
   description = "Enable Ingress Nginx for Kubernetes Services (This option provision a Load Balancer)"
 }
 variable "ingress_load_balancer_shape" {
@@ -95,7 +95,7 @@ variable "ingress_email_issuer" {
 
 ## Cert Manager
 variable "cert_manager_enabled" {
-  default     = true
+  default     = false
   description = "Enable x509 Certificate Management"
 }
 
@@ -107,13 +107,13 @@ variable "metrics_server_enabled" {
 
 ## Prometheus
 variable "prometheus_enabled" {
-  default     = true
+  default     = false
   description = "Enable Prometheus"
 }
 
 ## Grafana
 variable "grafana_enabled" {
-  default     = true
+  default     = false
   description = "Enable Grafana Dashboards. Includes example dashboards and Prometheus, OCI Logging and OCI Metrics datasources"
 }
 
