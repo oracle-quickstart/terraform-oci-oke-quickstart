@@ -21,5 +21,5 @@ module "oke-quickstart" {
   node_pool_instance_shape_1           = { "instanceShape" = "VM.Standard.E4.Flex", "ocpus" = 2, "memory" = 64 } # If not using a Flex shape, ocpus and memory are ignored
 
   # VCN for OKE arguments
-  vcn_cidr_blocks = "10.20.0.0/16"
+  vcn_cidr_blocks = "10.22.0.0/16"
 }
