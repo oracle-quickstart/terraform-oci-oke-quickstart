@@ -47,8 +47,8 @@ locals {
   route_tables                  = concat(local.route_tables_oke)
   security_lists                = concat(local.security_lists_oke)
   resolved_vcn_compartment_ocid = (var.create_new_compartment_for_oke ? local.oke_compartment_ocid : var.compartment_ocid)
-  pre_vcn_cidr_blocks  = split(",", var.vcn_cidr_blocks)
-  vcn_cidr_blocks      = contains(module.vcn.cidr_blocks, local.pre_vcn_cidr_blocks[0]) ? distinct(concat([local.pre_vcn_cidr_blocks[0]], module.vcn.cidr_blocks)) : module.vcn.cidr_blocks
+  pre_vcn_cidr_blocks           = split(",", var.vcn_cidr_blocks)
+  vcn_cidr_blocks               = contains(module.vcn.cidr_blocks, local.pre_vcn_cidr_blocks[0]) ? distinct(concat([local.pre_vcn_cidr_blocks[0]], module.vcn.cidr_blocks)) : module.vcn.cidr_blocks
   network_cidrs = {
     VCN-MAIN-CIDR                                  = local.vcn_cidr_blocks[0]                     # e.g.: "10.20.0.0/16" = 65536 usable IPs
     ENDPOINT-REGIONAL-SUBNET-CIDR                  = cidrsubnet(local.vcn_cidr_blocks[0], 12, 0)  # e.g.: "10.20.0.0/28" = 15 usable IPs
