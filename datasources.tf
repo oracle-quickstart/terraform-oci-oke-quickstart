@@ -17,3 +17,12 @@ data "oci_identity_regions" "home_region" {
 
   provider = oci.current_region
 }
+
+# Available OCI Services
+data "oci_core_services" "all_services_network" {
+  filter {
+    name   = "name"
+    values = ["All .* Services In Oracle Services Network"]
+    regex  = true
+  }
+}

@@ -5,13 +5,14 @@
 # File Version: 0.8.0
 
 # Dependencies:
-#   - module-defaults.tf file
+#   - defaults.tf file
 #   - local.create_new_vcn
 #   - local.create_subnets
 #   - local.resolved_vcn_compartment_ocid
 #   - local.subnets
 #   - local.route_tables
 #   - local.security_lists
+#   - terraform-oci-networking module
 
 ################################################################################
 #
@@ -23,7 +24,7 @@
 # Module: Virtual Cloud Network (VCN)
 ################################################################################
 module "vcn" {
-  source = "./modules/oci-networking/modules/vcn"
+  source = "github.com/oracle-quickstart/terraform-oci-networking//modules/vcn?ref=0.2.0"
 
   # Oracle Cloud Infrastructure Tenancy and Compartment OCID
   compartment_ocid = local.vcn_compartment_ocid
@@ -34,7 +35,7 @@ module "vcn" {
   # Virtual Cloud Network (VCN) arguments
   create_new_vcn          = local.create_new_vcn
   existent_vcn_ocid       = var.existent_vcn_ocid
-  cidr_blocks             = local.vcn_cidr_blocks
+  cidr_blocks             = local.pre_vcn_cidr_blocks
   display_name            = local.vcn_display_name
   dns_label               = "${local.app_name_for_dns}${local.deploy_id}"
   is_ipv6enabled          = var.is_ipv6enabled
@@ -46,7 +47,7 @@ module "vcn" {
 ################################################################################
 module "subnets" {
   for_each = { for map in local.subnets : map.subnet_name => map }
-  source   = "./modules/oci-networking/modules/subnet"
+  source   = "github.com/oracle-quickstart/terraform-oci-networking//modules/subnet?ref=0.2.0"
 
   # Oracle Cloud Infrastructure Tenancy and Compartment OCID
   compartment_ocid = local.vcn_compartment_ocid
@@ -73,7 +74,7 @@ module "subnets" {
 # Module: Gateways
 ################################################################################
 module "gateways" {
-  source = "./modules/oci-networking/modules/gateways"
+  source = "github.com/oracle-quickstart/terraform-oci-networking//modules/gateways?ref=0.2.0"
 
   # Oracle Cloud Infrastructure Tenancy and Compartment OCID
   compartment_ocid = local.vcn_compartment_ocid
@@ -107,7 +108,7 @@ module "gateways" {
 ################################################################################
 module "route_tables" {
   for_each = { for map in local.route_tables : map.route_table_name => map }
-  source   = "./modules/oci-networking/modules/route_table"
+  source   = "github.com/oracle-quickstart/terraform-oci-networking//modules/route_table?ref=0.2.0"
 
   # Oracle Cloud Infrastructure Tenancy and Compartment OCID
   compartment_ocid = local.vcn_compartment_ocid
@@ -128,7 +129,7 @@ module "route_tables" {
 ################################################################################
 module "security_lists" {
   for_each = { for map in local.security_lists : map.security_list_name => map }
-  source   = "./modules/oci-networking/modules/security_list"
+  source   = "github.com/oracle-quickstart/terraform-oci-networking//modules/security_list?ref=0.2.0"
 
   # Oracle Cloud Infrastructure Tenancy and Compartment OCID
   compartment_ocid = local.vcn_compartment_ocid
@@ -145,35 +146,6 @@ module "security_lists" {
   ingress_security_rules = each.value.ingress_security_rules
 }
 
-################################################################################
-# OCI Network - VCN Variables
-################################################################################
-variable "create_new_vcn" {
-  default     = true
-  description = "Creates a new Virtual Cloud Network (VCN). If false, the VCN must be provided in the variable 'existent_vcn_ocid'."
-}
-variable "existent_vcn_ocid" {
-  default     = ""
-  description = "Using existent Virtual Cloud Network (VCN) OCID."
-}
-variable "existent_vcn_compartment_ocid" {
-  default     = ""
-  description = "Compartment OCID for existent Virtual Cloud Network (VCN)."
-}
-variable "vcn_cidr_blocks" {
-  default     = "10.20.0.0/16"
-  description = "IPv4 CIDR Blocks for the Virtual Cloud Network (VCN). If use more than one block, separate them with comma. e.g.: 10.20.0.0/16,10.80.0.0/16. If you plan to peer this VCN with another VCN, the VCNs must not have overlapping CIDRs."
-}
-variable "is_ipv6enabled" {
-  default     = false
-  description = "Whether IPv6 is enabled for the Virtual Cloud Network (VCN)."
-}
-variable "ipv6private_cidr_blocks" {
-  default     = []
-  description = "The list of one or more ULA or Private IPv6 CIDR blocks for the Virtual Cloud Network (VCN)."
-}
-
 locals {
-  vcn_cidr_blocks      = split(",", var.vcn_cidr_blocks)
   vcn_compartment_ocid = var.create_new_vcn ? local.resolved_vcn_compartment_ocid : var.existent_vcn_compartment_ocid
 }

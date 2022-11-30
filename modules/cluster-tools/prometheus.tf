@@ -16,7 +16,7 @@ resource "helm_release" "prometheus" {
   repository = local.helm_repository.prometheus
   chart      = "prometheus"
   version    = local.helm_repository.prometheus_version
-  namespace  = kubernetes_namespace.cluster_tools.id
+  namespace  = kubernetes_namespace.cluster_tools.0.id
   wait       = false
 
 

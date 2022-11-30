@@ -59,7 +59,7 @@ resource "helm_release" "ingress_nginx" {
   repository = local.helm_repository.ingress_nginx
   chart      = "ingress-nginx"
   version    = local.helm_repository.ingress_nginx_version
-  namespace  = kubernetes_namespace.cluster_tools.id
+  namespace  = kubernetes_namespace.cluster_tools.0.id
   wait       = true
 
   set {
@@ -89,7 +89,7 @@ resource "helm_release" "ingress_nginx" {
 data "kubernetes_service" "ingress" {
   metadata {
     name      = "ingress-nginx-controller"
-    namespace = kubernetes_namespace.cluster_tools.id
+    namespace = kubernetes_namespace.cluster_tools.0.id
   }
   depends_on = [helm_release.ingress_nginx]
 

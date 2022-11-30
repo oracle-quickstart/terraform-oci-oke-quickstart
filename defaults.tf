@@ -2,11 +2,10 @@
 # Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 # 
 
-# File Version: 0.7.1
+# File Version: 0.1.0
 
 # Dependencies:
-#   - module-oci-networking.tf file
-#   - module-defaults.tf file
+#   - terraform-oci-networking module
 
 ################################################################################
 # If you have extra configurations to add, you can add them here.
@@ -15,6 +14,26 @@
 #   - Extra subnets
 #   - Extra route tables and security lists
 ################################################################################
+
+################################################################################
+# Deployment Defaults
+################################################################################
+locals {
+  deploy_id   = random_string.deploy_id.result
+  deploy_tags = { "DeploymentID" = local.deploy_id, "AppName" = local.app_name, "Quickstart" = "oke_base" }
+  oci_tag_values = {
+    "freeformTags" = merge(var.tag_values.freeformTags, local.deploy_tags),
+    "definedTags"  = var.tag_values.definedTags
+  }
+  app_name            = var.app_name
+  app_name_normalized = substr(replace(lower(local.app_name), " ", "-"), 0, 6)
+  app_name_for_dns    = substr(lower(replace(local.app_name, "/\\W|_|\\s/", "")), 0, 6)
+}
+
+resource "random_string" "deploy_id" {
+  length  = 4
+  special = false
+}
 
 ################################################################################
 # Required locals for the oci-networking and oke modules
@@ -28,6 +47,21 @@ locals {
   route_tables                  = concat(local.route_tables_oke)
   security_lists                = concat(local.security_lists_oke)
   resolved_vcn_compartment_ocid = (var.create_new_compartment_for_oke ? local.oke_compartment_ocid : var.compartment_ocid)
+  pre_vcn_cidr_blocks           = split(",", var.vcn_cidr_blocks)
+  vcn_cidr_blocks               = contains(module.vcn.cidr_blocks, local.pre_vcn_cidr_blocks[0]) ? distinct(concat([local.pre_vcn_cidr_blocks[0]], module.vcn.cidr_blocks)) : module.vcn.cidr_blocks
+  network_cidrs = {
+    VCN-MAIN-CIDR                                  = local.vcn_cidr_blocks[0]                     # e.g.: "10.20.0.0/16" = 65536 usable IPs
+    ENDPOINT-REGIONAL-SUBNET-CIDR                  = cidrsubnet(local.vcn_cidr_blocks[0], 12, 0)  # e.g.: "10.20.0.0/28" = 15 usable IPs
+    NODES-REGIONAL-SUBNET-CIDR                     = cidrsubnet(local.vcn_cidr_blocks[0], 6, 3)   # e.g.: "10.20.12.0/22" = 1021 usable IPs (10.20.12.0 - 10.20.15.255)
+    LB-REGIONAL-SUBNET-CIDR                        = cidrsubnet(local.vcn_cidr_blocks[0], 6, 4)   # e.g.: "10.20.16.0/22" = 1021 usable IPs (10.20.16.0 - 10.20.19.255)
+    FSS-MOUNT-TARGETS-REGIONAL-SUBNET-CIDR         = cidrsubnet(local.vcn_cidr_blocks[0], 10, 81) # e.g.: "10.20.20.64/26" = 62 usable IPs (10.20.20.64 - 10.20.20.255)
+    APIGW-FN-REGIONAL-SUBNET-CIDR                  = cidrsubnet(local.vcn_cidr_blocks[0], 8, 30)  # e.g.: "10.20.30.0/24" = 254 usable IPs (10.20.30.0 - 10.20.30.255)
+    VCN-NATIVE-POD-NETWORKING-REGIONAL-SUBNET-CIDR = cidrsubnet(local.vcn_cidr_blocks[0], 1, 1)   # e.g.: "10.20.128.0/17" = 32766 usable IPs (10.20.128.0 - 10.20.255.255)
+    BASTION-REGIONAL-SUBNET-CIDR                   = cidrsubnet(local.vcn_cidr_blocks[0], 12, 32) # e.g.: "10.20.2.0/28" = 15 usable IPs (10.20.2.0 - 10.20.2.15)
+    PODS-CIDR                                      = "10.244.0.0/16"
+    KUBERNETES-SERVICE-CIDR                        = "10.96.0.0/16"
+    ALL-CIDR                                       = "0.0.0.0/0"
+  }
 }
 
 ################################################################################
