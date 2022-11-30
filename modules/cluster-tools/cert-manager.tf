@@ -12,7 +12,7 @@ module "cert-manager" {
   source = "./modules/cert-manager"
 
   # Helm Release variables
-  chart_namespace      = kubernetes_namespace.cluster_tools.id
+  chart_namespace      = kubernetes_namespace.cluster_tools.0.id
   chart_repository     = local.helm_repository.jetstack
   chart_version        = local.helm_repository.jetstack_version
   ingress_email_issuer = var.ingress_email_issuer

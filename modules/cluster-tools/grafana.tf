@@ -16,7 +16,7 @@ resource "helm_release" "grafana" {
   repository = local.helm_repository.grafana
   chart      = "grafana"
   version    = local.helm_repository.grafana_version
-  namespace  = kubernetes_namespace.cluster_tools.id
+  namespace  = kubernetes_namespace.cluster_tools.0.id
   wait       = false
 
   set {
@@ -120,7 +120,7 @@ datasources:
     datasources:
     - name: Prometheus
       type: prometheus
-      url: http://prometheus-server.${kubernetes_namespace.cluster_tools.id}.svc.cluster.local
+      url: http://prometheus-server.${kubernetes_namespace.cluster_tools.0.id}.svc.cluster.local
       access: proxy
       isDefault: true
       disableDeletion: true
@@ -154,7 +154,7 @@ resource "kubernetes_ingress_v1" "grafana" {
   wait_for_load_balancer = true
   metadata {
     name        = "grafana"
-    namespace   = kubernetes_namespace.cluster_tools.id
+    namespace   = kubernetes_namespace.cluster_tools.0.id
     annotations = local.ingress_nginx_annotations
   }
   spec {
@@ -210,7 +210,7 @@ resource "kubernetes_ingress_v1" "grafana" {
 data "kubernetes_secret" "grafana" {
   metadata {
     name      = "grafana"
-    namespace = kubernetes_namespace.cluster_tools.id
+    namespace = kubernetes_namespace.cluster_tools.0.id
   }
   depends_on = [helm_release.grafana]
 
