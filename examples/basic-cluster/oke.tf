@@ -1,5 +1,5 @@
 module "oke-quickstart" {
-  source = "github.com/oracle-quickstart/terraform-oci-oke-quickstart?ref=0.8.2"
+  source = "github.com/oracle-quickstart/terraform-oci-oke-quickstart?ref=0.8.3"
 
   # Oracle Cloud Infrastructure Tenancy and Compartment OCID
   tenancy_ocid     = var.tenancy_ocid
