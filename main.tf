@@ -444,7 +444,7 @@ locals {
           description      = "Allow traffic to worker nodes"
           destination      = lookup(local.network_cidrs, "ALL-CIDR")
           destination_type = "CIDR_BLOCK"
-          protocol         = local.security_list_ports.all_protocols
+          protocol         = local.security_list_ports.tcp_protocol_number # all_protocols
           stateless        = false
           tcp_options      = { max = 32767, min = 30000, source_port_range = null }
           udp_options      = { max = -1, min = -1, source_port_range = null }
