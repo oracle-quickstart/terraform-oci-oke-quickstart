@@ -39,13 +39,13 @@ resource "random_string" "deploy_id" {
 # Required locals for the oci-networking and oke modules
 ################################################################################
 locals {
-  node_pools                    = concat(local.node_pool_1, local.extra_node_pools)
+  node_pools                    = concat(local.node_pool_1, local.extra_node_pools, var.extra_node_pools)
   create_new_vcn                = (var.create_new_oke_cluster && var.create_new_vcn) ? true : false
   vcn_display_name              = "[${local.app_name}] VCN for OKE (${local.deploy_id})"
   create_subnets                = (var.create_new_oke_cluster || var.create_subnets) ? true : false
-  subnets                       = concat(local.subnets_oke, local.extra_subnets)
-  route_tables                  = concat(local.route_tables_oke)
-  security_lists                = concat(local.security_lists_oke)
+  subnets                       = concat(local.subnets_oke, local.extra_subnets, var.extra_subnets)
+  route_tables                  = concat(local.route_tables_oke, var.extra_route_tables)
+  security_lists                = concat(local.security_lists_oke, var.extra_security_lists)
   resolved_vcn_compartment_ocid = (var.create_new_compartment_for_oke ? local.oke_compartment_ocid : var.compartment_ocid)
   pre_vcn_cidr_blocks           = split(",", var.vcn_cidr_blocks)
   vcn_cidr_blocks               = contains(module.vcn.cidr_blocks, local.pre_vcn_cidr_blocks[0]) ? distinct(concat([local.pre_vcn_cidr_blocks[0]], module.vcn.cidr_blocks)) : module.vcn.cidr_blocks

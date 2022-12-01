@@ -35,8 +35,9 @@ variable "tag_values" {
 }
 
 ################################################################################
-# OCI Network - VCN Variables
+# Variables: OCI Networking
 ################################################################################
+## VCN
 variable "create_new_vcn" {
   default     = true
   description = "Creates a new Virtual Cloud Network (VCN). If false, the VCN must be provided in the variable 'existent_vcn_ocid'."
@@ -60,6 +61,51 @@ variable "is_ipv6enabled" {
 variable "ipv6private_cidr_blocks" {
   default     = []
   description = "The list of one or more ULA or Private IPv6 CIDR blocks for the Virtual Cloud Network (VCN)."
+}
+## Subnets
+variable "create_subnets" {
+  default     = true
+  description = "Create subnets for OKE: Endpoint, Nodes, Load Balancers. If CNI Type OCI_VCN_IP_NATIVE, also creates the PODs VCN. If FSS Mount Targets, also creates the FSS Mount Targets Subnet"
+}
+variable "create_pod_network_subnet" {
+  default     = false
+  description = "Create PODs Network subnet for OKE. To be used with CNI Type OCI_VCN_IP_NATIVE"
+}
+variable "existent_oke_k8s_endpoint_subnet_ocid" {
+  default     = ""
+  description = "The OCID of the subnet where the Kubernetes cluster endpoint will be hosted"
+}
+variable "existent_oke_nodes_subnet_ocid" {
+  default     = ""
+  description = "The OCID of the subnet where the Kubernetes worker nodes will be hosted"
+}
+variable "existent_oke_load_balancer_subnet_ocid" {
+  default     = ""
+  description = "The OCID of the subnet where the Kubernetes load balancers will be hosted"
+}
+variable "existent_oke_vcn_native_pod_networking_subnet_ocid" {
+  default     = ""
+  description = "The OCID of the subnet where the Kubernetes VCN Native Pod Networking will be hosted"
+}
+variable "existent_oke_fss_mount_targets_subnet_ocid" {
+  default     = ""
+  description = "The OCID of the subnet where the Kubernetes FSS mount targets will be hosted"
+}
+# variable "existent_apigw_fn_subnet_ocid" {
+#   default     = ""
+#   description = "The OCID of the subnet where the API Gateway and Functions will be hosted"
+# }
+variable "extra_subnets" {
+  default     = []
+  description = "Extra subnets to be created."
+}
+variable "extra_route_tables" {
+  default     = []
+  description = "Extra route tables to be created."
+}
+variable "extra_security_lists" {
+  default     = []
+  description = "Extra security lists to be created."
 }
 
 ################################################################################
@@ -102,42 +148,6 @@ variable "pods_network_visibility" {
     error_message = "Sorry, but PODs Network visibility can only be Private or Public."
   }
 }
-
-# OKE Network Resources
-## Subnets
-# VCN Variables
-variable "create_subnets" {
-  default     = true
-  description = "Create subnets for OKE: Endpoint, Nodes, Load Balancers. If CNI Type OCI_VCN_IP_NATIVE, also creates the PODs VCN. If FSS Mount Targets, also creates the FSS Mount Targets Subnet"
-}
-variable "create_pod_network_subnet" {
-  default     = false
-  description = "Create PODs Network subnet for OKE. To be used with CNI Type OCI_VCN_IP_NATIVE"
-}
-variable "existent_oke_k8s_endpoint_subnet_ocid" {
-  default     = ""
-  description = "The OCID of the subnet where the Kubernetes cluster endpoint will be hosted"
-}
-variable "existent_oke_nodes_subnet_ocid" {
-  default     = ""
-  description = "The OCID of the subnet where the Kubernetes worker nodes will be hosted"
-}
-variable "existent_oke_load_balancer_subnet_ocid" {
-  default     = ""
-  description = "The OCID of the subnet where the Kubernetes load balancers will be hosted"
-}
-variable "existent_oke_vcn_native_pod_networking_subnet_ocid" {
-  default     = ""
-  description = "The OCID of the subnet where the Kubernetes VCN Native Pod Networking will be hosted"
-}
-variable "existent_oke_fss_mount_targets_subnet_ocid" {
-  default     = ""
-  description = "The OCID of the subnet where the Kubernetes FSS mount targets will be hosted"
-}
-# variable "existent_apigw_fn_subnet_ocid" {
-#   default     = ""
-#   description = "The OCID of the subnet where the API Gateway and Functions will be hosted"
-# }
 
 ################################################################################
 # Variables: OKE Cluster
@@ -273,6 +283,10 @@ variable "generate_public_ssh_key" {
 variable "public_ssh_key" {
   default     = ""
   description = "In order to access your private nodes with a public SSH key you will need to set up a bastion host (a.k.a. jump box). If using public nodes, bastion is not needed. Left blank to not import keys."
+}
+variable "extra_node_pools" {
+  default     = []
+  description = "Extra node pools to be added to the cluster"
 }
 
 ################################################################################
