@@ -408,8 +408,17 @@ locals {
           udp_options  = { max = -1, min = -1, source_port_range = null }
           icmp_options = null
           }, {
-          description  = "Path discovery"
+          description  = "Path discovery - Kubernetes API Endpoint"
           source       = lookup(local.network_cidrs, "ENDPOINT-REGIONAL-SUBNET-CIDR")
+          source_type  = "CIDR_BLOCK"
+          protocol     = local.security_list_ports.icmp_protocol_number
+          stateless    = false
+          tcp_options  = { max = -1, min = -1, source_port_range = null }
+          udp_options  = { max = -1, min = -1, source_port_range = null }
+          icmp_options = { type = "3", code = "4" }
+          }, {
+          description  = "Path discovery"
+          source       = lookup(local.network_cidrs, "ALL-CIDR")
           source_type  = "CIDR_BLOCK"
           protocol     = local.security_list_ports.icmp_protocol_number
           stateless    = false
@@ -435,7 +444,7 @@ locals {
           description      = "Allow traffic to worker nodes"
           destination      = lookup(local.network_cidrs, "ALL-CIDR")
           destination_type = "CIDR_BLOCK"
-          protocol         = local.security_list_ports.tcp_protocol_number # all_protocols
+          protocol         = local.security_list_ports.all_protocols
           stateless        = false
           tcp_options      = { max = 32767, min = 30000, source_port_range = null }
           udp_options      = { max = -1, min = -1, source_port_range = null }

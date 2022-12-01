@@ -94,7 +94,7 @@ variable "cluster_load_balancer_visibility" {
   }
 }
 variable "pods_network_visibility" {
-  default     = "Public"
+  default     = "Private"
   description = "The PODs that are created will be hosted on a public subnet with a public IP address auto-assigned or on a private subnet. This affects the Kubernetes services and pods"
 
   validation {
