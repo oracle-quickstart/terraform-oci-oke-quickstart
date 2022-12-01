@@ -25,7 +25,7 @@ locals {
     metrics_server         = "https://kubernetes-sigs.github.io/metrics-server"
     metrics_server_version = "3.8.2"
   }
-  use_cluster_tools_namespace = anytrue([var.grafana_enabled,var.ingress_nginx_enabled,var.cert_manager_enabled,var.prometheus_enabled]) ? true : false
+  use_cluster_tools_namespace = anytrue([var.grafana_enabled, var.ingress_nginx_enabled, var.cert_manager_enabled, var.prometheus_enabled]) ? true : false
 }
 
 # OCI Provider

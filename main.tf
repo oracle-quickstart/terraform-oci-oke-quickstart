@@ -148,7 +148,7 @@ locals {
       image_operating_system                    = var.image_operating_system_1
       image_operating_system_version            = var.image_operating_system_version_1
       extra_initial_node_labels                 = var.extra_initial_node_labels_1
-      cni_type                                  = var.node_pool_cni_type_1
+      cni_type                                  = local.cni_type
     },
   ]
 }
