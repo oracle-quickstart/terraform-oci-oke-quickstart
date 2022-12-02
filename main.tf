@@ -126,7 +126,10 @@ module "oke_node_pool" {
   cni_type                                  = each.value.cni_type
 
   # OKE Network Details
-  nodes_subnet_id                       = local.create_subnets ? module.subnets["oke_nodes_subnet"].subnet_id : var.existent_oke_nodes_subnet_ocid
+  # nodes_subnet_id                       = local.create_subnets ? module.subnets["oke_nodes_subnet"].subnet_id : var.existent_oke_nodes_subnet_ocid
+  nodes_subnet_id = (local.create_subnets ? (anytrue([(each.value.node_pool_alternative_subnet == ""), (each.value.node_pool_alternative_subnet == null)])
+    ? module.subnets["oke_nodes_subnet"].subnet_id : module.subnets[each.value.node_pool_alternative_subnet].subnet_id)
+  : var.existent_oke_nodes_subnet_ocid)
   vcn_native_pod_networking_subnet_ocid = each.value.cni_type == "OCI_VCN_IP_NATIVE" ? (local.create_subnets ? module.subnets["oke_pods_network_subnet"].subnet_id : var.existent_oke_vcn_native_pod_networking_subnet_ocid) : ""
 
   # Encryption (OCI Vault/Key Management/KMS)
@@ -145,6 +148,7 @@ locals {
       node_pool_node_shape_config_memory_in_gbs = var.node_pool_instance_shape_1.memory
       node_pool_boot_volume_size_in_gbs         = var.node_pool_boot_volume_size_in_gbs_1
       existent_oke_nodepool_id_for_autoscaler   = var.existent_oke_nodepool_id_for_autoscaler_1
+      node_pool_alternative_subnet              = null
       image_operating_system                    = var.image_operating_system_1
       image_operating_system_version            = var.image_operating_system_version_1
       extra_initial_node_labels                 = var.extra_initial_node_labels_1
@@ -201,8 +205,10 @@ locals {
       prohibit_public_ip_on_vnic = (var.cluster_endpoint_visibility == "Private") ? true : false
       prohibit_internet_ingress  = (var.cluster_endpoint_visibility == "Private") ? true : false
       route_table_id             = (var.cluster_endpoint_visibility == "Private") ? module.route_tables["private"].route_table_id : module.route_tables["public"].route_table_id
+      alternative_route_table    = null
       dhcp_options_id            = module.vcn.default_dhcp_options_id
       security_list_ids          = [module.security_lists["oke_endpoint_security_list"].security_list_id]
+      alternative_security_list  = null
       ipv6cidr_block             = null
     },
     {
@@ -213,8 +219,10 @@ locals {
       prohibit_public_ip_on_vnic = (var.cluster_workers_visibility == "Private") ? true : false
       prohibit_internet_ingress  = (var.cluster_workers_visibility == "Private") ? true : false
       route_table_id             = (var.cluster_workers_visibility == "Private") ? module.route_tables["private"].route_table_id : module.route_tables["public"].route_table_id
+      alternative_route_table    = null
       dhcp_options_id            = module.vcn.default_dhcp_options_id
       security_list_ids          = [module.security_lists["oke_nodes_security_list"].security_list_id]
+      alternative_security_list  = null
       ipv6cidr_block             = null
     },
     {
@@ -225,8 +233,10 @@ locals {
       prohibit_public_ip_on_vnic = (var.cluster_load_balancer_visibility == "Private") ? true : false
       prohibit_internet_ingress  = (var.cluster_load_balancer_visibility == "Private") ? true : false
       route_table_id             = (var.cluster_load_balancer_visibility == "Private") ? module.route_tables["private"].route_table_id : module.route_tables["public"].route_table_id
+      alternative_route_table    = null
       dhcp_options_id            = module.vcn.default_dhcp_options_id
       security_list_ids          = [module.security_lists["oke_lb_security_list"].security_list_id]
+      alternative_security_list  = null
       ipv6cidr_block             = null
     }
   ]
@@ -239,8 +249,10 @@ locals {
       prohibit_public_ip_on_vnic = (var.pods_network_visibility == "Private") ? true : false
       prohibit_internet_ingress  = (var.pods_network_visibility == "Private") ? true : false
       route_table_id             = (var.pods_network_visibility == "Private") ? module.route_tables["private"].route_table_id : module.route_tables["public"].route_table_id
+      alternative_route_table    = null
       dhcp_options_id            = module.vcn.default_dhcp_options_id
       security_list_ids          = [module.security_lists["oke_pod_network_security_list"].security_list_id]
+      alternative_security_list  = null
       ipv6cidr_block             = null
   }] : []
   subnet_bastion           = []
