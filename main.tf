@@ -208,7 +208,7 @@ locals {
       alternative_route_table    = null
       dhcp_options_id            = module.vcn.default_dhcp_options_id
       security_list_ids          = [module.security_lists["oke_endpoint_security_list"].security_list_id]
-      alternative_security_list  = null
+      extra_security_list_names  = anytrue([(var.extra_security_list_name_for_api_endpoint == ""), (var.extra_security_list_name_for_api_endpoint == null)]) ? [] : [var.extra_security_list_name_for_api_endpoint]
       ipv6cidr_block             = null
     },
     {
@@ -222,7 +222,7 @@ locals {
       alternative_route_table    = null
       dhcp_options_id            = module.vcn.default_dhcp_options_id
       security_list_ids          = [module.security_lists["oke_nodes_security_list"].security_list_id]
-      alternative_security_list  = null
+      extra_security_list_names  = anytrue([(var.extra_security_list_name_for_nodes == ""), (var.extra_security_list_name_for_nodes == null)]) ? [] : [var.extra_security_list_name_for_nodes]
       ipv6cidr_block             = null
     },
     {
@@ -236,7 +236,7 @@ locals {
       alternative_route_table    = null
       dhcp_options_id            = module.vcn.default_dhcp_options_id
       security_list_ids          = [module.security_lists["oke_lb_security_list"].security_list_id]
-      alternative_security_list  = null
+      extra_security_list_names  = []
       ipv6cidr_block             = null
     }
   ]
@@ -252,7 +252,7 @@ locals {
       alternative_route_table    = null
       dhcp_options_id            = module.vcn.default_dhcp_options_id
       security_list_ids          = [module.security_lists["oke_pod_network_security_list"].security_list_id]
-      alternative_security_list  = null
+      extra_security_list_names  = []
       ipv6cidr_block             = null
   }] : []
   subnet_bastion           = []

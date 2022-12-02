@@ -66,12 +66,14 @@ module "subnets" {
   prohibit_internet_ingress  = each.value.prohibit_internet_ingress
   route_table_id = (anytrue([(each.value.alternative_route_table == ""), (each.value.alternative_route_table == null)])
     ? each.value.route_table_id
-  : module.route_tables[each.value.alternative_route_table].route_table_id)                                                    # If null, the VCN's default route table is used
-  dhcp_options_id = each.value.dhcp_options_id                                                                                 # If null, the VCN's default set of DHCP options is used
-  security_list_ids = (anytrue([(each.value.alternative_security_list == ""), (each.value.alternative_security_list == null)]) # If null, the VCN's default security list is used
-    ? each.value.security_list_ids
-  : [module.security_lists[each.value.alternative_security_list].security_list_id])
-  ipv6cidr_block = each.value.ipv6cidr_block # If null, no IPv6 CIDR block is assigned
+  : module.route_tables[each.value.alternative_route_table].route_table_id)                                                                             # If null, the VCN's default route table is used
+  dhcp_options_id   = each.value.dhcp_options_id                                                                                                        # If null, the VCN's default set of DHCP options is used
+  security_list_ids = concat(each.value.security_list_ids, [for v in each.value.extra_security_list_names : module.security_lists[v].security_list_id]) # If null, the VCN's default security list is used
+  ipv6cidr_block    = each.value.ipv6cidr_block                                                                                                         # If null, no IPv6 CIDR block is assigned
+
+  #   security_list_ids = (anytrue([(each.value.alternative_security_list == ""), (each.value.alternative_security_list == null)]) # If null, the VCN's default security list is used
+  #   ? each.value.security_list_ids
+  # : [module.security_lists[each.value.alternative_security_list].security_list_id])
 }
 
 ################################################################################

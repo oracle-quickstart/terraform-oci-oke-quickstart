@@ -107,6 +107,14 @@ variable "extra_security_lists" {
   default     = []
   description = "Extra security lists to be created."
 }
+variable "extra_security_list_name_for_api_endpoint" {
+  default     = null
+  description = "Extra security list name previosly created to be used by the K8s API Endpoint Subnet."
+}
+variable "extra_security_list_name_for_nodes" {
+  default     = null
+  description = "Extra security list name previosly created to be used by the Nodes Subnet."
+}
 
 ################################################################################
 # Variables: OKE Network
