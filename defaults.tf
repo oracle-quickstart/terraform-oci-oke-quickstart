@@ -100,7 +100,7 @@ locals {
     #   prohibit_public_ip_on_vnic = false
     #   prohibit_internet_ingress  = false
     #   route_table_id             = module.route_tables["public"].route_table_id # If null, the VCN's default route table is used
-    #   alternative_route_table    = null # Optional, Name of the previously created route table
+    #   alternative_route_table_name    = null # Optional, Name of the previously created route table
     #   dhcp_options_id            = module.vcn.default_dhcp_options_id # If null, the VCN's default set of DHCP options is used
     #   security_list_ids          = [module.security_lists["opensearch_security_list"].security_list_id] # If null, the VCN's default security list is used
     #   extra_security_list_names  = [] # Optional, Names of the previously created security lists

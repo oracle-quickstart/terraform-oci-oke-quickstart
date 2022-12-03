@@ -198,62 +198,62 @@ locals {
   subnets_oke = concat(local.subnets_oke_standard, local.subnet_vcn_native_pod_networking, local.subnet_bastion, local.subnet_fss_mount_targets)
   subnets_oke_standard = [
     {
-      subnet_name                = "oke_k8s_endpoint_subnet"
-      cidr_block                 = lookup(local.network_cidrs, "ENDPOINT-REGIONAL-SUBNET-CIDR")
-      display_name               = "OKE K8s Endpoint subnet (${local.deploy_id})"
-      dns_label                  = "okek8s${local.deploy_id}"
-      prohibit_public_ip_on_vnic = (var.cluster_endpoint_visibility == "Private") ? true : false
-      prohibit_internet_ingress  = (var.cluster_endpoint_visibility == "Private") ? true : false
-      route_table_id             = (var.cluster_endpoint_visibility == "Private") ? module.route_tables["private"].route_table_id : module.route_tables["public"].route_table_id
-      alternative_route_table    = null
-      dhcp_options_id            = module.vcn.default_dhcp_options_id
-      security_list_ids          = [module.security_lists["oke_endpoint_security_list"].security_list_id]
-      extra_security_list_names  = anytrue([(var.extra_security_list_name_for_api_endpoint == ""), (var.extra_security_list_name_for_api_endpoint == null)]) ? [] : [var.extra_security_list_name_for_api_endpoint]
-      ipv6cidr_block             = null
+      subnet_name                  = "oke_k8s_endpoint_subnet"
+      cidr_block                   = lookup(local.network_cidrs, "ENDPOINT-REGIONAL-SUBNET-CIDR")
+      display_name                 = "OKE K8s Endpoint subnet (${local.deploy_id})"
+      dns_label                    = "okek8s${local.deploy_id}"
+      prohibit_public_ip_on_vnic   = (var.cluster_endpoint_visibility == "Private") ? true : false
+      prohibit_internet_ingress    = (var.cluster_endpoint_visibility == "Private") ? true : false
+      route_table_id               = (var.cluster_endpoint_visibility == "Private") ? module.route_tables["private"].route_table_id : module.route_tables["public"].route_table_id
+      alternative_route_table_name = null
+      dhcp_options_id              = module.vcn.default_dhcp_options_id
+      security_list_ids            = [module.security_lists["oke_endpoint_security_list"].security_list_id]
+      extra_security_list_names    = anytrue([(var.extra_security_list_name_for_api_endpoint == ""), (var.extra_security_list_name_for_api_endpoint == null)]) ? [] : [var.extra_security_list_name_for_api_endpoint]
+      ipv6cidr_block               = null
     },
     {
-      subnet_name                = "oke_nodes_subnet"
-      cidr_block                 = lookup(local.network_cidrs, "NODES-REGIONAL-SUBNET-CIDR")
-      display_name               = "OKE Nodes subnet (${local.deploy_id})"
-      dns_label                  = "okenodes${local.deploy_id}"
-      prohibit_public_ip_on_vnic = (var.cluster_workers_visibility == "Private") ? true : false
-      prohibit_internet_ingress  = (var.cluster_workers_visibility == "Private") ? true : false
-      route_table_id             = (var.cluster_workers_visibility == "Private") ? module.route_tables["private"].route_table_id : module.route_tables["public"].route_table_id
-      alternative_route_table    = null
-      dhcp_options_id            = module.vcn.default_dhcp_options_id
-      security_list_ids          = [module.security_lists["oke_nodes_security_list"].security_list_id]
-      extra_security_list_names  = anytrue([(var.extra_security_list_name_for_nodes == ""), (var.extra_security_list_name_for_nodes == null)]) ? [] : [var.extra_security_list_name_for_nodes]
-      ipv6cidr_block             = null
+      subnet_name                  = "oke_nodes_subnet"
+      cidr_block                   = lookup(local.network_cidrs, "NODES-REGIONAL-SUBNET-CIDR")
+      display_name                 = "OKE Nodes subnet (${local.deploy_id})"
+      dns_label                    = "okenodes${local.deploy_id}"
+      prohibit_public_ip_on_vnic   = (var.cluster_workers_visibility == "Private") ? true : false
+      prohibit_internet_ingress    = (var.cluster_workers_visibility == "Private") ? true : false
+      route_table_id               = (var.cluster_workers_visibility == "Private") ? module.route_tables["private"].route_table_id : module.route_tables["public"].route_table_id
+      alternative_route_table_name = null
+      dhcp_options_id              = module.vcn.default_dhcp_options_id
+      security_list_ids            = [module.security_lists["oke_nodes_security_list"].security_list_id]
+      extra_security_list_names    = anytrue([(var.extra_security_list_name_for_nodes == ""), (var.extra_security_list_name_for_nodes == null)]) ? [] : [var.extra_security_list_name_for_nodes]
+      ipv6cidr_block               = null
     },
     {
-      subnet_name                = "oke_lb_subnet"
-      cidr_block                 = lookup(local.network_cidrs, "LB-REGIONAL-SUBNET-CIDR")
-      display_name               = "OKE LoadBalancers subnet (${local.deploy_id})"
-      dns_label                  = "okelb${local.deploy_id}"
-      prohibit_public_ip_on_vnic = (var.cluster_load_balancer_visibility == "Private") ? true : false
-      prohibit_internet_ingress  = (var.cluster_load_balancer_visibility == "Private") ? true : false
-      route_table_id             = (var.cluster_load_balancer_visibility == "Private") ? module.route_tables["private"].route_table_id : module.route_tables["public"].route_table_id
-      alternative_route_table    = null
-      dhcp_options_id            = module.vcn.default_dhcp_options_id
-      security_list_ids          = [module.security_lists["oke_lb_security_list"].security_list_id]
-      extra_security_list_names  = []
-      ipv6cidr_block             = null
+      subnet_name                  = "oke_lb_subnet"
+      cidr_block                   = lookup(local.network_cidrs, "LB-REGIONAL-SUBNET-CIDR")
+      display_name                 = "OKE LoadBalancers subnet (${local.deploy_id})"
+      dns_label                    = "okelb${local.deploy_id}"
+      prohibit_public_ip_on_vnic   = (var.cluster_load_balancer_visibility == "Private") ? true : false
+      prohibit_internet_ingress    = (var.cluster_load_balancer_visibility == "Private") ? true : false
+      route_table_id               = (var.cluster_load_balancer_visibility == "Private") ? module.route_tables["private"].route_table_id : module.route_tables["public"].route_table_id
+      alternative_route_table_name = null
+      dhcp_options_id              = module.vcn.default_dhcp_options_id
+      security_list_ids            = [module.security_lists["oke_lb_security_list"].security_list_id]
+      extra_security_list_names    = []
+      ipv6cidr_block               = null
     }
   ]
   subnet_vcn_native_pod_networking = (var.create_pod_network_subnet || var.cluster_cni_type == "OCI_VCN_IP_NATIVE" || var.node_pool_cni_type_1 == "OCI_VCN_IP_NATIVE") ? [
     {
-      subnet_name                = "oke_pods_network_subnet"
-      cidr_block                 = lookup(local.network_cidrs, "VCN-NATIVE-POD-NETWORKING-REGIONAL-SUBNET-CIDR") # e.g.: 10.20.128.0/17 (1,1) = 32766 usable IPs (10.20.128.0 - 10.20.255.255)
-      display_name               = "OKE PODs Network subnet (${local.deploy_id})"
-      dns_label                  = "okenpn${local.deploy_id}"
-      prohibit_public_ip_on_vnic = (var.pods_network_visibility == "Private") ? true : false
-      prohibit_internet_ingress  = (var.pods_network_visibility == "Private") ? true : false
-      route_table_id             = (var.pods_network_visibility == "Private") ? module.route_tables["private"].route_table_id : module.route_tables["public"].route_table_id
-      alternative_route_table    = null
-      dhcp_options_id            = module.vcn.default_dhcp_options_id
-      security_list_ids          = [module.security_lists["oke_pod_network_security_list"].security_list_id]
-      extra_security_list_names  = []
-      ipv6cidr_block             = null
+      subnet_name                  = "oke_pods_network_subnet"
+      cidr_block                   = lookup(local.network_cidrs, "VCN-NATIVE-POD-NETWORKING-REGIONAL-SUBNET-CIDR") # e.g.: 10.20.128.0/17 (1,1) = 32766 usable IPs (10.20.128.0 - 10.20.255.255)
+      display_name                 = "OKE PODs Network subnet (${local.deploy_id})"
+      dns_label                    = "okenpn${local.deploy_id}"
+      prohibit_public_ip_on_vnic   = (var.pods_network_visibility == "Private") ? true : false
+      prohibit_internet_ingress    = (var.pods_network_visibility == "Private") ? true : false
+      route_table_id               = (var.pods_network_visibility == "Private") ? module.route_tables["private"].route_table_id : module.route_tables["public"].route_table_id
+      alternative_route_table_name = null
+      dhcp_options_id              = module.vcn.default_dhcp_options_id
+      security_list_ids            = [module.security_lists["oke_pod_network_security_list"].security_list_id]
+      extra_security_list_names    = []
+      ipv6cidr_block               = null
   }] : []
   subnet_bastion           = []
   subnet_fss_mount_targets = [] # 10.20.20.64/26 (10,81) = 62 usable IPs (10.20.20.64 - 10.20.20.255)
