@@ -72,7 +72,7 @@ locals {
         icmp_options = null
         }, {
         description  = "Allow 5G RAN to pod communication"
-        source       = lookup(local.network_cidrs, "SUBNET-5G-RAN-CIDR ")
+        source       = lookup(local.network_cidrs, "SUBNET-5G-RAN-CIDR")
         source_type  = "CIDR_BLOCK"
         protocol     = local.security_list_ports.all_protocols
         stateless    = false
@@ -90,7 +90,7 @@ locals {
         icmp_options = null
         }, {
         description  = "Allow 5G EPC to pod communication"
-        source       = lookup(local.network_cidrs, "SUBNET-5G-EPC-CIDR ")
+        source       = lookup(local.network_cidrs, "SUBNET-5G-EPC-CIDR")
         source_type  = "CIDR_BLOCK"
         protocol     = local.security_list_ports.all_protocols
         stateless    = false
@@ -141,7 +141,7 @@ locals {
   }]
   temp_all_vcn_security_list_ingress_rules = [{
     description  = "Allow all from VCN"
-    source       = lookup(local.network_cidrs, "ALL-CIDR")
+    source       = lookup(local.network_cidrs, "VCN-MAIN-CIDR")
     source_type  = "CIDR_BLOCK"
     protocol     = local.security_list_ports.all_protocols
     stateless    = false
@@ -151,7 +151,7 @@ locals {
   }]
   temp_all_vcn_security_list_egress_rules = [{
     description      = "Allow all to VCN"
-    destination      = lookup(local.network_cidrs, "ALL-CIDR")
+    destination      = lookup(local.network_cidrs, "VCN-MAIN-CIDR")
     destination_type = "CIDR_BLOCK"
     protocol         = local.security_list_ports.all_protocols
     stateless        = false

@@ -34,46 +34,9 @@ variable "vcn_cidr_blocks" {
 variable "node_pool_instance_shape_1" {
   type = map(any)
   default = {
-    "instanceShape" = "VM.Standard.E4.Flex"
-    "ocpus"         = 4
-    "memory"        = 64
+    "instanceShape" = "VM.Standard3.Flex"
+    "ocpus"         = 6
+    "memory"        = 96
   }
-  description = "Default Node Pool: A shape is a template that determines the number of OCPUs, amount of memory, and other resources allocated to a newly created instance for the Worker Node. Select at least 2 OCPUs and 16GB of memory if using Flex shapes"
-}
-variable "node_pool_instance_shape_turn" {
-  type = map(any)
-  default = {
-    "instanceShape" = "VM.Standard.E4.Flex"
-    "ocpus"         = 4
-    "memory"        = 64
-  }
-  description = "Turn Node Pool: A shape is a template that determines the number of OCPUs, amount of memory, and other resources allocated to a newly created instance for the Worker Node. Select at least 2 OCPUs and 16GB of memory if using Flex shapes"
-}
-variable "node_pool_instance_shape_gpu" {
-  type = map(any)
-  default = {
-    "instanceShape" = "BM.GPU.A10.4"
-    "ocpus"         = 64
-    "memory"        = 1024
-  }
-  description = "GPU Node Pool: A shape is a template that determines the number of OCPUs, amount of memory, and other resources allocated to a newly created instance for the Worker Node. Select at least 2 OCPUs and 16GB of memory if using Flex shapes"
-}
-variable "node_pool_shape_specific_ad_gpu" {
-  description = "The number of the AD to get the shape for the node pool"
-  type        = number
-  default     = 0
-
-  validation {
-    condition     = var.node_pool_shape_specific_ad_gpu >= 0 && var.node_pool_shape_specific_ad_gpu <= 3
-    error_message = "Invalid AD number, should be 0 to get all ADs or 1, 2 or 3 to be a specific AD."
-  }
-}
-
-################################################################################
-# Variables: Unreal Pixel Streaming
-################################################################################
-variable "unreal_pixel_streaming_demo" {
-  type        = bool
-  default     = true
-  description = "Deploys Unreal Pixel Streaming Demo deployment helm chart - demo.yaml"
+  description = "Pooll: A shape is a template that determines the number of OCPUs, amount of memory, and other resources allocated to a newly created instance for the Worker Node. Select at least 2 OCPUs and 16GB of memory if using Flex shapes"
 }
