@@ -15,13 +15,13 @@ locals {
   # Helm repos
   helm_repository = {
     ingress_nginx          = "https://kubernetes.github.io/ingress-nginx"
-    ingress_nginx_version  = "4.2.5"
+    ingress_nginx_version  = "4.4.0"
     jetstack               = "https://charts.jetstack.io" # cert-manager
-    jetstack_version       = "1.9.1"                      # cert-manager
+    jetstack_version       = "1.10.1"                     # cert-manager
     grafana                = "https://grafana.github.io/helm-charts"
-    grafana_version        = "6.38.0"
+    grafana_version        = "6.45.0"
     prometheus             = "https://prometheus-community.github.io/helm-charts"
-    prometheus_version     = "15.12.0"
+    prometheus_version     = "18.4.0"
     metrics_server         = "https://kubernetes-sigs.github.io/metrics-server"
     metrics_server_version = "3.8.2"
   }

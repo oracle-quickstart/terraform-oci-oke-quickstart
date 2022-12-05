@@ -252,10 +252,10 @@ locals {
       alternative_route_table_name = null
       dhcp_options_id              = module.vcn.default_dhcp_options_id
       security_list_ids            = [module.security_lists["oke_pod_network_security_list"].security_list_id]
-      extra_security_list_names    = []
+      extra_security_list_names    = anytrue([(var.extra_security_list_name_for_vcn_native_pod_networking == ""), (var.extra_security_list_name_for_vcn_native_pod_networking == null)]) ? [] : [var.extra_security_list_name_for_vcn_native_pod_networking]
       ipv6cidr_block               = null
   }] : []
-  subnet_bastion           = []
+  subnet_bastion           = [] # 10.20.2.0/28 (12,32) = 15 usable IPs (10.20.2.0 - 10.20.2.15)
   subnet_fss_mount_targets = [] # 10.20.20.64/26 (10,81) = 62 usable IPs (10.20.20.64 - 10.20.20.255)
 }
 
