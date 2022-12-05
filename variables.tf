@@ -115,6 +115,10 @@ variable "extra_security_list_name_for_nodes" {
   default     = null
   description = "Extra security list name previosly created to be used by the Nodes Subnet."
 }
+variable "extra_security_list_name_for_vcn_native_pod_networking" {
+  default     = null
+  description = "Extra security list name previosly created to be used by the VCN Native Pod Networking Subnet."
+}
 
 ################################################################################
 # Variables: OKE Network
