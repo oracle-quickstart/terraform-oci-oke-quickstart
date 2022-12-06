@@ -248,3 +248,67 @@ locals {
     },
   ]
 }
+
+# Node Pool 1 info for 5G VNICs attachments
+data "oci_containerengine_node_pool" "node_pool_1" {
+  node_pool_id = module.oke-quickstart.oke_node_pools["pool1"].node_pool_id
+}
+locals {
+  node_pool_nodes     = data.oci_containerengine_node_pool.node_pool_1.nodes
+  node_pool_nodes_ids = data.oci_containerengine_node_pool.node_pool_1.nodes.*.id
+}
+resource "oci_core_vnic_attachment" "vnic_attachment_5gc_oam" {
+  for_each = { for map in local.node_pool_nodes : map.id => map }
+  create_vnic_details {
+    display_name  = "5GC-OAM vnic"
+    private_ip    = [for hostnum in range(4, 15) : cidrhost(lookup(local.network_cidrs, "SUBNET-5GC-OAM-CIDR"), hostnum)][index(local.node_pool_nodes_ids, each.key)]
+    subnet_id     = module.oke-quickstart.subnets["5GC_OAM_subnet"].subnet_id
+    defined_tags  = {}
+    freeform_tags = { "Network" : "5GC-OAM" }
+  }
+  instance_id = each.value.id
+}
+resource "oci_core_vnic_attachment" "vnic_attachment_5gc_signalling" {
+  for_each = { for map in local.node_pool_nodes : map.id => map }
+  create_vnic_details {
+    display_name  = "5GC-Signalling vnic"
+    private_ip    = [for hostnum in range(4, 15) : cidrhost(lookup(local.network_cidrs, "SUBNET-5GC-SIGNALLING-CIDR"), hostnum)][index(local.node_pool_nodes_ids, each.key)]
+    subnet_id     = module.oke-quickstart.subnets["5GC_Signalling_subnet"].subnet_id
+    defined_tags  = {}
+    freeform_tags = { "Network" : "5GC-Signalling" }
+  }
+  instance_id = each.value.id
+}
+resource "oci_core_vnic_attachment" "vnic_attachment_5g_ran" {
+  for_each = { for map in local.node_pool_nodes : map.id => map }
+  create_vnic_details {
+    display_name  = "5G RAN vnic"
+    private_ip    = [for hostnum in range(4, 15) : cidrhost(lookup(local.network_cidrs, "SUBNET-5G-RAN-CIDR"), hostnum)][index(local.node_pool_nodes_ids, each.key)]
+    subnet_id     = module.oke-quickstart.subnets["5G_RAN_subnet"].subnet_id
+    defined_tags  = {}
+    freeform_tags = { "Network" : "5G RAN" }
+  }
+  instance_id = each.value.id
+}
+resource "oci_core_vnic_attachment" "vnic_attachment_5g_legal_intercept" {
+  for_each = { for map in local.node_pool_nodes : map.id => map }
+  create_vnic_details {
+    display_name  = "5G Legal Intercept vnic"
+    private_ip    = [for hostnum in range(4, 15) : cidrhost(lookup(local.network_cidrs, "SUBNET-LEGAL-INTERCEPT-CIDR"), hostnum)][index(local.node_pool_nodes_ids, each.key)]
+    subnet_id     = module.oke-quickstart.subnets["Legal_Intercept_subnet"].subnet_id
+    defined_tags  = {}
+    freeform_tags = { "Network" : "5G Legal Intercept" }
+  }
+  instance_id = each.value.id
+}
+resource "oci_core_vnic_attachment" "vnic_attachment_5g_epc" {
+  for_each = { for map in local.node_pool_nodes : map.id => map }
+  create_vnic_details {
+    display_name  = "5G-EPC vnic"
+    private_ip    = [for hostnum in range(4, 15) : cidrhost(lookup(local.network_cidrs, "SUBNET-5G-EPC-CIDR"), hostnum)][index(local.node_pool_nodes_ids, each.key)]
+    subnet_id     = module.oke-quickstart.subnets["5G_EPC_subnet"].subnet_id
+    defined_tags  = {}
+    freeform_tags = { "Network" : "5G-EPC" }
+  }
+  instance_id = each.value.id
+}

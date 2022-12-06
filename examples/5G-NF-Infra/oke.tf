@@ -6,7 +6,7 @@
 # OKE Cluster
 ################################################################################
 module "oke-quickstart" {
-  source = "github.com/oracle-quickstart/terraform-oci-oke-quickstart?ref=0.8.9"
+  source = "github.com/oracle-quickstart/terraform-oci-oke-quickstart?ref=0.8.10"
 
   # Oracle Cloud Infrastructure Tenancy and Compartment OCID
   tenancy_ocid     = var.tenancy_ocid
