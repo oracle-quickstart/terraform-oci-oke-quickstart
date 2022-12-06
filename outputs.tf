@@ -34,6 +34,9 @@ output "oke_cluster_ocid" {
 output "oke_node_pools" {
   value = module.oke_node_pools
 }
+output "subnets" {
+  value = module.subnets
+}
 
 output "dev" {
   value = module.oke.dev
