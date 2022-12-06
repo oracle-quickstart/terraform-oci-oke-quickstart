@@ -7,7 +7,7 @@ locals {
   vcn_cidr_blocks = split(",", var.vcn_cidr_blocks)
   network_cidrs = {
     VCN-MAIN-CIDR                                  = local.vcn_cidr_blocks[0]                      # e.g.: "10.75.0.0/16" = 65536 usable IPs
-    VCN-NATIVE-POD-NETWORKING-REGIONAL-SUBNET-CIDR = cidrsubnet(local.vcn_cidr_blocks[0], 1, 1)    # e.g.: "10.20.128.0/17" = 32766 usable IPs (10.20.128.0 - 10.20.255.255)
+    VCN-NATIVE-POD-NETWORKING-REGIONAL-SUBNET-CIDR = cidrsubnet(local.vcn_cidr_blocks[0], 1, 1)    # e.g.: "10.75.128.0/17" = 32766 usable IPs (10.20.128.0 - 10.20.255.255)
     SUBNET-5GC-OAM-CIDR                            = cidrsubnet(local.vcn_cidr_blocks[0], 9, 128)  # e.g.: "10.75.64.0/25" = 128 usable IPs
     SUBNET-5GC-SIGNALLING-CIDR                     = cidrsubnet(local.vcn_cidr_blocks[0], 9, 129)  # e.g.: "10.75.64.128/25" = 128 usable IPs
     SUBNET-5G-RAN-CIDR                             = cidrsubnet(local.vcn_cidr_blocks[0], 11, 520) # e.g.: "10.75.65.0/27" = 32 usable IPs

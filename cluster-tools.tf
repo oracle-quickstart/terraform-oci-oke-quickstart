@@ -46,7 +46,7 @@ module "cluster-tools" {
   ## Grafana
   grafana_enabled = var.grafana_enabled
 
-  depends_on = [module.oke, module.oke_node_pool, module.oke_cluster_autoscaler]
+  depends_on = [module.oke, module.oke_node_pools, module.oke_cluster_autoscaler]
 }
 
 # Kubernetes Cluster Tools

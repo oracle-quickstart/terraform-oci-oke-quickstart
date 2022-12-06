@@ -35,8 +35,8 @@ variable "node_pool_instance_shape_1" {
   type = map(any)
   default = {
     "instanceShape" = "VM.Standard3.Flex"
-    "ocpus"         = 6
+    "ocpus"         = 8
     "memory"        = 96
   }
-  description = "Pooll: A shape is a template that determines the number of OCPUs, amount of memory, and other resources allocated to a newly created instance for the Worker Node. Select at least 2 OCPUs and 16GB of memory if using Flex shapes"
+  description = "Pooll: A shape is a template that determines the number of OCPUs, amount of memory, and other resources allocated to a newly created instance for the Worker Node. Select at least 2 OCPUs and 16GB of memory if using Flex shapes."
 }

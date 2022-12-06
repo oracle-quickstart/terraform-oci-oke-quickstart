@@ -93,7 +93,7 @@ module "oke" {
 ################################################################################
 # Module: OKE Node Pool
 ################################################################################
-module "oke_node_pool" {
+module "oke_node_pools" {
   for_each = { for map in local.node_pools : map.node_pool_name => map }
   source   = "./modules/oke-node-pool"
 
@@ -176,9 +176,9 @@ module "oke_cluster_autoscaler" {
 
   ## Enable Cluster Autoscaler
   cluster_autoscaler_enabled = var.cluster_autoscaler_enabled
-  oke_node_pools             = values(module.oke_node_pool)
+  oke_node_pools             = values(module.oke_node_pools)
 
-  depends_on = [module.oke, module.oke_node_pool]
+  depends_on = [module.oke, module.oke_node_pools]
 }
 
 resource "oci_identity_compartment" "oke_compartment" {
