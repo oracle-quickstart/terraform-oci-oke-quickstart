@@ -1,4 +1,4 @@
-# Terraform Scripts for deploying the Unreal Pixel Streaming infrastructure on OCI OKE
+# Terraform Scripts for deploying the 5G NF Infra on OCI OKE
 
 ## Deploy Using the Terraform CLI
 
@@ -7,11 +7,11 @@
 Clone the source code from suing the following command:
 
 ```bash
-git clone github.com/oracle-quickstart/oke-unreal-pixel-streaming
+git clone github.com/oracle-quickstart/terraform-oci-oke-quickstart
 ```
 
 ```bash
-cd oke-unreal-pixel-streaming/deploy/terraform
+cd terraform-oci-oke-quickstart/examples/5G-NF-Infra
 ```
 
 ### Updating Terraform variables
@@ -21,8 +21,6 @@ cp terraform.tfvars.example terraform.tfvars
 ```
 
 Update the `terraform.tfvars` file with the required variables, including the OCI credentials information.
-
-Make sure that the information of the Instance Shape on each Node Pool are correct and you have enough quota to deploy the infrastructure, including the GPU nodes. This scripts defaults to `BM.GPU.A10.4`.
 
 ### Running Terraform
 
@@ -53,15 +51,9 @@ terraform destroy -refresh=false
 After the infrastructure is deployed, you can deploy the demo app using the following commands:
 
 ```bash
-kubectl create ns demo
+TBD
 ```
-
-```bash
-kubectl apply -f ../demo.yaml
-```
-
-> Note: Demo App uses Prebuilt images are included with this repo, along with a demo Pixel Streaming image. You can build your own images using the instructions [here](../README.md#pixel-streaming-build).
 
 ## Questions
 
-If you have an issue or a question, please take a look at our [FAQs](./FAQs.md) or [open an issue](https://github.com/oracle-quickstart/oke-unreal-pixel-streaming/issues/new).
+If you have an issue or a question, please take a look at our [FAQs](../FAQs.md) or [open an issue](https://github.com/oracle-quickstart/terraform-oci-oke-quickstart/issues/new).
