@@ -35,7 +35,7 @@ variable "node_pool_instance_shape_1" {
   type = map(any)
   default = {
     "instanceShape" = "VM.Standard3.Flex"
-    "ocpus"         = 8
+    "ocpus"         = 8 # Minimum 8 OCPUs to match minimum number of VNICs for 5G network
     "memory"        = 96
   }
   description = "Pooll: A shape is a template that determines the number of OCPUs, amount of memory, and other resources allocated to a newly created instance for the Worker Node. Select at least 2 OCPUs and 16GB of memory if using Flex shapes."

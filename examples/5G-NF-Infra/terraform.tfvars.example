@@ -20,6 +20,6 @@ vcn_cidr_blocks = "10.75.0.0/16"
 # Default Node Pool
 node_pool_instance_shape_1 = {
   "instanceShape" = "VM.Standard3.Flex"
-  "ocpus"         = 8
+  "ocpus"         = 8 # Minimum 8 OCPUs to match minimum number of VNICs for 5G network
   "memory"        = 96
 }
