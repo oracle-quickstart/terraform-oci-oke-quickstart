@@ -40,3 +40,11 @@ variable "node_pool_instance_shape_1" {
   }
   description = "Pooll: A shape is a template that determines the number of OCPUs, amount of memory, and other resources allocated to a newly created instance for the Worker Node. Select at least 2 OCPUs and 16GB of memory if using Flex shapes."
 }
+variable "node_pool_initial_num_worker_nodes_1" {
+  default     = 5
+  description = "The number of worker nodes in the node pool. If enable Cluster Autoscaler, will assume the minimum number of nodes on the node pool to be scheduled by the Kubernetes (pool1)"
+}
+variable "node_pool_max_num_worker_nodes_1" {
+  default     = 10
+  description = "Maximum number of nodes on the node pool to be scheduled by the Kubernetes (pool1)"
+}

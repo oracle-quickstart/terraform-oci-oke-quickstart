@@ -15,13 +15,11 @@ compartment_ocid = "ocid1.compartment...."
 region = "us-ashburn-1"
 
 # VCN CIDRs
-vcn_cidr_blocks = "10.26.0.0/16"
+vcn_cidr_blocks = "10.75.0.0/16"
 
-# Extra Node Pools
-## Default Node Pool
-node_pool_instance_shape_1    = { "instanceShape" = "VM.Standard.E4.Flex", "ocpus" = 4, "memory" = 64 }
-## Turn Node Pool
-node_pool_instance_shape_turn    = { "instanceShape" = "VM.Standard.E4.Flex", "ocpus" = 4, "memory" = 64 }
-## GPU Node Pool
-node_pool_instance_shape_gpu    = { "instanceShape" = "BM.GPU.A10.4", "ocpus" = 64, "memory" = 1024 } # "BM.GPU.A10.4" "VM.Standard.E4.Flex"
-node_pool_shape_specific_ad_gpu = 2 # 1, 2, 3 depending on the ADs you want to use for GPU instances on the GPU node pool. If you have on every AD, use 0 to random distribute
+# Default Node Pool
+node_pool_instance_shape_1 = {
+  "instanceShape" = "VM.Standard3.Flex"
+  "ocpus"         = 8
+  "memory"        = 96
+}
