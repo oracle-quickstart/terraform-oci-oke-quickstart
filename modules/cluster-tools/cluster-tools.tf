@@ -19,11 +19,11 @@ locals {
     jetstack               = "https://charts.jetstack.io" # cert-manager
     jetstack_version       = "1.10.1"                     # cert-manager
     grafana                = "https://grafana.github.io/helm-charts"
-    grafana_version        = "6.45.0"
+    grafana_version        = "6.47.1"
     prometheus             = "https://prometheus-community.github.io/helm-charts"
-    prometheus_version     = "18.4.0"
+    prometheus_version     = "19.0.1"
     metrics_server         = "https://kubernetes-sigs.github.io/metrics-server"
-    metrics_server_version = "3.8.2"
+    metrics_server_version = "3.8.3"
   }
   use_cluster_tools_namespace = anytrue([var.grafana_enabled, var.ingress_nginx_enabled, var.cert_manager_enabled, var.prometheus_enabled]) ? true : false
 }

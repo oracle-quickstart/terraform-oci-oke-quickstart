@@ -289,6 +289,20 @@ variable "image_operating_system_version_1" {
   default     = "8"
   description = "The OS/image version installed on all nodes in the node pool."
 }
+variable "node_pool_oke_init_params_1" {
+  type        = string
+  default     = ""
+  description = "OKE Init params"
+}
+variable "node_pool_cloud_init_parts_1" {
+  type = list(object({
+    content_type = string
+    content      = string
+    filename     = string
+  }))
+  default     = []
+  description = "Node Pool nodes Cloud init parts"
+}
 variable "generate_public_ssh_key" {
   default = true
 }
@@ -296,6 +310,9 @@ variable "public_ssh_key" {
   default     = ""
   description = "In order to access your private nodes with a public SSH key you will need to set up a bastion host (a.k.a. jump box). If using public nodes, bastion is not needed. Left blank to not import keys."
 }
+################################################################################
+# Variables: OKE Extra Node Pools
+################################################################################
 variable "extra_node_pools" {
   default     = []
   description = "Extra node pools to be added to the cluster"

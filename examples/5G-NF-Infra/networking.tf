@@ -19,86 +19,122 @@ locals {
 
 # Extra Security Lists for the 5G NF
 locals {
-  extra_security_lists = [
-    {
-      security_list_name     = "5gc_oam_security_list"
-      display_name           = "5GC OAM Security List"
-      ingress_security_rules = concat(local.common_5g_security_list_ingress_rules, local.temp_all_vcn_security_list_ingress_rules)
-      egress_security_rules  = concat(local.common_5g_security_list_egress_rules, local.temp_all_vcn_security_list_egress_rules)
-    },
-    {
-      security_list_name     = "5gc_signalling_security_list"
-      display_name           = "5GC Signalling (SBI) Security List"
-      ingress_security_rules = concat(local.common_5g_security_list_ingress_rules, local.temp_all_vcn_security_list_ingress_rules)
-      egress_security_rules  = concat(local.common_5g_security_list_egress_rules, local.temp_all_vcn_security_list_egress_rules)
-    },
-    {
-      security_list_name     = "5g_ran_security_list"
-      display_name           = "5G RAN Security List"
-      ingress_security_rules = concat(local.common_5g_security_list_ingress_rules, local.temp_all_vcn_security_list_ingress_rules)
-      egress_security_rules  = concat(local.common_5g_security_list_egress_rules, local.temp_all_vcn_security_list_egress_rules)
-    },
-    {
-      security_list_name     = "legal_intercept_security_list"
-      display_name           = "Legal Intercept Security List"
-      ingress_security_rules = concat(local.common_5g_security_list_ingress_rules, local.temp_all_vcn_security_list_ingress_rules)
-      egress_security_rules  = concat(local.common_5g_security_list_egress_rules, local.temp_all_vcn_security_list_egress_rules)
-    },
-    {
-      security_list_name     = "5g_epc_security_list"
-      display_name           = "5G EPC Security List"
-      ingress_security_rules = concat(local.common_5g_security_list_ingress_rules, local.temp_all_vcn_security_list_ingress_rules)
-      egress_security_rules  = concat(local.common_5g_security_list_egress_rules, local.temp_all_vcn_security_list_egress_rules)
+  extra_security_lists = [{
+    security_list_name     = "5gc_oam_security_list"
+    display_name           = "5GC OAM Security List"
+    ingress_security_rules = concat(local.common_5g_security_list_ingress_rules, local.temp_all_vcn_security_list_ingress_rules)
+    egress_security_rules  = concat(local.common_5g_security_list_egress_rules, local.temp_all_vcn_security_list_egress_rules)
+    }, {
+    security_list_name     = "5gc_signalling_security_list"
+    display_name           = "5GC Signalling (SBI) Security List"
+    ingress_security_rules = concat(local.common_5g_security_list_ingress_rules, local.temp_all_vcn_security_list_ingress_rules)
+    egress_security_rules  = concat(local.common_5g_security_list_egress_rules, local.temp_all_vcn_security_list_egress_rules)
+    }, {
+    security_list_name     = "5g_ran_security_list"
+    display_name           = "5G RAN Security List"
+    ingress_security_rules = concat(local.common_5g_security_list_ingress_rules, local.temp_all_vcn_security_list_ingress_rules)
+    egress_security_rules  = concat(local.common_5g_security_list_egress_rules, local.temp_all_vcn_security_list_egress_rules)
+    }, {
+    security_list_name     = "legal_intercept_security_list"
+    display_name           = "Legal Intercept Security List"
+    ingress_security_rules = concat(local.common_5g_security_list_ingress_rules, local.temp_all_vcn_security_list_ingress_rules)
+    egress_security_rules  = concat(local.common_5g_security_list_egress_rules, local.temp_all_vcn_security_list_egress_rules)
+    }, {
+    security_list_name     = "5g_epc_security_list"
+    display_name           = "5G EPC Security List"
+    ingress_security_rules = concat(local.common_5g_security_list_ingress_rules, local.temp_all_vcn_security_list_ingress_rules)
+    egress_security_rules  = concat(local.common_5g_security_list_egress_rules, local.temp_all_vcn_security_list_egress_rules)
+    }, {
+    security_list_name = "5g_for_pods_security_list"
+    display_name       = "5G subnets x pods Security List"
+    ingress_security_rules = [{
+      description  = "Allow 5GC OAM to pod communication"
+      source       = lookup(local.network_cidrs, "SUBNET-5GC-OAM-CIDR")
+      source_type  = "CIDR_BLOCK"
+      protocol     = local.security_list_ports.all_protocols
+      stateless    = false
+      tcp_options  = { max = -1, min = -1, source_port_range = null }
+      udp_options  = { max = -1, min = -1, source_port_range = null }
+      icmp_options = null
       }, {
-      security_list_name = "5g_for_pods_security_list"
-      display_name       = "5G subnets x pods Security List"
-      ingress_security_rules = [{
-        description  = "Allow 5GC OAM to pod communication"
-        source       = lookup(local.network_cidrs, "SUBNET-5GC-OAM-CIDR")
-        source_type  = "CIDR_BLOCK"
-        protocol     = local.security_list_ports.all_protocols
-        stateless    = false
-        tcp_options  = { max = -1, min = -1, source_port_range = null }
-        udp_options  = { max = -1, min = -1, source_port_range = null }
-        icmp_options = null
-        }, {
-        description  = "Allow 5GC Signalling (SBI) to pod communication"
-        source       = lookup(local.network_cidrs, "SUBNET-5GC-SIGNALLING-CIDR")
-        source_type  = "CIDR_BLOCK"
-        protocol     = local.security_list_ports.all_protocols
-        stateless    = false
-        tcp_options  = { max = -1, min = -1, source_port_range = null }
-        udp_options  = { max = -1, min = -1, source_port_range = null }
-        icmp_options = null
-        }, {
-        description  = "Allow 5G RAN to pod communication"
-        source       = lookup(local.network_cidrs, "SUBNET-5G-RAN-CIDR")
-        source_type  = "CIDR_BLOCK"
-        protocol     = local.security_list_ports.all_protocols
-        stateless    = false
-        tcp_options  = { max = -1, min = -1, source_port_range = null }
-        udp_options  = { max = -1, min = -1, source_port_range = null }
-        icmp_options = null
-        }, {
-        description  = "Allow 5G Legal Intercept to pod communication"
-        source       = lookup(local.network_cidrs, "SUBNET-LEGAL-INTERCEPT-CIDR")
-        source_type  = "CIDR_BLOCK"
-        protocol     = local.security_list_ports.all_protocols
-        stateless    = false
-        tcp_options  = { max = -1, min = -1, source_port_range = null }
-        udp_options  = { max = -1, min = -1, source_port_range = null }
-        icmp_options = null
-        }, {
-        description  = "Allow 5G EPC to pod communication"
-        source       = lookup(local.network_cidrs, "SUBNET-5G-EPC-CIDR")
-        source_type  = "CIDR_BLOCK"
-        protocol     = local.security_list_ports.all_protocols
-        stateless    = false
-        tcp_options  = { max = -1, min = -1, source_port_range = null }
-        udp_options  = { max = -1, min = -1, source_port_range = null }
-        icmp_options = null
-      }]
-      egress_security_rules = []
+      description  = "Allow 5GC Signalling (SBI) to pod communication"
+      source       = lookup(local.network_cidrs, "SUBNET-5GC-SIGNALLING-CIDR")
+      source_type  = "CIDR_BLOCK"
+      protocol     = local.security_list_ports.all_protocols
+      stateless    = false
+      tcp_options  = { max = -1, min = -1, source_port_range = null }
+      udp_options  = { max = -1, min = -1, source_port_range = null }
+      icmp_options = null
+      }, {
+      description  = "Allow 5G RAN to pod communication"
+      source       = lookup(local.network_cidrs, "SUBNET-5G-RAN-CIDR")
+      source_type  = "CIDR_BLOCK"
+      protocol     = local.security_list_ports.all_protocols
+      stateless    = false
+      tcp_options  = { max = -1, min = -1, source_port_range = null }
+      udp_options  = { max = -1, min = -1, source_port_range = null }
+      icmp_options = null
+      }, {
+      description  = "Allow 5G Legal Intercept to pod communication"
+      source       = lookup(local.network_cidrs, "SUBNET-LEGAL-INTERCEPT-CIDR")
+      source_type  = "CIDR_BLOCK"
+      protocol     = local.security_list_ports.all_protocols
+      stateless    = false
+      tcp_options  = { max = -1, min = -1, source_port_range = null }
+      udp_options  = { max = -1, min = -1, source_port_range = null }
+      icmp_options = null
+      }, {
+      description  = "Allow 5G EPC to pod communication"
+      source       = lookup(local.network_cidrs, "SUBNET-5G-EPC-CIDR")
+      source_type  = "CIDR_BLOCK"
+      protocol     = local.security_list_ports.all_protocols
+      stateless    = false
+      tcp_options  = { max = -1, min = -1, source_port_range = null }
+      udp_options  = { max = -1, min = -1, source_port_range = null }
+      icmp_options = null
+      }, {
+      description  = "Stream Control Transmission Protocol (SCTP) Ingress"
+      source       = lookup(local.network_cidrs, "ALL-CIDR")
+      source_type  = "CIDR_BLOCK"
+      protocol     = local.security_list_ports.sctp_protocol_number
+      stateless    = false
+      tcp_options  = { max = -1, min = -1, source_port_range = null }
+      udp_options  = { max = -1, min = -1, source_port_range = null }
+      icmp_options = null
+    }, ]
+    egress_security_rules = [{
+      description      = "Stream Control Transmission Protocol (SCTP) Egress"
+      destination      = lookup(local.network_cidrs, "ALL-CIDR")
+      destination_type = "CIDR_BLOCK"
+      protocol         = local.security_list_ports.sctp_protocol_number
+      stateless        = false
+      tcp_options      = { max = -1, min = -1, source_port_range = null }
+      udp_options      = { max = -1, min = -1, source_port_range = null }
+      icmp_options     = null
+    }, ]
+    }, {
+    security_list_name = "5g_sctp_security_list"
+    display_name       = "Enable SCTP Security List"
+    ingress_security_rules = [{
+      description  = "Stream Control Transmission Protocol (SCTP) Ingress"
+      source       = lookup(local.network_cidrs, "ALL-CIDR")
+      source_type  = "CIDR_BLOCK"
+      protocol     = local.security_list_ports.sctp_protocol_number
+      stateless    = false
+      tcp_options  = { max = -1, min = -1, source_port_range = null }
+      udp_options  = { max = -1, min = -1, source_port_range = null }
+      icmp_options = null
+    }]
+    egress_security_rules = [{
+      description      = "Stream Control Transmission Protocol (SCTP) Egress"
+      destination      = lookup(local.network_cidrs, "ALL-CIDR")
+      destination_type = "CIDR_BLOCK"
+      protocol         = local.security_list_ports.sctp_protocol_number
+      stateless        = false
+      tcp_options      = { max = -1, min = -1, source_port_range = null }
+      udp_options      = { max = -1, min = -1, source_port_range = null }
+      icmp_options     = null
+    }]
     },
   ]
   common_5g_security_list_ingress_rules = [{
@@ -169,6 +205,7 @@ locals {
     tcp_protocol_number                     = "6"
     udp_protocol_number                     = "17"
     icmp_protocol_number                    = "1"
+    sctp_protocol_number                    = "132"
     all_protocols                           = "all"
   }
 }
@@ -255,17 +292,6 @@ data "oci_containerengine_node_pool" "node_pool_1" {
 }
 
 # 5G NF VNICs attachments for each node in the node pool
-resource "oci_core_vnic_attachment" "vnic_attachment_5gc_oam" {
-  count = var.node_pool_initial_num_worker_nodes_1
-  create_vnic_details {
-    display_name  = "5GC-OAM vnic"
-    private_ip    = [for hostnum in range(4, 15) : cidrhost(lookup(local.network_cidrs, "SUBNET-5GC-OAM-CIDR"), hostnum)][index(data.oci_containerengine_node_pool.node_pool_1.nodes.*.id, data.oci_containerengine_node_pool.node_pool_1.nodes[count.index].id)]
-    subnet_id     = module.oke-quickstart.subnets["5GC_OAM_subnet"].subnet_id
-    defined_tags  = {}
-    freeform_tags = { "Network" : "5GC-OAM" }
-  }
-  instance_id = data.oci_containerengine_node_pool.node_pool_1.nodes[count.index].id
-}
 resource "oci_core_vnic_attachment" "vnic_attachment_5gc_signalling" {
   count = var.node_pool_initial_num_worker_nodes_1
   create_vnic_details {
@@ -274,6 +300,17 @@ resource "oci_core_vnic_attachment" "vnic_attachment_5gc_signalling" {
     subnet_id     = module.oke-quickstart.subnets["5GC_Signalling_subnet"].subnet_id
     defined_tags  = {}
     freeform_tags = { "Network" : "5GC-Signalling" }
+  }
+  instance_id = data.oci_containerengine_node_pool.node_pool_1.nodes[count.index].id
+}
+resource "oci_core_vnic_attachment" "vnic_attachment_5gc_oam" {
+  count = var.node_pool_initial_num_worker_nodes_1
+  create_vnic_details {
+    display_name  = "5GC-OAM vnic"
+    private_ip    = [for hostnum in range(4, 15) : cidrhost(lookup(local.network_cidrs, "SUBNET-5GC-OAM-CIDR"), hostnum)][index(data.oci_containerengine_node_pool.node_pool_1.nodes.*.id, data.oci_containerengine_node_pool.node_pool_1.nodes[count.index].id)]
+    subnet_id     = module.oke-quickstart.subnets["5GC_OAM_subnet"].subnet_id
+    defined_tags  = {}
+    freeform_tags = { "Network" : "5GC-OAM" }
   }
   instance_id = data.oci_containerengine_node_pool.node_pool_1.nodes[count.index].id
 }

@@ -119,6 +119,8 @@ module "oke_node_pools" {
   node_pool_node_shape_config_ocpus         = each.value.node_pool_node_shape_config_ocpus
   node_pool_node_shape_config_memory_in_gbs = each.value.node_pool_node_shape_config_memory_in_gbs
   existent_oke_nodepool_id_for_autoscaler   = each.value.existent_oke_nodepool_id_for_autoscaler
+  node_pool_oke_init_params                 = each.value.node_pool_oke_init_params
+  node_pool_cloud_init_parts                = each.value.node_pool_cloud_init_parts
   public_ssh_key                            = local.workers_public_ssh_key
   image_operating_system                    = each.value.image_operating_system
   image_operating_system_version            = each.value.image_operating_system_version
@@ -148,6 +150,8 @@ locals {
       node_pool_node_shape_config_memory_in_gbs = var.node_pool_instance_shape_1.memory
       node_pool_boot_volume_size_in_gbs         = var.node_pool_boot_volume_size_in_gbs_1
       existent_oke_nodepool_id_for_autoscaler   = var.existent_oke_nodepool_id_for_autoscaler_1
+      node_pool_oke_init_params                 = var.node_pool_oke_init_params_1
+      node_pool_cloud_init_parts                = var.node_pool_cloud_init_parts_1
       node_pool_alternative_subnet              = null
       image_operating_system                    = var.image_operating_system_1
       image_operating_system_version            = var.image_operating_system_version_1

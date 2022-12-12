@@ -85,6 +85,20 @@ variable "node_pool_boot_volume_size_in_gbs" {
   default     = "50"
   description = "Specify a custom boot volume size (in GB)"
 }
+variable "node_pool_oke_init_params" {
+  type        = string
+  default     = ""
+  description = "OKE Init params"
+}
+variable "node_pool_cloud_init_parts" {
+  type = list(object({
+    content_type = string
+    content      = string
+    filename     = string
+  }))
+  default     = []
+  description = "Node Pool nodes Cloud init parts"
+}
 variable "public_ssh_key" {
   default     = ""
   description = "In order to access your private nodes with a public SSH key you will need to set up a bastion host (a.k.a. jump box). If using public nodes, bastion is not needed. Left blank to not import keys."
