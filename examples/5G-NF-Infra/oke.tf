@@ -6,7 +6,7 @@
 # OKE Cluster
 ################################################################################
 module "oke-quickstart" {
-  source = "github.com/oracle-quickstart/terraform-oci-oke-quickstart?ref=0.8.10"
+  source = "github.com/oracle-quickstart/terraform-oci-oke-quickstart?ref=0.8.11"
 
   # Oracle Cloud Infrastructure Tenancy and Compartment OCID
   tenancy_ocid     = var.tenancy_ocid
@@ -33,6 +33,20 @@ module "oke-quickstart" {
   node_pool_max_num_worker_nodes_1     = var.node_pool_max_num_worker_nodes_1     # Maximum number of nodes in the node pool
   node_pool_instance_shape_1           = var.node_pool_instance_shape_1
   extra_initial_node_labels_1          = [{ key = "cnf", value = "amf01" }] # Extra initial node labels for node pool 1. Example: "[{ key = "app.something/key1", value = "value1" }]"
+  node_pool_cloud_init_parts_1 = [{
+    content_type = "text/cloud-config"
+    content      = <<EOF
+#cloud-config
+runcmd:
+ - echo "Running prep scripts..."
+ - echo "Finished prep scripts."
+ - echo "Starting App..."
+
+final_message: "The system is finally up, after $UPTIME seconds"
+output: {all: '| tee -a /tmp/cloud-init-output.log'}
+EOF
+    filename     = "cloud-config.yaml"
+  }]
 
   # Extra Security Lists
   extra_security_list_name_for_nodes                     = "5g_for_pods_security_list" # ["5g_for_pods_security_list", "5g_sctp_security_list"]
