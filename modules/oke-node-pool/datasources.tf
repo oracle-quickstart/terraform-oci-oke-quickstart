@@ -28,3 +28,27 @@ data "oci_identity_availability_domain" "specfic" {
 
   count = (var.node_pool_shape_specific_ad > 0) ? 1 : 0
 }
+
+# Prepare Cloud Unit for Node Pool nodes
+data "cloudinit_config" "nodes" {
+  gzip          = true
+  base64_encode = true
+
+  part {
+    content_type = "text/x-shellscript"
+    content      = <<EOF
+#!/bin/bash
+curl --fail -H "Authorization: Bearer Oracle" -L0 http://169.254.169.254/opc/v2/instance/metadata/oke_init_script | base64 --decode >/var/run/oke-init.sh
+bash /var/run/oke-init.sh ${var.node_pool_oke_init_params}
+EOF
+  }
+
+  dynamic "part" {
+    for_each = var.node_pool_cloud_init_parts
+    content {
+      content_type = part.value["content_type"]
+      content      = part.value["content"]
+      filename     = part.value["filename"]
+    }
+  }
+}
