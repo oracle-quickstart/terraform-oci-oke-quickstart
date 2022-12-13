@@ -17,9 +17,12 @@ region = "us-ashburn-1"
 # VCN CIDRs
 vcn_cidr_blocks = "10.75.0.0/16"
 
+node_pool_initial_num_worker_nodes_1 = 5
+node_pool_max_num_worker_nodes_1     = 5
+
 # Default Node Pool
 node_pool_instance_shape_1 = {
   "instanceShape" = "VM.Standard3.Flex"
-  "ocpus"         = 8 # Minimum 8 OCPUs to match minimum number of VNICs for 5G network
+  "ocpus"         = 8 # Minimum 8 OCPUs to match minimum number of VNICs for 5G network for AMF
   "memory"        = 96
 }
