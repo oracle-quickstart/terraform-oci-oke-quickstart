@@ -38,9 +38,14 @@ module "oke-quickstart" {
     content      = <<EOF
 #cloud-config
 runcmd:
- - echo "Running prep scripts..."
- - echo "Finished prep scripts."
- - echo "Starting App..."
+ - echo "Preparing Nodes for 5G-NF-Infra..."
+ - echo 'sctp' | tee -a /etc/modules-load.d/sctp.conf
+ - modprobe sctp
+ - sysctl -w kernel.core_pattern=/var/crash/core.%p
+ - echo "Configuring VNICs..."
+ - wget https://docs.oracle.com/en-us/iaas/Content/Resources/Assets/secondary_vnic_all_configure.sh && chmod +x secondary_vnic_all_configure.sh
+ - ./secondary_vnic_all_configure.sh -c
+ - echo "Finished prep nodes."
 
 final_message: "The system is finally up, after $UPTIME seconds"
 output: {all: '| tee -a /tmp/cloud-init-output.log'}
