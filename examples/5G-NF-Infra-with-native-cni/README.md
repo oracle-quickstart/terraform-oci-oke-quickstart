@@ -11,7 +11,7 @@ git clone github.com/oracle-quickstart/terraform-oci-oke-quickstart
 ```
 
 ```bash
-cd terraform-oci-oke-quickstart/examples/5G-NF-Infra
+cd terraform-oci-oke-quickstart/examples/5G-NF-Infra-with-native-cni
 ```
 
 ### Updating Terraform variables
