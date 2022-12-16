@@ -288,7 +288,7 @@ locals {
 
 # Node Pool 1 info for 5G VNICs attachments
 data "oci_containerengine_node_pool" "node_pool_1" {
-  node_pool_id = module.oke-quickstart.oke_node_pools["pool1"].node_pool_id # local.node_pool_1_id # module.oke-quickstart.oke_node_pools["pool1"].node_pool_id
+  node_pool_id = module.oke-quickstart.oke_node_pools[var.node_pool_name_1].node_pool_id # local.node_pool_1_id # module.oke-quickstart.oke_node_pools["pool1"].node_pool_id
 }
 
 # 5G NF VNICs attachments for each node in the node pool
@@ -313,6 +313,8 @@ resource "oci_core_vnic_attachment" "vnic_attachment_5gc_oam" {
     freeform_tags = { "Network" : "5GC-OAM" }
   }
   instance_id = data.oci_containerengine_node_pool.node_pool_1.nodes[count.index].id
+
+  depends_on = [oci_core_vnic_attachment.vnic_attachment_5gc_signalling]
 }
 resource "oci_core_vnic_attachment" "vnic_attachment_5g_ran" {
   count = var.node_pool_initial_num_worker_nodes_1
@@ -324,6 +326,8 @@ resource "oci_core_vnic_attachment" "vnic_attachment_5g_ran" {
     freeform_tags = { "Network" : "5G RAN" }
   }
   instance_id = data.oci_containerengine_node_pool.node_pool_1.nodes[count.index].id
+
+  depends_on = [oci_core_vnic_attachment.vnic_attachment_5gc_oam]
 }
 resource "oci_core_vnic_attachment" "vnic_attachment_5g_legal_intercept" {
   count = var.node_pool_initial_num_worker_nodes_1
@@ -335,6 +339,8 @@ resource "oci_core_vnic_attachment" "vnic_attachment_5g_legal_intercept" {
     freeform_tags = { "Network" : "5G Legal Intercept" }
   }
   instance_id = data.oci_containerengine_node_pool.node_pool_1.nodes[count.index].id
+
+  depends_on = [oci_core_vnic_attachment.vnic_attachment_5g_ran]
 }
 resource "oci_core_vnic_attachment" "vnic_attachment_5g_epc" {
   count = var.node_pool_initial_num_worker_nodes_1
@@ -346,4 +352,6 @@ resource "oci_core_vnic_attachment" "vnic_attachment_5g_epc" {
     freeform_tags = { "Network" : "5G-EPC" }
   }
   instance_id = data.oci_containerengine_node_pool.node_pool_1.nodes[count.index].id
+
+  depends_on = [oci_core_vnic_attachment.vnic_attachment_5g_legal_intercept]
 }
