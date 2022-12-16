@@ -48,11 +48,9 @@ terraform destroy -refresh=false
 
 ### Deploying the demo app
 
-After the infrastructure is deployed, you can deploy the demo app using the following commands:
+After the infrastructure is deployed, you can deploy the demo app using the steps for your Network Functions.
 
-```bash
-TBD
-```
+This example creates 5 subnets in the VCN and attach VNIcs on each worker node for each subnet in addition to the default VNIC and Pods Network VNIC.
 
 ## Questions
 
