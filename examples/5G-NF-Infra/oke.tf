@@ -27,8 +27,8 @@ module "oke-quickstart" {
 
   # OKE Node Pool 1 arguments
   node_pool_cni_type_1                 = "OCI_VCN_IP_NATIVE" # Use "FLANNEL_OVERLAY" for overlay network or "OCI_VCN_IP_NATIVE" for VCN Native PODs Network. If the node pool 1 uses the OCI_VCN_IP_NATIVE, the cluster will also be configured with same cni
-  cluster_autoscaler_enabled           = true
-  node_pool_name_1                     = "pool1"
+  cluster_autoscaler_enabled           = false
+  node_pool_name_1                     = var.node_pool_name_1
   node_pool_initial_num_worker_nodes_1 = var.node_pool_initial_num_worker_nodes_1 # Minimum number of nodes in the node pool
   node_pool_max_num_worker_nodes_1     = var.node_pool_max_num_worker_nodes_1     # Maximum number of nodes in the node pool
   node_pool_instance_shape_1           = var.node_pool_instance_shape_1
@@ -37,18 +37,37 @@ module "oke-quickstart" {
     content_type = "text/cloud-config"
     content      = <<EOF
 #cloud-config
+
+write_files:
+  - path: "/etc/systemd/system/secondary_vnic_all_configure.service"
+    permissions: "0644"
+    content: |
+      [Unit]
+      Description=Configure secondary VNICs at boot
+      After=network.target
+
+      [Service]
+      Type=oneshot
+      ExecStart=/usr/local/sbin/secondary_vnic_all_configure.sh -c
+
+      [Install]
+      WantedBy=multi-user.target
+
 runcmd:
  - echo "Preparing Nodes for 5G-NF-Infra..."
  - echo 'sctp' | tee -a /etc/modules-load.d/sctp.conf
  - modprobe sctp
  - sysctl -w kernel.core_pattern=/var/crash/core.%p
- - echo "Configuring VNICs..."
- - wget https://docs.oracle.com/en-us/iaas/Content/Resources/Assets/secondary_vnic_all_configure.sh && chmod +x secondary_vnic_all_configure.sh
- - ./secondary_vnic_all_configure.sh -c
  - echo "Finished prep nodes."
+ - echo "Configuring secondary VNICs..."
+ - [ wget, "https://docs.oracle.com/en-us/iaas/Content/Resources/Assets/secondary_vnic_all_configure.sh", -O, /root/secondary_vnic_all_configure.sh ]
+ - chmod +x /root/secondary_vnic_all_configure.sh
+ - cp /root/secondary_vnic_all_configure.sh /usr/local/sbin
+ - systemctl enable secondary_vnic_all_configure.service
+ - echo "Finished configuring secondary VNICs."
 
 final_message: "The system is finally up, after $UPTIME seconds"
-output: {all: '| tee -a /tmp/cloud-init-output.log'}
+output: {all: '| tee -a /root/cloud-init-output.log'}
 EOF
     filename     = "cloud-config.yaml"
   }]
@@ -60,4 +79,5 @@ EOF
   # Cluster Tools
   # ingress_nginx_enabled = true
   # cert_manager_enabled  = true
+  prometheus_enabled = true
 }

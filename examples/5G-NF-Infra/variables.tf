@@ -48,3 +48,7 @@ variable "node_pool_max_num_worker_nodes_1" {
   default     = 10
   description = "Maximum number of nodes on the node pool to be scheduled by the Kubernetes (pool1)"
 }
+variable "node_pool_name_1" {
+  default     = "pool1"
+  description = "Name of the node pool 1"
+}
