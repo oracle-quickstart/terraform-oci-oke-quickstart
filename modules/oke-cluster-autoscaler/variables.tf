@@ -8,13 +8,51 @@ variable "cluster_autoscaler_enabled" {
   default     = true
   description = "Enables OKE cluster autoscaler. Node pools will auto scale based on the resources usage"
 }
-variable "cluster_autoscaler_min_nodes" {
-  default     = 3
-  description = "Minimum number of nodes on the node pool to be scheduled by the Kubernetes"
+# variable "cluster_autoscaler_min_nodes" {
+#   default     = 3
+#   description = "Minimum number of nodes on the node pool to be scheduled by the Kubernetes"
+# }
+# variable "cluster_autoscaler_max_nodes" {
+#   default     = 10
+#   description = "Maximum number of nodes on the node pool to be scheduled by the Kubernetes"
+# }
+variable "cluster_autoscaler_supported_k8s_versions" {
+  type = map(string)
+
+  default     = { "1.22" = "1.22.2-4", "1.23" = "1.23.0-4", "1.24" = "1.24.0-5", "1.25" = "1.25.0-6" } # There's no API to get that list. Need to be updated manually
+  description = "Supported Kubernetes versions for OKE cluster autoscaler"
 }
-variable "cluster_autoscaler_max_nodes" {
-  default     = 10
-  description = "Maximum number of nodes on the node pool to be scheduled by the Kubernetes"
+variable "custom_cluster_autoscaler_image" {
+  default     = ""
+  description = "Custom Image for OKE cluster autoscaler"
+}
+variable "cluster_autoscaler_log_level_verbosity" {
+  default     = 4
+  description = "Log level verbosity for OKE cluster autoscaler"
+}
+variable "cluster_autoscaler_max_node_provision_time" {
+  default     = "25m"
+  description = "Maximum time in minutes for a node to be provisioned. If the node is not ready after this time, it will be deleted and recreated"
+}
+variable "cluster_autoscaler_scale_down_delay_after_add" {
+  default     = "10m"
+  description = "Time to wait after scale up before attempting to scale down"
+}
+variable "cluster_autoscaler_scale_down_unneeded_time" {
+  default     = "10m"
+  description = "Time after which a node should be deleted after it has been unneeded for this long"
+}
+variable "cluster_autoscaler_unremovable_node_recheck_timeout" {
+  default     = "5m"
+  description = "Time after which a node which failed to be removed is retried"
+}
+variable "cluster_autoscaler_num_of_replicas" {
+  default     = 3
+  description = "Number of replicas for OKE cluster autoscaler"
+}
+variable "cluster_autoscaler_extra_args" {
+  default     = []
+  description = "Extra arguments to pass to OKE cluster autoscaler"
 }
 
 ## OKE Node Pool Details

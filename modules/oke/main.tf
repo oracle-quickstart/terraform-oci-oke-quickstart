@@ -57,8 +57,9 @@ resource "oci_containerengine_cluster" "oke_cluster" {
 
 # Local kubeconfig for when using Terraform locally. Not used by Oracle Resource Manager
 resource "local_file" "oke_kubeconfig" {
-  content  = data.oci_containerengine_cluster_kube_config.oke.content
-  filename = "${path.root}/generated/kubeconfig"
+  content         = data.oci_containerengine_cluster_kube_config.oke.content
+  filename        = "${path.root}/generated/kubeconfig"
+  file_permission = "0644"
 }
 
 # Get OKE options

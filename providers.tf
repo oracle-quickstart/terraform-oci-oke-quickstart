@@ -71,6 +71,7 @@ provider "oci" {
 provider "kubernetes" {
   host                   = local.cluster_endpoint
   cluster_ca_certificate = local.cluster_ca_certificate
+  insecure               = local.external_private_endpoint
   exec {
     api_version = "client.authentication.k8s.io/v1beta1"
     args        = ["ce", "cluster", "generate-token", "--cluster-id", local.cluster_id, "--region", local.cluster_region]
@@ -83,6 +84,7 @@ provider "helm" {
   kubernetes {
     host                   = local.cluster_endpoint
     cluster_ca_certificate = local.cluster_ca_certificate
+    insecure               = local.external_private_endpoint
     exec {
       api_version = "client.authentication.k8s.io/v1beta1"
       args        = ["ce", "cluster", "generate-token", "--cluster-id", local.cluster_id, "--region", local.cluster_region]
@@ -95,7 +97,8 @@ locals {
   cluster_endpoint = (var.cluster_endpoint_visibility == "Private") ? (
     "https://${module.oke.orm_private_endpoint_oke_api_ip_address}:6443") : (
   yamldecode(module.oke.kubeconfig)["clusters"][0]["cluster"]["server"])
-  cluster_ca_certificate = base64decode(yamldecode(module.oke.kubeconfig)["clusters"][0]["cluster"]["certificate-authority-data"])
-  cluster_id             = yamldecode(module.oke.kubeconfig)["users"][0]["user"]["exec"]["args"][4]
-  cluster_region         = yamldecode(module.oke.kubeconfig)["users"][0]["user"]["exec"]["args"][6]
+  external_private_endpoint = (var.cluster_endpoint_visibility == "Private") ? true : false
+  cluster_ca_certificate    = base64decode(yamldecode(module.oke.kubeconfig)["clusters"][0]["cluster"]["certificate-authority-data"])
+  cluster_id                = yamldecode(module.oke.kubeconfig)["users"][0]["user"]["exec"]["args"][4]
+  cluster_region            = yamldecode(module.oke.kubeconfig)["users"][0]["user"]["exec"]["args"][6]
 }

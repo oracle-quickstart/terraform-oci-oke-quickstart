@@ -119,6 +119,7 @@ module "oke_node_pools" {
   node_pool_node_shape_config_ocpus         = each.value.node_pool_node_shape_config_ocpus
   node_pool_node_shape_config_memory_in_gbs = each.value.node_pool_node_shape_config_memory_in_gbs
   existent_oke_nodepool_id_for_autoscaler   = each.value.existent_oke_nodepool_id_for_autoscaler
+  node_pool_autoscaler_enabled              = try(each.value.node_pool_autoscaler_enabled, true)
   node_pool_oke_init_params                 = each.value.node_pool_oke_init_params
   node_pool_cloud_init_parts                = each.value.node_pool_cloud_init_parts
   public_ssh_key                            = local.workers_public_ssh_key
@@ -179,8 +180,8 @@ module "oke_cluster_autoscaler" {
   region = var.region
 
   ## Enable Cluster Autoscaler
-  cluster_autoscaler_enabled = var.cluster_autoscaler_enabled
-  oke_node_pools             = values(module.oke_node_pools)
+  # cluster_autoscaler_enabled = var.cluster_autoscaler_enabled
+  oke_node_pools = [for node_pool in values(module.oke_node_pools) : node_pool if node_pool.node_pool_autoscaler_enabled]
 
   depends_on = [module.oke, module.oke_node_pools]
 }
@@ -610,6 +611,15 @@ locals {
           }, {
           description      = "Allow worker nodes to communicate with OCI services"
           destination      = lookup(data.oci_core_services.all_services_network.services[0], "cidr_block")
+          destination_type = "SERVICE_CIDR_BLOCK"
+          protocol         = local.security_list_ports.tcp_protocol_number
+          stateless        = false
+          tcp_options      = { max = -1, min = -1, source_port_range = null }
+          udp_options      = { max = -1, min = -1, source_port_range = null }
+          icmp_options     = null
+          }, {
+          description      = "Allow Pods to communicate with Worker Nodes"
+          destination      = lookup(local.network_cidrs, "NODES-REGIONAL-SUBNET-CIDR")
           destination_type = "SERVICE_CIDR_BLOCK"
           protocol         = local.security_list_ports.tcp_protocol_number
           stateless        = false

@@ -56,13 +56,6 @@ resource "oci_containerengine_node_pool" "oke_node_pool" {
   node_metadata = {
     user_data = anytrue([var.node_pool_oke_init_params != "", var.node_pool_cloud_init_parts != []]) ? data.cloudinit_config.nodes.rendered : null
   }
-  # dynamic "node_metadata" {
-  #   for_each = alltrue([var.node_pool_oke_init_params != "", var.node_pool_cloud_init_parts != []]) ? [1] : []
-
-  #   content {
-  #     user_data = data.cloudinit_config.nodes.rendered
-  #   }
-  # }
 
   initial_node_labels {
     key   = "name"
@@ -76,6 +69,12 @@ resource "oci_containerengine_node_pool" "oke_node_pool" {
       key   = initial_node_labels.value.key
       value = initial_node_labels.value.value
     }
+  }
+
+  lifecycle {
+    ignore_changes = [
+      node_config_details.0.size
+    ]
   }
 
   count = var.create_new_node_pool ? 1 : 0

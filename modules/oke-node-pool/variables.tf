@@ -73,6 +73,10 @@ variable "existent_oke_nodepool_id_for_autoscaler" {
   default     = ""
   description = "Nodepool Id of the existent OKE to use with Cluster Autoscaler"
 }
+variable "node_pool_autoscaler_enabled" {
+  default     = true
+  description = "Enable Cluster Autoscaler for the node pool"
+}
 variable "image_operating_system" {
   default     = "Oracle Linux"
   description = "The OS/image installed on all nodes in the node pool."

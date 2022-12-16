@@ -241,11 +241,11 @@ variable "k8s_version" {
 ### Node Pool 1
 variable "node_pool_name_1" {
   default     = "pool1"
-  description = "Name of the node pool"
+  description = "Name of the node pool 1"
 }
 variable "extra_initial_node_labels_1" {
   default     = []
-  description = "Extra initial node labels to be added to the node pool"
+  description = "Extra initial node labels to be added to the node pool 1"
 }
 variable "node_pool_cni_type_1" {
   default     = "FLANNEL_OVERLAY"

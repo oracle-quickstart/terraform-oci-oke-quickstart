@@ -79,5 +79,6 @@ EOF
   # Cluster Tools
   # ingress_nginx_enabled = true
   # cert_manager_enabled  = true
-  prometheus_enabled = true
+  prometheus_enabled     = true
+  metrics_server_enabled = true
 }
