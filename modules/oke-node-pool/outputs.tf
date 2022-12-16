@@ -17,3 +17,6 @@ output "node_pool_id" {
 output "node_k8s_version" {
   value = local.node_k8s_version
 }
+output "node_pool_autoscaler_enabled" {
+  value = var.node_pool_autoscaler_enabled
+}

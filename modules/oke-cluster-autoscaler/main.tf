@@ -3,24 +3,25 @@
 # 
 
 locals {
-  cluster_autoscaler_supported_k8s_versions           = { "1.21" = "1.21.1-3", "1.22" = "1.22.2-4", "1.23" = "1.23.0-4", "1.24" = "1.23.0-4" } # There's no API to get that list. Need to be updated manually
+  cluster_autoscaler_supported_k8s_versions           = var.cluster_autoscaler_supported_k8s_versions # There's no API to get that list. Need to be updated manually
   cluster_autoscaler_image_version                    = lookup(local.cluster_autoscaler_supported_k8s_versions, local.k8s_major_minor_version, reverse(values(local.cluster_autoscaler_supported_k8s_versions))[0])
   cluster_autoscaler_default_region                   = "us-ashburn-1"
   cluster_autoscaler_image_regions                    = ["us-ashburn-1", "us-phoenix-1", "uk-london-1", "eu-frankfurt-1"]
   cluster_autoscaler_image_region                     = contains(local.cluster_autoscaler_image_regions, var.region) ? var.region : local.cluster_autoscaler_default_region
-  cluster_autoscaler_image                            = "${local.cluster_autoscaler_image_region}.ocir.io/oracle/oci-cluster-autoscaler:${local.cluster_autoscaler_image_version}"
-  cluster_autoscaler_log_level_verbosity              = 4
+  cluster_autoscaler_image                            = var.custom_cluster_autoscaler_image != "" ? var.custom_cluster_autoscaler_image : "${local.cluster_autoscaler_image_region}.ocir.io/oracle/oci-cluster-autoscaler:${local.cluster_autoscaler_image_version}"
+  cluster_autoscaler_log_level_verbosity              = var.cluster_autoscaler_log_level_verbosity
   cluster_autoscaler_node_pools                       = [for map in var.oke_node_pools[*] : "--nodes=${map.node_pool_min_nodes}:${map.node_pool_max_nodes}:${map.node_pool_id}"]
-  cluster_autoscaler_max_node_provision_time          = "25m"
-  cluster_autoscaler_scale_down_delay_after_add       = "10m"
-  cluster_autoscaler_scale_down_unneeded_time         = "10m"
-  cluster_autoscaler_unremovable_node_recheck_timeout = "5m"
+  cluster_autoscaler_max_node_provision_time          = var.cluster_autoscaler_max_node_provision_time
+  cluster_autoscaler_scale_down_delay_after_add       = var.cluster_autoscaler_scale_down_delay_after_add
+  cluster_autoscaler_scale_down_unneeded_time         = var.cluster_autoscaler_scale_down_unneeded_time
+  cluster_autoscaler_unremovable_node_recheck_timeout = var.cluster_autoscaler_unremovable_node_recheck_timeout
   cluster_autoscaler_enabled                          = alltrue([contains(keys(local.cluster_autoscaler_supported_k8s_versions), local.k8s_major_minor_version)]) ? var.cluster_autoscaler_enabled : false
+  cluster_autoscaler_cloud_provider                   = local.k8s_major_minor_version < "1.24" ? "oci" : "oci-oke"
   k8s_major_minor_version                             = regex("\\d+(?:\\.(?:\\d+|x)(?:))", var.oke_node_pools.0.node_k8s_version)
 }
 
 # NOTE: Service Account Terraform resource is not supported with Kubernetes 1.24.
-resource "kubernetes_service_account" "cluster_autoscaler_sa" {
+resource "kubernetes_service_account_v1" "cluster_autoscaler_sa" {
   metadata {
     name      = "cluster-autoscaler"
     namespace = "kube-system"
@@ -29,25 +30,25 @@ resource "kubernetes_service_account" "cluster_autoscaler_sa" {
       k8s-app   = "cluster-autoscaler"
     }
   }
-  automount_service_account_token = false
+  automount_service_account_token = true # false
 
   count = local.cluster_autoscaler_enabled ? 1 : 0
 }
-resource "kubernetes_secret" "cluster_autoscaler_sa_secret" {
-  metadata {
-    name      = "cluster-autoscaler-token-secret"
-    namespace = "kube-system"
-    annotations = {
-      "kubernetes.io/service-account.name"      = "cluster-autoscaler"
-      "kubernetes.io/service-account.namespace" = "kube-system"
-    }
-  }
-  type = "kubernetes.io/service-account-token"
+# resource "kubernetes_secret" "cluster_autoscaler_sa_secret" {
+#   metadata {
+#     name      = "cluster-autoscaler-token-secret"
+#     namespace = "kube-system"
+#     annotations = {
+#       "kubernetes.io/service-account.name"      = "cluster-autoscaler"
+#       "kubernetes.io/service-account.namespace" = "kube-system"
+#     }
+#   }
+#   type = "kubernetes.io/service-account-token"
 
-  depends_on = [kubernetes_service_account.cluster_autoscaler_sa]
+#   depends_on = [kubernetes_service_account.cluster_autoscaler_sa]
 
-  count = local.cluster_autoscaler_enabled ? 1 : 0
-}
+#   count = local.cluster_autoscaler_enabled ? 1 : 0
+# }
 resource "kubernetes_cluster_role" "cluster_autoscaler_cr" {
   metadata {
     name = "cluster-autoscaler"
@@ -206,7 +207,7 @@ resource "kubernetes_deployment" "cluster_autoscaler_deployment" {
   }
 
   spec {
-    replicas = 3
+    replicas = var.cluster_autoscaler_num_of_replicas
 
     selector {
       match_labels = {
@@ -246,7 +247,7 @@ resource "kubernetes_deployment" "cluster_autoscaler_deployment" {
             "./cluster-autoscaler",
             "--v=${local.cluster_autoscaler_log_level_verbosity}",
             "--stderrthreshold=info",
-            "--cloud-provider=oci",
+            "--cloud-provider=${local.cluster_autoscaler_cloud_provider}",
             "--max-node-provision-time=${local.cluster_autoscaler_max_node_provision_time}",
             "--scale-down-delay-after-add=${local.cluster_autoscaler_scale_down_delay_after_add}",
             "--scale-down-unneeded-time=${local.cluster_autoscaler_scale_down_unneeded_time}",
@@ -257,7 +258,8 @@ resource "kubernetes_deployment" "cluster_autoscaler_deployment" {
             "--balancing-ignore-label=internal_addr",
             "--balancing-ignore-label=oci.oraclecloud.com/fault-domain"
             ],
-          local.cluster_autoscaler_node_pools)
+            local.cluster_autoscaler_node_pools,
+          var.cluster_autoscaler_extra_args)
           image_pull_policy = "Always"
           env {
             name  = "OKE_USE_INSTANCE_PRINCIPAL"
