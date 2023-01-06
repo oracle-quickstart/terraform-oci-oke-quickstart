@@ -39,16 +39,32 @@ module "oke-quickstart" {
 #cloud-config
 
 write_files:
+  - path: "/etc/systemd/system/secondary_vnic_all_configure.timer"
+    permissions: "0644"
+    content: |
+      [Unit]
+      Description=Wait to execute secondary VNICs configure
+      After=network.target
+      Requires=secondary_vnic_all_configure.service
+
+      [Timer]
+      Unit=secondary_vnic_all_configure.service
+      OnBootSec=120sec
+
+      [Install]
+      WantedBy=timers.target
   - path: "/etc/systemd/system/secondary_vnic_all_configure.service"
     permissions: "0644"
     content: |
       [Unit]
       Description=Configure secondary VNICs at boot
       After=network.target
+      Wants=secondary_vnic_all_configure.timer
 
       [Service]
       Type=oneshot
       ExecStart=/usr/local/sbin/secondary_vnic_all_configure.sh -c
+      ExecStart=sysctl -w net.ipv4.conf.all.rp_filter=2
 
       [Install]
       WantedBy=multi-user.target
@@ -57,6 +73,8 @@ runcmd:
  - echo "Preparing Nodes for 5G-NF-Infra..."
  - echo 'sctp' | tee -a /etc/modules-load.d/sctp.conf
  - modprobe sctp
+ - sysctl -w net.ipv4.conf.default.rp_filter=2
+ - echo 'net.ipv4.conf.all.rp_filter=2' >> /etc/sysctl.conf
  - sysctl -w kernel.core_pattern=/var/crash/core.%p
  - echo "Finished prep nodes."
  - echo "Configuring secondary VNICs..."

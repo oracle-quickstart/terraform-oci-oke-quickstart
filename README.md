@@ -9,14 +9,16 @@ $${\color{red}OKE \space Cluster \space deployment \space yet.}$$
 ---
 
 [![Stack Release](https://img.shields.io/github/v/release/oracle-quickstart/terraform-oci-oke-quickstart.svg)](https://github.com/oracle-quickstart/terraform-oci-oke-quickstart/releases)
-[![Stack Build](https://img.shields.io/github/workflow/status/oracle-quickstart/terraform-oci-oke-quickstart/Generate%20stacks%20and%20publish%20release?label=stack&logo=oracle&logoColor=red)][magic_oke_stack]
-![AquaSec TFSec](https://img.shields.io/github/workflow/status/oracle-quickstart/terraform-oci-oke-quickstart/tfsec?label=tfsec&logo=aqua)
+[![Stack Build](https://img.shields.io/github/actions/workflow/status/oracle-quickstart/terraform-oci-oke-quickstart/stack.yml?branch=main&label=stack&logo=oracle&logoColor=red)][magic_oke_stack]
+![AquaSec TFSec](https://img.shields.io/github/actions/workflow/status/oracle-quickstart/terraform-oci-oke-quickstart/tfsec.yml?branch=main&label=tfsec&logo=aqua)
 ![Terraform](https://img.shields.io/badge/terraform->%3D%201.1-%235835CC.svg?logo=terraform)
 ![Stack License](https://img.shields.io/github/license/oracle-quickstart/terraform-oci-oke-quickstart)
 ![Stack Downloads](https://img.shields.io/github/downloads/oracle-quickstart/terraform-oci-oke-quickstart/total?logo=terraform)
 [![GitHub issues](https://img.shields.io/github/issues/oracle-quickstart/terraform-oci-oke-quickstart.svg)](https://github.com/oracle-quickstart/terraform-oci-oke-quickstart/issues)
 
 This module handles opinionated Oracle Container Engine for [Kubernetes][kubernetes_101] ([OKE][oke]) cluster creation on Oracle Cloud Infrastructure ([OCI][oci]). This module is designed to be used with the [OCI Resource Manager][oci_rm] to deploy a cluster in a single step. The module can also be used with the [OCI Terraform Provider][oci_tf_provider] to deploy a cluster using local or CloudShell Terraform cli.
+
+>Note: This project is an alternative to easily create an OKE cluster without the need to use external workarounds and do not need to create compute bastions or jump servers, even if deploying using private endpoints. This is a __NO__(`null_resource` ,`remote_exec`, `operator instance`, `bastion_or_jump_server`, `out_of_tf_state_sh_scripts`) project
 
 Sub modules are provided to create a cluster with a single node pool, or a cluster with multiple node pools. Enables Cluster Autoscaler, OCI Vault(KMS) for customer-managed encryption keys for secrets, block volumes. The module also provides a sub module to create a cluster with a single node pool and a private endpoint to Oracle Resource Manager (ORM).
 

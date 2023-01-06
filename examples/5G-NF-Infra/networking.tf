@@ -301,6 +301,7 @@ resource "oci_core_vnic_attachment" "vnic_attachment_5gc_signalling" {
     defined_tags  = {}
     freeform_tags = { "Network" : "5GC-Signalling" }
   }
+  display_name  = "5GC-Signalling vnic Attachment"
   instance_id = data.oci_containerengine_node_pool.node_pool_1.nodes[count.index].id
 }
 resource "oci_core_vnic_attachment" "vnic_attachment_5gc_oam" {
@@ -312,6 +313,7 @@ resource "oci_core_vnic_attachment" "vnic_attachment_5gc_oam" {
     defined_tags  = {}
     freeform_tags = { "Network" : "5GC-OAM" }
   }
+  display_name  = "5GC-OAM vnic Attachment"
   instance_id = data.oci_containerengine_node_pool.node_pool_1.nodes[count.index].id
 
   depends_on = [oci_core_vnic_attachment.vnic_attachment_5gc_signalling]
@@ -325,6 +327,7 @@ resource "oci_core_vnic_attachment" "vnic_attachment_5g_ran" {
     defined_tags  = {}
     freeform_tags = { "Network" : "5G RAN" }
   }
+  display_name  = "5G RAN vnic Attachment"
   instance_id = data.oci_containerengine_node_pool.node_pool_1.nodes[count.index].id
 
   depends_on = [oci_core_vnic_attachment.vnic_attachment_5gc_oam]
@@ -338,6 +341,7 @@ resource "oci_core_vnic_attachment" "vnic_attachment_5g_legal_intercept" {
     defined_tags  = {}
     freeform_tags = { "Network" : "5G Legal Intercept" }
   }
+  display_name  = "5G Legal Intercept vnic Attachment"
   instance_id = data.oci_containerengine_node_pool.node_pool_1.nodes[count.index].id
 
   depends_on = [oci_core_vnic_attachment.vnic_attachment_5g_ran]
@@ -351,6 +355,7 @@ resource "oci_core_vnic_attachment" "vnic_attachment_5g_epc" {
     defined_tags  = {}
     freeform_tags = { "Network" : "5G-EPC" }
   }
+  display_name  = "5G-EPC vnic Attachment"
   instance_id = data.oci_containerengine_node_pool.node_pool_1.nodes[count.index].id
 
   depends_on = [oci_core_vnic_attachment.vnic_attachment_5g_legal_intercept]
