@@ -31,6 +31,7 @@ variableGroups:
     - existent_oke_cluster_id
     - k8s_version
     - create_new_compartment_for_oke
+    - node_pool_cni_type_1
 
   - title: "OKE Network Configuration"
     variables:
@@ -69,7 +70,18 @@ variableGroups:
     - image_operating_system_1
     - image_operating_system_version_1
     - node_pool_name_1
-    - node_pool_cni_type_1
+
+  - title: "OKE Worker Nodes - Hidden"
+    variables:
+    - extra_node_pools
+    - extra_route_tables
+    - extra_security_list_name_for_api_endpoint
+    - extra_security_list_name_for_nodes
+    - extra_security_list_name_for_vcn_native_pod_networking
+    - extra_security_lists
+    - extra_subnets
+    - node_pool_oke_init_params_1
+    visible: false
 
   - title: "Dynamic Group and Policies"
     variables:
@@ -227,7 +239,7 @@ variables:
         - not:
           - create_new_oke_cluster
         - eq:
-          - cluster_endpoint_visibility 
+          - cluster_endpoint_visibility
           - "Private"
 
   create_orm_private_endpoint:
@@ -235,7 +247,7 @@ variables:
     title: "Create ORM Private Endpoint for Kubernetes API Endpoint"
     visible:
       eq:
-        - cluster_endpoint_visibility 
+        - cluster_endpoint_visibility
         - "Private"
 
   existent_oke_cluster_private_endpoint:
@@ -251,7 +263,7 @@ variables:
           - create_new_oke_cluster
           - create_orm_private_endpoint
         - eq:
-          - cluster_endpoint_visibility 
+          - cluster_endpoint_visibility
           - "Private"
 
   cluster_load_balancer_visibility:
@@ -286,7 +298,7 @@ variables:
           - show_advanced
         - not:
           - create_new_vcn
-  
+
   existent_vcn_ocid:
     type: oci:core:vcn:id
     title: "Existent VCN to be used for OKE Cluster"
@@ -318,9 +330,12 @@ variables:
     title: "Create all subnets for the OKE VCN?"
     visible:
       and:
-        - create_new_oke_cluster
-        - show_advanced
-  
+        - and:
+          - create_new_oke_cluster
+          - show_advanced
+        - not:
+          - create_new_vcn
+
   existent_oke_k8s_endpoint_subnet_ocid:
     type: oci:core:subnet:id
     title: "Existent subnet for Kubernetes API Endpoint"
@@ -372,10 +387,30 @@ variables:
         - not:
           - create_new_vcn
 
+  existent_oke_vcn_native_pod_networking_subnet_ocid:
+    type: oci:core:subnet:id
+    title: "(Required if using OCI_VCN_IP_NATIVE CNI) Existent subnet for VCN Native Pod Networking"
+    required: false
+    dependsOn:
+        compartmentId: existent_vcn_compartment_ocid
+        vcnId: existent_vcn_ocid
+    visible:
+      and:
+        - and:
+          - create_new_oke_cluster
+          - show_advanced
+          - eq:
+            - node_pool_cni_type_1
+            - "OCI_VCN_IP_NATIVE"
+        - not:
+          - create_subnets
+        - not:
+          - create_new_vcn
+
   # OKE Worker Nodes - Node Pool
   cluster_autoscaler_enabled:
     type: boolean
-    title: "Enable Cluster Autoscaler" 
+    title: "Enable Cluster Autoscaler"
     # visible:
     #   and:
     #     - create_new_oke_cluster 
@@ -482,7 +517,7 @@ variables:
 
   node_pool_cni_type_1:
     type: enum
-    title: "Node Pool CNI Type"
+    title: "Cluster (and Node Pool) CNI Type"
     enum:
       - "FLANNEL_OVERLAY"
       - "OCI_VCN_IP_NATIVE"
@@ -562,7 +597,7 @@ variables:
           - create_compartment_policies
         - not:
           - create_dynamic_group_for_nodes_in_compartment
-        
+
   create_compartment_policies:
     type: boolean
     title: "Create Compartment Policies"
@@ -672,7 +707,7 @@ variables:
           - show_advanced
           - ingress_nginx_enabled
         - eq:
-          - ingress_load_balancer_shape 
+          - ingress_load_balancer_shape
           - "flexible"
 
   ingress_load_balancer_shape_flex_max:
@@ -687,7 +722,7 @@ variables:
           - show_advanced
           - ingress_nginx_enabled
         - eq:
-          - ingress_load_balancer_shape 
+          - ingress_load_balancer_shape
           - "flexible"
 
   ingress_hosts_include_nip_io:
@@ -888,5 +923,5 @@ outputs:
     title: kubeconfig
     displayText: Instructions to get sensitive outputs on local Terraform. Not used by ORM
     visible: false
-  
+
 primaryOutputButton: mushop_url_button
