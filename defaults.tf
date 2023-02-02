@@ -42,7 +42,7 @@ locals {
   node_pools                    = concat(local.node_pool_1, local.extra_node_pools, var.extra_node_pools)
   create_new_vcn                = (var.create_new_oke_cluster && var.create_new_vcn) ? true : false
   vcn_display_name              = "[${local.app_name}] VCN for OKE (${local.deploy_id})"
-  create_subnets                = (var.create_new_oke_cluster || var.create_subnets) ? true : false
+  create_subnets                = (var.create_subnets) ? true : false
   subnets                       = concat(local.subnets_oke, local.extra_subnets, var.extra_subnets)
   route_tables                  = concat(local.route_tables_oke, var.extra_route_tables)
   security_lists                = concat(local.security_lists_oke, var.extra_security_lists)
