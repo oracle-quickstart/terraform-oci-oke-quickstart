@@ -18,7 +18,7 @@ $${\color{red}OKE \space Cluster \space deployment \space yet.}$$
 
 This module handles opinionated Oracle Container Engine for [Kubernetes][kubernetes_101] ([OKE][oke]) cluster creation on Oracle Cloud Infrastructure ([OCI][oci]). This module is designed to be used with the [OCI Resource Manager][oci_rm] to deploy a cluster in a single step. The module can also be used with the [OCI Terraform Provider][oci_tf_provider] to deploy a cluster using local or CloudShell Terraform cli.
 
->Note: This project is an alternative to easily create an OKE cluster without the need to use external workarounds and do not need to create compute bastions or jump servers, even if deploying using private endpoints. This is a __NO__(`null_resource` ,`remote_exec`, `operator instance`, `bastion_or_jump_server`, `out_of_tf_state_sh_scripts`) project
+>__Note__: This project is an alternative to easily create an OKE cluster without the need to use external workarounds and do not need to create compute bastions or jump servers, even if deploying using private endpoints. This is a __NO__(`null_resource` ,`remote_exec`, `operator instance`, `bastion_or_jump_server`, `out_of_tf_state_sh_scripts`) project
 
 Sub modules are provided to create a cluster with a single node pool, or a cluster with multiple node pools. Enables Cluster Autoscaler, OCI Vault(KMS) for customer-managed encryption keys for secrets, block volumes. The module also provides a sub module to create a cluster with a single node pool and a private endpoint to Oracle Resource Manager (ORM).
 
@@ -75,7 +75,7 @@ module "oke-quickstart" {
 
 ## Deploy Using Oracle Resource Manager
 
-> **_NOTE:_** If you aren't already signed in, when prompted, enter the tenancy and user credentials. Review and accept the terms and conditions.
+> ___NOTE:___ If you aren't already signed in, when prompted, enter the tenancy and user credentials. Review and accept the terms and conditions.
 
 1. Click to deploy the stack
 
@@ -103,7 +103,7 @@ Note: An example [tfvars file](examples/terraform.tfvars.example) is included fo
 preferred way to run the stack from the CLI, because of the large number of variables to manage.
 
 To use this file just copy the example [tfvars file](examples/terraform.tfvars.example) and save it in the outermost directory.
-Next, rename the file to **terraform.tfvars**. You can override the example values set in this file.
+Next, rename the file to __terraform.tfvars__. You can override the example values set in this file.
 
 ### Clone the Module
 
@@ -139,7 +139,7 @@ terraform destroy -refresh=false
 
 ## Terraform Variables
 
-A complete listing of the Terraform variables used in this stack are referenced [here](VARIABLES.md). 
+A complete listing of the Terraform variables used in this stack are referenced [here](VARIABLES.md).
 <!-- This document is automatically generated
 using the [terraform-docs](https://github.com/terraform-docs/terraform-docs) with the following command:
 

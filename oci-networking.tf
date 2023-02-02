@@ -2,7 +2,7 @@
 # Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 # 
 
-# File Version: 0.8.0
+# File Version: 0.9.0
 
 # Dependencies:
 #   - defaults.tf file

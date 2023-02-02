@@ -620,7 +620,7 @@ locals {
           }, {
           description      = "Allow Pods to communicate with Worker Nodes"
           destination      = lookup(local.network_cidrs, "NODES-REGIONAL-SUBNET-CIDR")
-          destination_type = "SERVICE_CIDR_BLOCK"
+          destination_type = "CIDR_BLOCK"
           protocol         = local.security_list_ports.tcp_protocol_number
           stateless        = false
           tcp_options      = { max = -1, min = -1, source_port_range = null }
