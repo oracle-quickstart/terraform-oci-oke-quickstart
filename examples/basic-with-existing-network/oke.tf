@@ -12,10 +12,10 @@ module "oke-quickstart" {
 
   # Note: Just few arguments are showing here to simplify the basic example. All other arguments are using default values.
   # App Name to identify deployment. Used for naming resources.
-  app_name = "Basic"
+  app_name = "Basic with Existent Network"
 
   # Freeform Tags + Defined Tags. Tags are applied to all resources.
-  tag_values = { "freeformTags" = { "Environment" = "Development", "DeploymentType" = "basic", "QuickstartExample" = "basic-cluster" }, "definedTags" = {} }
+  tag_values = { "freeformTags" = { "Environment" = "Development", "DeploymentType" = "basic", "QuickstartExample" = "basic-with-existing-network" }, "definedTags" = {} }
 
   # OKE Node Pool 1 arguments
   node_pool_cni_type_1                 = "FLANNEL_OVERLAY" # Use "OCI_VCN_IP_NATIVE" for VCN Native PODs Network. If the node pool 1 uses the OCI_VCN_IP_NATIVE, the cluster will also be configured with same cni
@@ -25,5 +25,14 @@ module "oke-quickstart" {
   node_pool_instance_shape_1           = { "instanceShape" = "VM.Standard.E4.Flex", "ocpus" = 2, "memory" = 64 } # If not using a Flex shape, ocpus and memory are ignored
 
   # VCN for OKE arguments
-  vcn_cidr_blocks = "10.22.0.0/16"
+  create_new_vcn                = false
+  existent_vcn_ocid             = "ocid1.vcn.oc1.iad.amaaaaaadoggtjaat6nl5pla7kw52nbxpu73erej3nbd4shjhjczn2tfeadq"
+  existent_vcn_compartment_ocid = "" # Optional. Specify if want to create terraform to create the subnets and the VCN is in a different compartment than the OKE cluster
+
+  # Subnet for OKE arguments
+  create_subnets                                     = false
+  existent_oke_k8s_endpoint_subnet_ocid              = "ocid1.subnet.oc1.iad.aaaaaaaakwyp2rkytg3yepvx7qzytff7estok277lda7gjjso3k4wnz6dpoa"
+  existent_oke_nodes_subnet_ocid                     = "ocid1.subnet.oc1.iad.aaaaaaaack6edaxj6vxdxvbgw4ae232to3ou7rpfmv6lyscpbzcetjkeifiq"
+  existent_oke_load_balancer_subnet_ocid             = "ocid1.subnet.oc1.iad.aaaaaaaao6j4ixl23bcp6367he7l5qytuvmm74hrmg4ajiqyfzxowrbrx3pa"
+  existent_oke_vcn_native_pod_networking_subnet_ocid = ""
 }
