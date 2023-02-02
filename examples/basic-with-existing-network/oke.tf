@@ -26,13 +26,13 @@ module "oke-quickstart" {
 
   # VCN for OKE arguments
   create_new_vcn                = false
-  existent_vcn_ocid             = "ocid1.vcn.oc1.iad.amaaaaaadoggtjaat6nl5pla7kw52nbxpu73erej3nbd4shjhjczn2tfeadq"
+  existent_vcn_ocid             = "<Existent VCN OCID>" # ocid1.vcn.oc1....
   existent_vcn_compartment_ocid = "" # Optional. Specify if want to create terraform to create the subnets and the VCN is in a different compartment than the OKE cluster
 
   # Subnet for OKE arguments
   create_subnets                                     = false
-  existent_oke_k8s_endpoint_subnet_ocid              = "ocid1.subnet.oc1.iad.aaaaaaaakwyp2rkytg3yepvx7qzytff7estok277lda7gjjso3k4wnz6dpoa"
-  existent_oke_nodes_subnet_ocid                     = "ocid1.subnet.oc1.iad.aaaaaaaack6edaxj6vxdxvbgw4ae232to3ou7rpfmv6lyscpbzcetjkeifiq"
-  existent_oke_load_balancer_subnet_ocid             = "ocid1.subnet.oc1.iad.aaaaaaaao6j4ixl23bcp6367he7l5qytuvmm74hrmg4ajiqyfzxowrbrx3pa"
-  existent_oke_vcn_native_pod_networking_subnet_ocid = ""
+  existent_oke_k8s_endpoint_subnet_ocid              = "<Existent Kubernetes API Endpoint Subnet>" # ocid1.subnet....
+  existent_oke_nodes_subnet_ocid                     = "<Existent Worker Nodes Subnet>" # ocid1.subnet....
+  existent_oke_load_balancer_subnet_ocid             = "<Existent Load Balancer Subnet>" # ocid1.subnet....
+  existent_oke_vcn_native_pod_networking_subnet_ocid = "" # Optional. Existent VCN Native POD Networking subnet if the CNI Type is "OCI_VCN_IP_NATIVE"
 }
