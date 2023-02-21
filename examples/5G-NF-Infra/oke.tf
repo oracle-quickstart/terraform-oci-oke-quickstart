@@ -6,7 +6,7 @@
 # OKE Cluster
 ################################################################################
 module "oke-quickstart" {
-  source = "github.com/oracle-quickstart/terraform-oci-oke-quickstart?ref=0.8.11"
+  source = "github.com/oracle-quickstart/terraform-oci-oke-quickstart?ref=0.9.0"
 
   # Oracle Cloud Infrastructure Tenancy and Compartment OCID
   tenancy_ocid     = var.tenancy_ocid
@@ -27,7 +27,7 @@ module "oke-quickstart" {
 
   # OKE Node Pool 1 arguments
   node_pool_cni_type_1                 = "OCI_VCN_IP_NATIVE" # Use "FLANNEL_OVERLAY" for overlay network or "OCI_VCN_IP_NATIVE" for VCN Native PODs Network. If the node pool 1 uses the OCI_VCN_IP_NATIVE, the cluster will also be configured with same cni
-  cluster_autoscaler_enabled           = false
+  node_pool_autoscaler_enabled_1           = false
   node_pool_name_1                     = var.node_pool_name_1
   node_pool_initial_num_worker_nodes_1 = var.node_pool_initial_num_worker_nodes_1 # Minimum number of nodes in the node pool
   node_pool_max_num_worker_nodes_1     = var.node_pool_max_num_worker_nodes_1     # Maximum number of nodes in the node pool

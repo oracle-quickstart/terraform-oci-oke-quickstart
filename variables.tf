@@ -213,9 +213,9 @@ variable "user_admin_group_for_vault_policy" {
 }
 
 ## OKE Autoscaler
-variable "cluster_autoscaler_enabled" {
+variable "node_pool_autoscaler_enabled_1" {
   default     = true
-  description = "Enables OKE cluster autoscaler. Node pools will auto scale based on the resources usage"
+  description = "Enable Cluster Autoscaler on the node pool (pool1). Node pools will auto scale based on the resources usage and will add or remove nodes (Compute) based on the min and max number of nodes"
 }
 variable "node_pool_initial_num_worker_nodes_1" {
   default     = 3

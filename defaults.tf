@@ -72,7 +72,8 @@ locals {
   extra_node_pools = [
     # {
     #   node_pool_name                            = "GPU" # Must be unique
-    #   node_pool_min_nodes                       = var.cluster_autoscaler_enabled ? 1 : 1
+    #   node_pool_autoscaler_enabled_1            = false
+    #   node_pool_min_nodes                       = 1
     #   node_pool_max_nodes                       = 2
     #   node_k8s_version                          = var.k8s_version
     #   node_pool_shape                           = "BM.GPU.A10.4"

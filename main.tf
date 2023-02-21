@@ -179,8 +179,7 @@ module "oke_cluster_autoscaler" {
   # Oracle Cloud Infrastructure Tenancy and Compartment OCID
   region = var.region
 
-  ## Enable Cluster Autoscaler
-  # cluster_autoscaler_enabled = var.cluster_autoscaler_enabled
+  ## Enable Cluster Autoscaler for node pools
   oke_node_pools = [for node_pool in values(module.oke_node_pools) : node_pool if node_pool.node_pool_autoscaler_enabled]
 
   depends_on = [module.oke, module.oke_node_pools]
