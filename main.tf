@@ -144,6 +144,7 @@ locals {
       node_pool_name                            = var.node_pool_name_1 != "" ? var.node_pool_name_1 : "pool1" # Must be unique
       node_pool_min_nodes                       = var.node_pool_initial_num_worker_nodes_1
       node_pool_max_nodes                       = var.node_pool_max_num_worker_nodes_1
+      node_pool_autoscaler_enabled = var.node_pool_autoscaler_enabled_1
       node_k8s_version                          = var.k8s_version # TODO: Allow to set different version for each node pool
       node_pool_shape                           = var.node_pool_instance_shape_1.instanceShape
       node_pool_shape_specific_ad               = var.node_pool_shape_specific_ad_1
