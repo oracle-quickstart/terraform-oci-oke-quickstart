@@ -17,7 +17,7 @@ locals {
   cluster_autoscaler_unremovable_node_recheck_timeout = var.cluster_autoscaler_unremovable_node_recheck_timeout
   cluster_autoscaler_enabled                          = alltrue([contains(keys(local.cluster_autoscaler_supported_k8s_versions), local.k8s_major_minor_version)]) ? anytrue(var.oke_node_pools[*].node_pool_autoscaler_enabled) : false
   cluster_autoscaler_cloud_provider                   = local.k8s_major_minor_version < "1.24" ? "oci" : "oci-oke"
-  k8s_major_minor_version                             = regex("\\d+(?:\\.(?:\\d+|x)(?:))", var.oke_node_pools.0.node_k8s_version)
+  k8s_major_minor_version                             = regex("\\d+(?:\\.(?:\\d+|x)(?:))", try(var.oke_node_pools.0.node_k8s_version, "1.0"))
 }
 
 # NOTE: Service Account Terraform resource is not supported with Kubernetes 1.24.
