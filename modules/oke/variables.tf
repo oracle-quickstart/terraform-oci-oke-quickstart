@@ -40,6 +40,10 @@ variable "existent_oke_cluster_id" {
   default     = ""
   description = "Using existent OKE Cluster. Only the application and services will be provisioned. If select cluster autoscaler feature, you need to get the node pool id and enter when required"
 }
+variable "cluster_type" {
+  default     = "BASIC_CLUSTER"
+  description = "The type of OKE cluster to create. Valid values are: BASIC_CLUSTER or ENHANCED_CLUSTER"
+}
 variable "create_orm_private_endpoint" {
   default     = false
   description = "Creates a new private endpoint for the OKE cluster"

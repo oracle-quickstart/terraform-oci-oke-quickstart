@@ -173,6 +173,15 @@ variable "existent_oke_cluster_id" {
   default     = ""
   description = "Using existent OKE Cluster. Only the application and services will be provisioned. If select cluster autoscaler feature, you need to get the node pool id and enter when required"
 }
+variable "cluster_type" {
+  default     = "BASIC_CLUSTER"
+  description = "The type of OKE cluster to create. Valid values are: BASIC_CLUSTER or ENHANCED_CLUSTER"
+
+  validation {
+    condition     = var.cluster_type == "BASIC_CLUSTER" || var.cluster_type == "ENHANCED_CLUSTER"
+    error_message = "Sorry, but cluster visibility can only be BASIC_CLUSTER or ENHANCED_CLUSTER."
+  }
+}
 variable "create_new_compartment_for_oke" {
   default     = false
   description = "Creates new compartment for OKE Nodes and OCI Services deployed.  NOTE: The creation of the compartment increases the deployment time by at least 3 minutes, and can increase by 15 minutes when destroying"
