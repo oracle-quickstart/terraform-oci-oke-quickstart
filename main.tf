@@ -47,10 +47,10 @@ module "vault" {
 module "oke" {
   source = "./modules/oke"
 
-  providers = {
-    oci             = oci
-    oci.home_region = oci.home_region
-  }
+  # providers = {
+  #   oci             = oci
+  #   oci.home_region = oci.home_region
+  # }
 
   # Oracle Cloud Infrastructure Tenancy and Compartment OCID
   tenancy_ocid     = var.tenancy_ocid
@@ -82,8 +82,8 @@ module "oke" {
   k8s_version = var.k8s_version
 
   ## Create Dynamic group and Policies for Autoscaler and OCI Metrics and Logging
-  create_dynamic_group_for_nodes_in_compartment = var.create_dynamic_group_for_nodes_in_compartment
-  create_compartment_policies                   = var.create_compartment_policies
+  # create_dynamic_group_for_nodes_in_compartment = var.create_dynamic_group_for_nodes_in_compartment
+  # create_compartment_policies                   = var.create_compartment_policies
 
   ## Encryption (OCI Vault/Key Management/KMS)
   oci_vault_key_id_oke_secrets      = module.vault.oci_vault_key_id
@@ -144,7 +144,7 @@ locals {
       node_pool_name                            = var.node_pool_name_1 != "" ? var.node_pool_name_1 : "pool1" # Must be unique
       node_pool_min_nodes                       = var.node_pool_initial_num_worker_nodes_1
       node_pool_max_nodes                       = var.node_pool_max_num_worker_nodes_1
-      node_pool_autoscaler_enabled = var.node_pool_autoscaler_enabled_1
+      node_pool_autoscaler_enabled              = var.node_pool_autoscaler_enabled_1
       node_k8s_version                          = var.k8s_version # TODO: Allow to set different version for each node pool
       node_pool_shape                           = var.node_pool_instance_shape_1.instanceShape
       node_pool_shape_specific_ad               = var.node_pool_shape_specific_ad_1
