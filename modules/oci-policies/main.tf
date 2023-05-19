@@ -7,8 +7,8 @@ resource "oci_identity_dynamic_group" "for_policies" {
   description    = "${local.app_name} ${var.dynamic_group_name} (${local.deploy_id})"
   compartment_id = var.tenancy_ocid
   matching_rule  = "${var.dynamic_group_main_condition} {${join(",", var.dynamic_group_matching_rules)}}"
-  freeform_tags = var.oci_tag_values.freeformTags
-    defined_tags  = var.oci_tag_values.definedTags
+  freeform_tags  = var.oci_tag_values.freeformTags
+  defined_tags   = var.oci_tag_values.definedTags
 
   provider = oci.home_region
 
@@ -20,8 +20,8 @@ resource "oci_identity_policy" "policies" {
   description    = "${local.app_name} ${var.policy_name} (${local.deploy_id})"
   compartment_id = local.policy_compartment_ocid
   statements     = var.policy_statements
-  freeform_tags = var.oci_tag_values.freeformTags
-    defined_tags  = var.oci_tag_values.definedTags
+  freeform_tags  = var.oci_tag_values.freeformTags
+  defined_tags   = var.oci_tag_values.definedTags
 
   depends_on = [oci_identity_dynamic_group.for_policies]
 

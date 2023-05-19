@@ -14,7 +14,7 @@ variable "dynamic_group_name" {
 ## Dynamic Group Matching Rules
 variable "dynamic_group_matching_rules" {
   type        = list(string)
-  default = []
+  default     = []
   description = "List of matching rules for the dynamic group. e.g.: [\"ALL {instance.compartment.id = 'ocid1.compartment.oc1..aaaaaaaaxxxxxxxxxxxxxxxx'}\", \"ALL {instance.id = 'ocid1.instance.oc1.phx.xxxxxxxx'}\"]"
 }
 variable "dynamic_group_main_condition" {
@@ -47,7 +47,7 @@ variable "compartment_ocid" {
 # Compartment Policies Statements
 variable "policy_statements" {
   type        = list(string)
-  default = []
+  default     = []
   description = "List of statements for the compartment policy. e.g.: [\"Allow dynamic-group <DynamicGroupName> to manage instances in compartment <compartment>\", \"Allow dynamic-group <DynamicGroupName> to use instances in compartment <compartment> where ALL {instance.compartment.id = 'ocid1.compartment.oc1..aaaaaaaaxxxxxxxxxxxxxxxx', instance.id = 'ocid1.instance.oc1.phx.xxxxxxxx'}\"]"
 }
 
@@ -68,6 +68,6 @@ locals {
   app_name                      = var.oci_tag_values.freeformTags.AppName
   deploy_id                     = var.oci_tag_values.freeformTags.DeploymentID
   policy_compartment_OCID       = var.compartment_ocid == "" ? var.tenancy_ocid : var.compartment_ocid
-  dynamic_group_name_normalized           = substr(replace(lower(var.dynamic_group_name), " ", "-"), 0, 80)
-  policy_name_normalized           = substr(replace(lower(var.policy_name), " ", "-"), 0, 80)
+  dynamic_group_name_normalized = substr(replace(lower(var.dynamic_group_name), " ", "-"), 0, 80)
+  policy_name_normalized        = substr(replace(lower(var.policy_name), " ", "-"), 0, 80)
 }
