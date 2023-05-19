@@ -8,8 +8,9 @@ resource "oci_containerengine_cluster" "oke_cluster" {
   name               = "${local.app_name} (${local.deploy_id})"
   vcn_id             = var.vcn_id
   kms_key_id         = var.oci_vault_key_id_oke_secrets != "" ? var.oci_vault_key_id_oke_secrets : null
-  freeform_tags      = var.cluster_tags.freeformTags
-  defined_tags       = var.cluster_tags.definedTags
+  # type               = var.cluster_type
+  freeform_tags = var.cluster_tags.freeformTags
+  defined_tags  = var.cluster_tags.definedTags
 
   endpoint_config {
     is_public_ip_enabled = (var.cluster_endpoint_visibility == "Private") ? false : true
