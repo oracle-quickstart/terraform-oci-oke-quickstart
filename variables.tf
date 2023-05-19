@@ -17,6 +17,10 @@ variable "fingerprint" {
 variable "private_key_path" {
   default = ""
 }
+variable "home_region" {
+  default = ""
+}
+
 
 ################################################################################
 # App Name to identify deployment. Used for naming resources.
@@ -342,4 +346,8 @@ variable "existent_dynamic_group_for_nodes_in_compartment" {
 variable "create_compartment_policies" {
   default     = true
   description = "Creates policies that will reside on the compartment. e.g.: Policies to support Cluster Autoscaler, OCI Logging datasource on Grafana"
+}
+variable "create_tenancy_policies" {
+  default     = false
+  description = "Creates policies that need to reside on the tenancy. e.g.: Policies to support OCI Metrics datasource on Grafana"
 }
