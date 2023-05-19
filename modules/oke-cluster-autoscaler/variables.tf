@@ -4,17 +4,9 @@
 
 # OKE Variables
 ## OKE Autoscaler
-variable "cluster_autoscaler_enabled" {
-  default     = true
-  description = "Enables OKE cluster autoscaler. Node pools will auto scale based on the resources usage"
-}
-# variable "cluster_autoscaler_min_nodes" {
-#   default     = 3
-#   description = "Minimum number of nodes on the node pool to be scheduled by the Kubernetes"
-# }
-# variable "cluster_autoscaler_max_nodes" {
-#   default     = 10
-#   description = "Maximum number of nodes on the node pool to be scheduled by the Kubernetes"
+# variable "cluster_autoscaler_enabled" {
+#   default     = true
+#   description = "Enables OKE cluster autoscaler. Node pools will auto scale based on the resources usage"
 # }
 variable "cluster_autoscaler_supported_k8s_versions" {
   type = map(string)

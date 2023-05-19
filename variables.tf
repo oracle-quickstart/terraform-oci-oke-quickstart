@@ -17,6 +17,10 @@ variable "fingerprint" {
 variable "private_key_path" {
   default = ""
 }
+variable "home_region" {
+  default = ""
+}
+
 
 ################################################################################
 # App Name to identify deployment. Used for naming resources.
@@ -173,6 +177,15 @@ variable "existent_oke_cluster_id" {
   default     = ""
   description = "Using existent OKE Cluster. Only the application and services will be provisioned. If select cluster autoscaler feature, you need to get the node pool id and enter when required"
 }
+variable "cluster_type" {
+  default     = "BASIC_CLUSTER"
+  description = "The type of OKE cluster to create. Valid values are: BASIC_CLUSTER or ENHANCED_CLUSTER"
+
+  validation {
+    condition     = var.cluster_type == "BASIC_CLUSTER" || var.cluster_type == "ENHANCED_CLUSTER"
+    error_message = "Sorry, but cluster visibility can only be BASIC_CLUSTER or ENHANCED_CLUSTER."
+  }
+}
 variable "create_new_compartment_for_oke" {
   default     = false
   description = "Creates new compartment for OKE Nodes and OCI Services deployed.  NOTE: The creation of the compartment increases the deployment time by at least 3 minutes, and can increase by 15 minutes when destroying"
@@ -213,9 +226,9 @@ variable "user_admin_group_for_vault_policy" {
 }
 
 ## OKE Autoscaler
-variable "cluster_autoscaler_enabled" {
+variable "node_pool_autoscaler_enabled_1" {
   default     = true
-  description = "Enables OKE cluster autoscaler. Node pools will auto scale based on the resources usage"
+  description = "Enable Cluster Autoscaler on the node pool (pool1). Node pools will auto scale based on the resources usage and will add or remove nodes (Compute) based on the min and max number of nodes"
 }
 variable "node_pool_initial_num_worker_nodes_1" {
   default     = 3
@@ -333,4 +346,8 @@ variable "existent_dynamic_group_for_nodes_in_compartment" {
 variable "create_compartment_policies" {
   default     = true
   description = "Creates policies that will reside on the compartment. e.g.: Policies to support Cluster Autoscaler, OCI Logging datasource on Grafana"
+}
+variable "create_tenancy_policies" {
+  default     = false
+  description = "Creates policies that need to reside on the tenancy. e.g.: Policies to support OCI Metrics datasource on Grafana"
 }
