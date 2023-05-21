@@ -110,23 +110,23 @@ module "oke_node_pools" {
   create_new_node_pool         = var.create_new_oke_cluster
 
   # OKE Worker Nodes (Compute)
-  node_pool_name                            = each.value.node_pool_name
-  node_pool_min_nodes                       = each.value.node_pool_min_nodes
-  node_pool_max_nodes                       = each.value.node_pool_max_nodes
-  node_k8s_version                          = each.value.node_k8s_version
+  node_pool_name                            = try(each.value.node_pool_name, "no_pool_name")
+  node_pool_min_nodes                       = try(each.value.node_pool_min_nodes, 1)
+  node_pool_max_nodes                       = try(each.value.node_pool_max_nodes, 3)
+  node_k8s_version                          = try(each.value.node_k8s_version, var.k8s_version)
   node_pool_shape                           = each.value.node_pool_shape
-  node_pool_shape_specific_ad               = each.value.node_pool_shape_specific_ad
-  node_pool_node_shape_config_ocpus         = each.value.node_pool_node_shape_config_ocpus
-  node_pool_node_shape_config_memory_in_gbs = each.value.node_pool_node_shape_config_memory_in_gbs
-  existent_oke_nodepool_id_for_autoscaler   = each.value.existent_oke_nodepool_id_for_autoscaler
+  node_pool_shape_specific_ad               = try(each.value.node_pool_shape_specific_ad, 0)
+  node_pool_node_shape_config_ocpus         = try(each.value.node_pool_node_shape_config_ocpus, 4)
+  node_pool_node_shape_config_memory_in_gbs = try(each.value.node_pool_node_shape_config_memory_in_gbs, 48)
+  existent_oke_nodepool_id_for_autoscaler   = try(each.value.existent_oke_nodepool_id_for_autoscaler, null)
   node_pool_autoscaler_enabled              = try(each.value.node_pool_autoscaler_enabled, true)
-  node_pool_oke_init_params                 = each.value.node_pool_oke_init_params
-  node_pool_cloud_init_parts                = each.value.node_pool_cloud_init_parts
-  public_ssh_key                            = local.workers_public_ssh_key
-  image_operating_system                    = each.value.image_operating_system
-  image_operating_system_version            = each.value.image_operating_system_version
-  extra_initial_node_labels                 = each.value.extra_initial_node_labels
-  cni_type                                  = each.value.cni_type
+  node_pool_oke_init_params                 = try(each.value.node_pool_oke_init_params, "")
+  node_pool_cloud_init_parts                = try(each.value.node_pool_cloud_init_parts, [])
+  public_ssh_key                            = try(local.workers_public_ssh_key, "")
+  image_operating_system                    = try(each.value.image_operating_system, "Oracle Linux")
+  image_operating_system_version            = try(each.value.image_operating_system_version, "8")
+  extra_initial_node_labels                 = try(each.value.extra_initial_node_labels, {})
+  cni_type                                  = try(each.value.cni_type, "FLANNEL_OVERLAY")
 
   # OKE Network Details
   # nodes_subnet_id                       = local.create_subnets ? module.subnets["oke_nodes_subnet"].subnet_id : var.existent_oke_nodes_subnet_ocid

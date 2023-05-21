@@ -40,6 +40,7 @@ data "cloudinit_config" "nodes" {
 #!/bin/bash
 curl --fail -H "Authorization: Bearer Oracle" -L0 http://169.254.169.254/opc/v2/instance/metadata/oke_init_script | base64 --decode >/var/run/oke-init.sh
 bash /var/run/oke-init.sh ${var.node_pool_oke_init_params}
+/usr/libexec/oci-growfs -y
 EOF
   }
 
