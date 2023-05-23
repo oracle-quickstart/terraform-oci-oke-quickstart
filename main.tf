@@ -117,6 +117,7 @@ module "oke_node_pools" {
   node_pool_shape                           = each.value.node_pool_shape
   node_pool_shape_specific_ad               = try(each.value.node_pool_shape_specific_ad, 0)
   node_pool_node_shape_config_ocpus         = try(each.value.node_pool_node_shape_config_ocpus, 4)
+  node_pool_boot_volume_size_in_gbs         = try(each.value.node_pool_boot_volume_size_in_gbs, 80)
   node_pool_node_shape_config_memory_in_gbs = try(each.value.node_pool_node_shape_config_memory_in_gbs, 48)
   existent_oke_nodepool_id_for_autoscaler   = try(each.value.existent_oke_nodepool_id_for_autoscaler, null)
   node_pool_autoscaler_enabled              = try(each.value.node_pool_autoscaler_enabled, true)

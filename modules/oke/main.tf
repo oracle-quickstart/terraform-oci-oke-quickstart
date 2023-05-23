@@ -1,6 +1,8 @@
-# Copyright (c) 2021, 2022, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2021-2023 Oracle and/or its affiliates. All rights reserved.
 # Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
-# 
+#
+
+# File Version: 0.9.2
 
 resource "oci_containerengine_cluster" "oke_cluster" {
   compartment_id     = local.oke_compartment_ocid
@@ -8,9 +10,9 @@ resource "oci_containerengine_cluster" "oke_cluster" {
   name               = "${local.app_name} (${local.deploy_id})"
   vcn_id             = var.vcn_id
   kms_key_id         = var.oci_vault_key_id_oke_secrets != "" ? var.oci_vault_key_id_oke_secrets : null
-  # type               = var.cluster_type
-  freeform_tags = var.cluster_tags.freeformTags
-  defined_tags  = var.cluster_tags.definedTags
+  type               = var.cluster_type
+  freeform_tags      = var.cluster_tags.freeformTags
+  defined_tags       = var.cluster_tags.definedTags
 
   endpoint_config {
     is_public_ip_enabled = (var.cluster_endpoint_visibility == "Private") ? false : true
