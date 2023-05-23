@@ -30,7 +30,8 @@ resource "oci_containerengine_node_pool" "oke_node_pool" {
       pod_subnet_ids    = [var.vcn_native_pod_networking_subnet_ocid]
     }
     # nsg_ids       = []
-    size          = var.node_pool_min_nodes
+    size = var.node_pool_min_nodes
+    # is_pv_encryption_in_transit_enabled = var.node_pool_node_config_details_is_pv_encryption_in_transit_enabled
     kms_key_id    = var.oci_vault_key_id_oke_node_boot_volume != "" ? var.oci_vault_key_id_oke_node_boot_volume : null
     freeform_tags = var.worker_nodes_tags.freeformTags
     defined_tags  = var.worker_nodes_tags.definedTags
@@ -49,13 +50,21 @@ resource "oci_containerengine_node_pool" "oke_node_pool" {
     image_id                = lookup(data.oci_core_images.node_pool_images.images[0], "id")
     boot_volume_size_in_gbs = var.node_pool_boot_volume_size_in_gbs
   }
+
   # node_eviction_node_pool_settings {
-  #   eviction_grace_duration              = "PT1H"
-  #   is_force_delete_after_grace_duration = false
+  #   eviction_grace_duration = var.node_pool_node_eviction_node_pool_settings_eviction_grace_duration #PT60M
+  #   is_force_delete_after_grace_duration = var.node_pool_node_eviction_node_pool_settings_is_force_delete_after_grace_duration #false
   # }
+
   node_metadata = {
     user_data = anytrue([var.node_pool_oke_init_params != "", var.node_pool_cloud_init_parts != []]) ? data.cloudinit_config.nodes.rendered : null
   }
+
+  # node_pool_cycling_details {
+  #       is_node_cycling_enabled = var.node_pool_node_pool_cycling_details_is_node_cycling_enabled
+  #       maximum_surge = var.node_pool_node_pool_cycling_details_maximum_surge
+  #       maximum_unavailable = var.node_pool_node_pool_cycling_details_maximum_unavailable
+  # }
 
   initial_node_labels {
     key   = "name"
