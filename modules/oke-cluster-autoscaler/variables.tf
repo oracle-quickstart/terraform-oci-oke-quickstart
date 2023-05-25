@@ -11,7 +11,7 @@
 variable "cluster_autoscaler_supported_k8s_versions" {
   type = map(string)
 
-  default     = { "1.22" = "1.22.2-4", "1.23" = "1.23.0-4", "1.24" = "1.24.0-5", "1.25" = "1.25.0-6" } # There's no API to get that list. Need to be updated manually
+  default     = { "1.23" = "1.23.0-4", "1.24" = "1.24.0-5", "1.25" = "1.25.0-6", "1.26" = "1.26.2-7" } # There's no API to get that list. Need to be updated manually
   description = "Supported Kubernetes versions for OKE cluster autoscaler"
 }
 variable "custom_cluster_autoscaler_image" {
