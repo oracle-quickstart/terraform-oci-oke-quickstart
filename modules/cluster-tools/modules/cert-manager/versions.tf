@@ -3,21 +3,21 @@
 # 
 
 terraform {
-  required_version = ">= 1.1"
+  required_version = ">= 1.2"
   required_providers {
     helm = {
       source  = "hashicorp/helm"
-      version = "~> 2"
+      version = ">= 2.15"
       # https://registry.terraform.io/providers/hashicorp/helm/
     }
     tls = {
       source  = "hashicorp/tls"
-      version = "~> 4"
+      version = ">= 4"
       # https://registry.terraform.io/providers/hashicorp/tls/
     }
     local = {
       source  = "hashicorp/local"
-      version = "~> 2"
+      version = ">= 2.5"
       # https://registry.terraform.io/providers/hashicorp/local/
     }
   }

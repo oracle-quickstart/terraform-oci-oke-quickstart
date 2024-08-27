@@ -10,7 +10,7 @@ variable "chart_repository" {
   default = "https://charts.jetstack.io"
 }
 variable "chart_version" {
-  default = "1.9.1"
+  default = "1.15.3"
 }
 variable "ingress_email_issuer" {
   default     = "no-reply@example.cloud"
