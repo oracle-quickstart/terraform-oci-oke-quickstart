@@ -1,4 +1,4 @@
-# Copyright (c) 2022 Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2022, 2024 Oracle and/or its affiliates. All rights reserved.
 # Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 # 
 
@@ -27,6 +27,9 @@ jobs:
         STACK_FILES="*.tf schema.yaml README.md LICENSE VERSION .terraform.lock.hcl modules/"
         RELEASE=$(cat VERSION)
         ASSETS+="${STACKNAME}-stack.zip ${STACKNAME}-${RELEASE}.zip "
+        echo "::group::Generating standalone providers.tf"
+        cp -f providers.tf.example providers.tf || { printf '\n providers.tf.example ignored.\n'; exit 0;  }
+        echo "::endgroup::"
         echo "::group::Processing $STACKNAME"
         zip -r ${STACKNAME}-stack.zip $STACK_FILES -x "*.tfstat*" ".terraform/" || { printf '\n⛔ Unable to create %s stack.\n'; exit 1;  }
         cp ${STACKNAME}-stack.zip ${STACKNAME}-${RELEASE}.zip || { printf '\n⛔ Unable to create %s stack.\n'; exit 1;  }
