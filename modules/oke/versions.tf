@@ -3,16 +3,16 @@
 #
 
 terraform {
-  required_version = ">= 1.1"
+  required_version = ">= 1.5"
   required_providers {
     oci = {
       source  = "oracle/oci"
-      version = "~> 4, < 5"
+      version = ">= 6"
       # https://registry.terraform.io/providers/oracle/oci/
     }
     local = {
       source  = "hashicorp/local"
-      version = "~> 2"
+      version = ">= 2"
       # https://registry.terraform.io/providers/hashicorp/local/
     }
   }
